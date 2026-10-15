@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Типографика Dreem World.
+/// Стили текста Dreem World.
 class AppTextStyles {
   const AppTextStyles._();
 
@@ -35,6 +35,13 @@ class AppTextStyles {
     color: color,
   );
 
+  static TextStyle bodyBold({Color color = AppColors.textPrimary}) => TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    height: 1.45,
+    color: color,
+  );
+
   static TextStyle label({Color color = AppColors.textPrimary}) => TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w600,
@@ -43,11 +50,10 @@ class AppTextStyles {
     color: color,
   );
 
-  static TextStyle caption({Color color = AppColors.textSecondary}) =>
-      TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        height: 1.3,
-        color: color,
-      );
+  static TextStyle caption({Color color = AppColors.textSecondary}) => TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    height: 1.3,
+    color: color,
+  );
 }

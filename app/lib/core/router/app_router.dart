@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/chat/chat_screen.dart';
+import '../../features/chat/conversations_list_screen.dart';
 import '../../features/discovery/discovery_screen.dart';
 import '../../features/match/match_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
@@ -40,14 +42,18 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/chats',
+      name: 'chats',
+      builder: (BuildContext context, GoRouterState state) {
+        return const ConversationsListScreen();
+      },
+    ),
+    GoRoute(
       path: '/chat/:id',
       name: 'chat',
       builder: (BuildContext context, GoRouterState state) {
         final String id = state.pathParameters['id'] ?? '';
-        return Scaffold(
-          appBar: AppBar(title: Text('Chat $id')),
-          body: Center(child: Text('Chat $id')),
-        );
+        return ChatScreen(conversationId: id);
       },
     ),
     GoRoute(
