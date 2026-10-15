@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Знакомства по совместимости',
+              'Р—РЅР°РєРѕРјСЃС‚РІР° РїРѕ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё',
               style: AppTextStyles.body(color: AppColors.textSecondary),
             ),
           ],

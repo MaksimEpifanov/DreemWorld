@@ -29,20 +29,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = const <OnboardingPage>[
     OnboardingPage(
-      title: 'Знакомства по совместимости',
-      description: 'Умный подбор на основе интересов, ценностей и целей',
+      title: 'Р—РЅР°РєРѕРјСЃС‚РІР° РїРѕ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё',
+      description: 'РЈРјРЅС‹Р№ РїРѕРґР±РѕСЂ РЅР° РѕСЃРЅРѕРІРµ РёРЅС‚РµСЂРµСЃРѕРІ, С†РµРЅРЅРѕСЃС‚РµР№ Рё С†РµР»РµР№',
     ),
     OnboardingPage(
-      title: 'Чат + перевод',
-      description: 'Коммуницируй без языковых барьеров в реальном времени',
+      title: 'Р§Р°С‚ + РїРµСЂРµРІРѕРґ',
+      description: 'РљРѕРјРјСѓРЅРёС†РёСЂСѓР№ Р±РµР· СЏР·С‹РєРѕРІС‹С… Р±Р°СЂСЊРµСЂРѕРІ РІ СЂРµР°Р»СЊРЅРѕРј РІСЂРµРјРµРЅРё',
     ),
     OnboardingPage(
-      title: 'ИИ-помощник',
-      description: 'Советы, переформулировки и ледоколы для общения',
+      title: 'РР-РїРѕРјРѕС‰РЅРёРє',
+      description: 'РЎРѕРІРµС‚С‹, РїРµСЂРµС„РѕСЂРјСѓР»РёСЂРѕРІРєРё Рё Р»РµРґРѕРєРѕР»С‹ РґР»СЏ РѕР±С‰РµРЅРёСЏ',
     ),
     OnboardingPage(
-      title: 'Твоя история начинается',
-      description: 'Создай профиль и найди тех, кто близок по духу',
+      title: 'РўРІРѕСЏ РёСЃС‚РѕСЂРёСЏ РЅР°С‡РёРЅР°РµС‚СЃСЏ',
+      description: 'РЎРѕР·РґР°Р№ РїСЂРѕС„РёР»СЊ Рё РЅР°Р№РґРё С‚РµС…, РєС‚Рѕ Р±Р»РёР·РѕРє РїРѕ РґСѓС…Сѓ',
     ),
   ];
 
@@ -91,7 +91,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         const SizedBox(height: AppSpacing.md),
                         Text(
                           page.description,
-                          style: AppTextStyles.body(color: AppColors.textSecondary),
+                          style: AppTextStyles.body(
+                            color: AppColors.textSecondary,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -119,12 +121,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
-              SizedBox(
-                width: double.infinity,
-                child: NeonButton(
-                  onPressed: _next,
-                  child: Text(_currentPage == _pages.length - 1 ? 'Начать' : 'Далее'),
-                ),
+              NeonButton(
+                onPressed: _next,
+                label: _currentPage == _pages.length - 1 ? 'РќР°С‡Р°С‚СЊ' : 'Р”Р°Р»РµРµ',
+                expanded: true,
               ),
             ],
           ),

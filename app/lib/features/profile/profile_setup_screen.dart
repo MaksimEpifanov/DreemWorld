@@ -6,7 +6,6 @@ import '../../core/theme/index.dart';
 import '../../core/widgets/neon_button.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
-import '../../data/repositories/mock_profile_repository.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -23,34 +22,34 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final TextEditingController _bioController = TextEditingController();
 
   final List<String> _interestOptions = const <String>[
-    'Путешествия',
-    'Музыка',
-    'Спорт',
-    'Чтение',
-    'Фильмы',
-    'Искусство',
-    'Технологии',
-    'Еда',
-    'Природа',
-    'Игры',
+    'РџСѓС‚РµС€РµСЃС‚РІРёСЏ',
+    'РњСѓР·С‹РєР°',
+    'РЎРїРѕСЂС‚',
+    'Р§С‚РµРЅРёРµ',
+    'Р¤РёР»СЊРјС‹',
+    'РСЃРєСѓСЃСЃС‚РІРѕ',
+    'РўРµС…РЅРѕР»РѕРіРёРё',
+    'Р•РґР°',
+    'РџСЂРёСЂРѕРґР°',
+    'РРіСЂС‹',
   ];
 
   final Set<String> _selectedInterests = <String>{};
   RelationshipGoal _relationshipGoal = RelationshipGoal.friendship;
   final Set<String> _selectedValues = <String>{};
   final List<String> _valueOptions = const <String>[
-    'Честность',
-    'Уважение',
-    'Доверие',
-    'Поддержка',
-    'Юмор',
-    'Амбициозность',
+    'Р§РµСЃС‚РЅРѕСЃС‚СЊ',
+    'РЈРІР°Р¶РµРЅРёРµ',
+    'Р”РѕРІРµСЂРёРµ',
+    'РџРѕРґРґРµСЂР¶РєР°',
+    'Р®РјРѕСЂ',
+    'РђРјР±РёС†РёРѕР·РЅРѕСЃС‚СЊ',
   ];
   final List<String> _goalOptions = const <String>[
-    'Общение',
-    'Дружба',
-    'Отношения',
-    'Семья',
+    'РћР±С‰РµРЅРёРµ',
+    'Р”СЂСѓР¶Р±Р°',
+    'РћС‚РЅРѕС€РµРЅРёСЏ',
+    'РЎРµРјСЊСЏ',
   ];
   final Set<String> _selectedGoals = <String>{};
 
@@ -79,36 +78,35 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       name: _nameController.text.trim(),
       age: int.tryParse(_ageController.text.trim()) ?? 18,
       city: _cityController.text.trim(),
-      country: 'Россия',
+      country: 'Р РѕСЃСЃРёСЏ',
       bio: _bioController.text.trim(),
       interests: _selectedInterests.map((s) {
         switch (s) {
-          case 'Путешествия':
+          case 'РџСѓС‚РµС€РµСЃС‚РІРёСЏ':
             return InterestCatalog.travel;
-          case 'Музыка':
+          case 'РњСѓР·С‹РєР°':
             return InterestCatalog.music;
-          case 'Спорт':
+          case 'РЎРїРѕСЂС‚':
             return InterestCatalog.sport;
-          case 'Чтение':
+          case 'Р§С‚РµРЅРёРµ':
             return InterestCatalog.books;
-          case 'Фильмы':
+          case 'Р¤РёР»СЊРјС‹':
             return InterestCatalog.cinema;
-          case 'Искусство':
+          case 'РСЃРєСѓСЃСЃС‚РІРѕ':
             return InterestCatalog.art;
-          case 'Технологии':
+          case 'РўРµС…РЅРѕР»РѕРіРёРё':
             return InterestCatalog.tech;
-          case 'Еда':
+          case 'Р•РґР°':
             return InterestCatalog.food;
-          case 'Природа':
+          case 'РџСЂРёСЂРѕРґР°':
             return InterestCatalog.nature;
-          case 'Игры':
+          case 'РРіСЂС‹':
             return InterestCatalog.games;
           default:
             return Interest(
               id: s,
               name: s,
               category: InterestCategory.other,
-              icon: 'star',
             );
         }
       }).toList(),
@@ -128,7 +126,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Создание профиля')),
+      appBar: AppBar(title: const Text('РЎРѕР·РґР°РЅРёРµ РїСЂРѕС„РёР»СЏ')),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -139,10 +137,10 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
               children: <Widget>[
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Имя'),
+                  decoration: const InputDecoration(labelText: 'РРјСЏ'),
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Введите имя';
+                      return 'Р’РІРµРґРёС‚Рµ РёРјСЏ';
                     }
                     return null;
                   },
@@ -150,11 +148,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _ageController,
-                  decoration: const InputDecoration(labelText: 'Возраст'),
+                  decoration: const InputDecoration(labelText: 'Р’РѕР·СЂР°СЃС‚'),
                   keyboardType: TextInputType.number,
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Введите возраст';
+                      return 'Р’РІРµРґРёС‚Рµ РІРѕР·СЂР°СЃС‚';
                     }
                     return null;
                   },
@@ -162,16 +160,16 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
                   controller: _cityController,
-                  decoration: const InputDecoration(labelText: 'Город'),
+                  decoration: const InputDecoration(labelText: 'Р“РѕСЂРѕРґ'),
                   validator: (String? value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Введите город';
+                      return 'Р’РІРµРґРёС‚Рµ РіРѕСЂРѕРґ';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Интересы', style: AppTextStyles.title()),
+                Text('РРЅС‚РµСЂРµСЃС‹', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: 8,
@@ -194,25 +192,25 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Цель отношений', style: AppTextStyles.title()),
+                Text('Р¦РµР»СЊ РѕС‚РЅРѕС€РµРЅРёР№', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 SegmentedButton<RelationshipGoal>(
                   segments: const <ButtonSegment<RelationshipGoal>>[
                     ButtonSegment<RelationshipGoal>(
                       value: RelationshipGoal.friendship,
-                      label: Text('Дружба'),
+                      label: Text('Р”СЂСѓР¶Р±Р°'),
                     ),
                     ButtonSegment<RelationshipGoal>(
                       value: RelationshipGoal.chat,
-                      label: Text('Чат'),
+                      label: Text('Р§Р°С‚'),
                     ),
                     ButtonSegment<RelationshipGoal>(
                       value: RelationshipGoal.dating,
-                      label: Text('Свидания'),
+                      label: Text('РЎРІРёРґР°РЅРёСЏ'),
                     ),
                     ButtonSegment<RelationshipGoal>(
                       value: RelationshipGoal.serious,
-                      label: Text('Серьезные'),
+                      label: Text('РЎРµСЂСЊРµР·РЅС‹Рµ'),
                     ),
                   ],
                   selected: <RelationshipGoal>{_relationshipGoal},
@@ -223,7 +221,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   },
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Ценности', style: AppTextStyles.title()),
+                Text('Р¦РµРЅРЅРѕСЃС‚Рё', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: 8,
@@ -246,7 +244,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Цель', style: AppTextStyles.title()),
+                Text('Р¦РµР»СЊ', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: 8,
@@ -269,15 +267,15 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   }).toList(),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('О себе', style: AppTextStyles.title()),
+                Text('Рћ СЃРµР±Рµ', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 TextFormField(
                   controller: _bioController,
-                  decoration: const InputDecoration(labelText: 'Коротко о себе'),
+                  decoration: const InputDecoration(labelText: 'РљРѕСЂРѕС‚РєРѕ Рѕ СЃРµР±Рµ'),
                   maxLines: 3,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Фото-заглушка', style: AppTextStyles.title()),
+                Text('Р¤РѕС‚Рѕ-Р·Р°РіР»СѓС€РєР°', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 Container(
                   height: 120,
@@ -285,19 +283,22 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                   ),
                   child: const Center(
                     child: Icon(Icons.add_photo_alternate_outlined, size: 48),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                SizedBox(
-                  width: double.infinity,
-                  child: NeonButton(
-                    onPressed: _isSaving ? null : _save,
-                    child: Text(_isSaving ? 'Сохранение...' : 'Сохранить и продолжить'),
-                  ),
+                NeonButton(
+                  onPressed: _isSaving ? null : _save,
+                  label: _isSaving
+                      ? 'РЎРѕС…СЂР°РЅРµРЅРёРµ...'
+                      : 'РЎРѕС…СЂР°РЅРёС‚СЊ Рё РїСЂРѕРґРѕР»Р¶РёС‚СЊ',
+                  isLoading: _isSaving,
+                  expanded: true,
                 ),
               ],
             ),

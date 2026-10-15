@@ -2,6 +2,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../../features/discovery/discovery_screen.dart';
+import '../../features/match/match_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
@@ -62,9 +63,8 @@ final GoRouter appRouter = GoRouter(
       path: '/match',
       name: 'match',
       builder: (BuildContext context, GoRouterState state) {
-        return const Scaffold(
-          body: Center(child: Text('Match')),
-        );
+        final String? userId = state.uri.queryParameters['userId'];
+        return MatchScreen(userId: userId);
       },
     ),
     GoRoute(
