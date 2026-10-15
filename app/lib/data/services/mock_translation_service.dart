@@ -1,0 +1,36 @@
+import 'translation_service.dart';
+
+/// Мок-переводчик: офлайн, помечает текст языком назначения.
+class MockTranslationService implements TranslationService {
+  const MockTranslationService();
+
+  @override
+  List<String> get supportedLanguages => const <String>[
+        'ru',
+        'en',
+        'es',
+        'de',
+        'fr',
+        'zh',
+        'ja',
+      ];
+
+  @override
+  String get defaultTargetLanguage => 'en';
+
+  @override
+  Future<String> translate(
+    String text, {
+    required String fromLang,
+    required String toLang,
+  }) async {
+    if (text.trim().isEmpty || fromLang == toLang) {
+      return text;
+    }
+    if (!supportedLanguages.contains(toLang)) {
+      return text;
+    }
+    // TODO(A7): заменить на реальный переводчик.
+    return '[$toLang] $text';
+  }
+}

@@ -64,7 +64,7 @@ void main() {
 
       container.listen<AppThemeName>(
         themeControllerProvider,
-        (_, __) {},
+        (_, _) {},
         fireImmediately: true,
       );
       await Future<void>.delayed(const Duration(milliseconds: 50));
