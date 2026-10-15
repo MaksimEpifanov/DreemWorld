@@ -87,7 +87,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
         ],
       ),
       body: SafeArea(
-        child: profilesAsync.when(
+        child: ResponsiveContent(
+          child: profilesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (Object error, StackTrace stackTrace) => _Message(
             icon: Icons.error_outline_rounded,
@@ -153,6 +154,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
               ],
             );
           },
+          ),
         ),
       ),
     );

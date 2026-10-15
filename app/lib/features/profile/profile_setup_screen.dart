@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
 import '../../core/widgets/neon_button.dart';
+import '../../core/widgets/responsive_content.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
 
@@ -128,7 +129,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Создание профиля')),
       body: SafeArea(
-        child: Form(
+        child: ResponsiveContent(
+          child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             padding: AppSpacing.page,
@@ -302,6 +304,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),

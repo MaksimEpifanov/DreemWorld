@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
+import '../../core/widgets/responsive_content.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,7 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: ResponsiveContent(
+        child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -40,6 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
               style: AppTextStyles.body(color: AppColors.textSecondary),
             ),
           ],
+        ),
         ),
       ),
     );

@@ -19,7 +19,8 @@ class ConversationsListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: const NeonAppBar(title: 'Чаты'),
       body: SafeArea(
-        child: conversationsAsync.when(
+        child: ResponsiveContent(
+          child: conversationsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (Object error, StackTrace stackTrace) =>
               const Center(child: Text('Не удалось загрузить чаты')),
@@ -113,6 +114,7 @@ class ConversationsListScreen extends ConsumerWidget {
               },
             );
           },
+          ),
         ),
       ),
     );

@@ -23,6 +23,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final MockAiService _aiService = const MockAiService();
+  final Map<String, String> _translations = <String, String>{};
   String? _translatingMessageId;
   bool _showingTopics = false;
   List<String> _suggestedTopics = <String>[];
@@ -55,12 +56,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     setState(() => _translatingMessageId = message.id);
     final TranslationService translationService =
         ref.read(translationServiceProvider);
-    await translationService.translate(
+    final String translated = await translationService.translate(
       message.text,
-      fromLang: '', toLang: translationService.defaultTargetLanguage,
+      fromLang: '',
+      toLang: translationService.defaultTargetLanguage,
     );
     if (mounted) {
-      setState(() => _translatingMessageId = null);
+      setState(() {
+        _translations[message.id] = translated;
+        _translatingMessageId = null;
+      });
     }
   }
 
@@ -128,7 +133,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
+        child: ResponsiveContent(
+          child: Column(
           children: <Widget>[
             Expanded(
               child: messagesAsync.when(
@@ -172,11 +178,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 onPressed: _translatingMessageId == message.id
                                     ? null
                                     : () => _translateMessage(message),
-                                child: Text(_translatingMessageId == message.id ? 'Перевод...' : 'Перевод',
+                                child: Text(
+                                  _translatingMessageId == message.id
+                                      ? 'Перевод...'
+                                      : 'Перевод',
                                   style: AppTextStyles.caption(),
                                 ),
                               ),
                             ),
+                            if (_translations[message.id] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: AppSpacing.xs,
+                                  bottom: AppSpacing.xs,
+                                ),
+                                child: Text(
+                                  _translations[message.id]!,
+                                  style: AppTextStyles.caption(),
+                                ),
+                              ),
                           ],
                         ],
                       );
@@ -261,6 +281,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

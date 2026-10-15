@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/index.dart';
 import '../../core/widgets/neon_button.dart';
+import '../../core/widgets/responsive_content.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
 
@@ -166,7 +167,8 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Профиль')),
       body: SafeArea(
-        child: Form(
+        child: ResponsiveContent(
+          child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             padding: AppSpacing.page,
@@ -338,6 +340,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),

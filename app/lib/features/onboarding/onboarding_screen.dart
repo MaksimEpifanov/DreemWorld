@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
 import '../../core/widgets/neon_button.dart';
+import '../../core/widgets/responsive_content.dart';
 
 class OnboardingPage {
   const OnboardingPage({
@@ -67,7 +68,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: ResponsiveContent(
+          child: Padding(
           padding: AppSpacing.page,
           child: Column(
             children: <Widget>[
@@ -127,6 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 expanded: true,
               ),
             ],
+          ),
           ),
         ),
       ),

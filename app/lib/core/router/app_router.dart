@@ -9,6 +9,7 @@ import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
 import '../../features/profile/profile_view_edit_screen.dart';
+import '../../features/settings/settings_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/splash',
@@ -60,9 +61,7 @@ final GoRouter appRouter = GoRouter(
       path: '/settings',
       name: 'settings',
       builder: (BuildContext context, GoRouterState state) {
-        return const Scaffold(
-          body: Center(child: Text('Settings')),
-        );
+        return const SettingsScreen();
       },
     ),
     GoRoute(

@@ -53,7 +53,8 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: FutureBuilder<Profile?>(
+        child: ResponsiveContent(
+          child: FutureBuilder<Profile?>(
           future: _profileFuture,
           builder: (BuildContext context, AsyncSnapshot<Profile?> snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
@@ -63,6 +64,7 @@ class _MatchScreenState extends ConsumerState<MatchScreen> {
             if (profile == null) return _fallback();
             return _content(profile);
           },
+        ),
         ),
       ),
     );
