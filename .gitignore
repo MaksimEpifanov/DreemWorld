@@ -1,0 +1,19 @@
+# Архивы (оригиналы не коммитим, они уже в git-истории)
+*.zip
+
+# Системные файлы Windows
+Thumbs.db
+desktop.ini
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# ОС
+.DS_Store

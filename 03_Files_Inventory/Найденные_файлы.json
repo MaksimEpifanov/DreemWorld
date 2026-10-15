@@ -1,0 +1,90 @@
+[
+  {
+    "name": "Неоновая концепция Dreemworld: мир общения.txt.png",
+    "path": "/Неоновая концепция Dreemworld: мир общения.txt.png",
+    "file_id": "file_00000000ab04824688fdc4c9ae5d5fc4",
+    "library_file_id": "libfile_db34879c65788191a3a6c5e1d92e6914",
+    "size_bytes": 1876768,
+    "created_at_utc": "2026-08-17T19:08:02.905245Z",
+    "binary_in_archive": true,
+    "archive_representation": "Оригинальный PNG",
+    "notes": "Социальный AI-chat; возможная ранняя/отдельная концепция."
+  },
+  {
+    "name": "Галактика возможностей: интерфейс приложения.png",
+    "path": "/Dream World 🌎/Галактика возможностей: интерфейс приложения.png",
+    "file_id": "file_00000000584481f49054115619518f4c",
+    "library_file_id": "libfile_884610d33c4881919bcd06deca25db13",
+    "size_bytes": 2160758,
+    "created_at_utc": "2026-08-17T21:04:33.554073Z",
+    "binary_in_archive": false,
+    "archive_representation": "OCR/описание в 05_Extracted_Text/Галактика_возможностей.txt",
+    "notes": "Индексированный текст намекает на социальное приложение/поиск людей по интересам."
+  },
+  {
+    "name": "Dream_World_Lite_Presentation.pptx",
+    "path": "/Dream World 🌎/Dream_World_Lite_Presentation.pptx",
+    "file_id": "file_00000000bff88210b9f145fe230cd3e5",
+    "library_file_id": "libfile_70607d6fc9548191950fcc641e1f9b3e",
+    "size_bytes": 38775,
+    "created_at_utc": "2026-09-07T22:56:09.701280Z",
+    "binary_in_archive": false,
+    "archive_representation": "Текст извлечён в 05_Extracted_Text/Презентации_Lite_и_Visual.txt",
+    "notes": "8 слайдов, пользовательская презентация."
+  },
+  {
+    "name": "Dream_World_Lite_Presentation.pdf",
+    "path": "/Dream World 🌎/Dream_World_Lite_Presentation.pdf",
+    "file_id": "file_0000000086808210854a253606326fe3",
+    "library_file_id": "libfile_3d03bcc0fc648191be8929cd82327198",
+    "size_bytes": 33036,
+    "created_at_utc": "2026-09-07T22:56:12.175318Z",
+    "binary_in_archive": false,
+    "archive_representation": "Текст извлечён в 05_Extracted_Text/Презентации_Lite_и_Visual.txt",
+    "notes": "8 страниц, содержимое почти совпадает с PPTX."
+  },
+  {
+    "name": "Dream_World_Visual_Presentation.pdf",
+    "path": "/Dream World 🌎/Dream_World_Visual_Presentation.pdf",
+    "file_id": "file_00000000d3d4821090ea11897f54ddee",
+    "library_file_id": "libfile_116a065a0d1081919ef9bcc18009188c",
+    "size_bytes": 34611,
+    "created_at_utc": "2026-09-07T22:58:15.153059Z",
+    "binary_in_archive": false,
+    "archive_representation": "Текст извлечён в 05_Extracted_Text/Презентации_Lite_и_Visual.txt",
+    "notes": "8 страниц, визуальная версия."
+  },
+  {
+    "name": "Dream_World_Visual_Presentation.pptx",
+    "path": "/Dream World 🌎/Dream_World_Visual_Presentation.pptx",
+    "file_id": "file_00000000ba18821085e0c1c7346412e0",
+    "library_file_id": "libfile_2f641f68af8081919296025b62679483",
+    "size_bytes": 40168,
+    "created_at_utc": "2026-09-07T22:58:17.608077Z",
+    "binary_in_archive": false,
+    "archive_representation": "Текст извлечён в 05_Extracted_Text/Презентации_Lite_и_Visual.txt",
+    "notes": "8 слайдов, вариант PPTX немного отличается формулировками."
+  },
+  {
+    "name": "Dream_World_Android_Mockup_Presentation.pdf",
+    "path": "/Dream World 🌎/Dream_World_Android_Mockup_Presentation.pdf",
+    "file_id": "file_0000000011008243bcf1ec8672db677f",
+    "library_file_id": "libfile_8f15c452267c81918c3f8b0b412c681a",
+    "size_bytes": 378917,
+    "created_at_utc": "2026-09-07T22:59:56+00:00",
+    "binary_in_archive": false,
+    "archive_representation": "6 названий экранов в 05_Extracted_Text/Android_макеты.txt",
+    "notes": "Android-концепт на 6 экранов."
+  },
+  {
+    "name": "Dream_World_Android_Mockup_Presentation.pptx",
+    "path": "/Dream World 🌎/Dream_World_Android_Mockup_Presentation.pptx",
+    "file_id": "file_0000000007f482109d828da318330e2b",
+    "library_file_id": "libfile_f9097dc929008191918fd2b2c3ea194c",
+    "size_bytes": 265267,
+    "created_at_utc": "2026-09-07T22:59:57+00:00",
+    "binary_in_archive": false,
+    "archive_representation": "6 названий экранов в 05_Extracted_Text/Android_макеты.txt",
+    "notes": "Android-концепт на 6 экранов."
+  }
+]
