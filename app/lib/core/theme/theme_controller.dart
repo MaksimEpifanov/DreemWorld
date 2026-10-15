@@ -21,8 +21,9 @@ class ThemeController extends Notifier<AppThemeName> {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (epoch != _epoch) return;
-      final AppThemeName restored =
-          AppThemeName.fromStorage(prefs.getString(kThemeModeNameKey));
+      final AppThemeName restored = AppThemeName.fromStorage(
+        prefs.getString(kThemeModeNameKey),
+      );
       if (restored != state) state = restored;
     } catch (_) {
       // Недоступное хранилище — остаёмся на теме по умолчанию.

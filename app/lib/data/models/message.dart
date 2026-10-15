@@ -15,7 +15,7 @@ enum MessageStatus {
   @JsonValue('read')
   read,
   @JsonValue('failed')
-  failed;
+  failed,
 }
 
 /// Сообщение в чате.
@@ -40,8 +40,7 @@ abstract class Message with _$Message {
   const Message._();
 
   /// Есть ли готовый автоперевод.
-  bool get isTranslated =>
-      translatedText != null && translatedText!.isNotEmpty;
+  bool get isTranslated => translatedText != null && translatedText!.isNotEmpty;
 
   /// Текст для отображения: перевод, если есть, иначе оригинал.
   String get displayText => isTranslated ? translatedText! : text;

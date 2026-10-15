@@ -27,10 +27,10 @@ final Provider<String> currentUserIdProvider = Provider<String>(
 /// TODO(A7): заменить на `SupabaseRealtimeService` при подключении бэкенда.
 final Provider<RealtimeService> realtimeServiceProvider =
     Provider<RealtimeService>((Ref ref) {
-  final MockRealtimeService service = MockRealtimeService();
-  ref.onDispose(service.dispose);
-  return service;
-});
+      final MockRealtimeService service = MockRealtimeService();
+      ref.onDispose(service.dispose);
+      return service;
+    });
 
 /// ИИ-сервис (совместимость, темы, перевод).
 ///
@@ -41,56 +41,55 @@ final Provider<AiService> aiServiceProvider = Provider<AiService>(
 
 /// Сервис автоперевода.
 final Provider<TranslationService> translationServiceProvider =
-    Provider<TranslationService>(
-  (Ref ref) => const MockTranslationService(),
-);
+    Provider<TranslationService>((Ref ref) => const MockTranslationService());
 
 /// Репозиторий профилей.
 final Provider<ProfileRepository> profileRepositoryProvider =
     Provider<ProfileRepository>((Ref ref) {
-  final MockProfileRepository repository = MockProfileRepository(
-    currentUserId: ref.watch(currentUserIdProvider),
-    realtime: ref.watch(realtimeServiceProvider),
-  );
-  ref.onDispose(repository.dispose);
-  return repository;
-});
+      final MockProfileRepository repository = MockProfileRepository(
+        currentUserId: ref.watch(currentUserIdProvider),
+        realtime: ref.watch(realtimeServiceProvider),
+      );
+      ref.onDispose(repository.dispose);
+      return repository;
+    });
 
 /// Репозиторий мэтчей.
 final Provider<MatchRepository> matchRepositoryProvider =
     Provider<MatchRepository>((Ref ref) {
-  final MockMatchRepository repository = MockMatchRepository(
-    profileRepository: ref.watch(profileRepositoryProvider),
-    aiService: ref.watch(aiServiceProvider),
-    currentUserId: ref.watch(currentUserIdProvider),
-    realtime: ref.watch(realtimeServiceProvider),
-  );
-  ref.onDispose(repository.dispose);
-  return repository;
-});
+      final MockMatchRepository repository = MockMatchRepository(
+        profileRepository: ref.watch(profileRepositoryProvider),
+        aiService: ref.watch(aiServiceProvider),
+        currentUserId: ref.watch(currentUserIdProvider),
+        realtime: ref.watch(realtimeServiceProvider),
+      );
+      ref.onDispose(repository.dispose);
+      return repository;
+    });
 
 /// Репозиторий чатов.
 final Provider<ChatRepository> chatRepositoryProvider =
     Provider<ChatRepository>((Ref ref) {
-  final MockChatRepository repository = MockChatRepository(
-    currentUserId: ref.watch(currentUserIdProvider),
-    realtime: ref.watch(realtimeServiceProvider),
-  );
-  ref.onDispose(repository.dispose);
-  return repository;
-});
+      final MockChatRepository repository = MockChatRepository(
+        currentUserId: ref.watch(currentUserIdProvider),
+        realtime: ref.watch(realtimeServiceProvider),
+      );
+      ref.onDispose(repository.dispose);
+      return repository;
+    });
 
 /// Поток текущего профиля.
 final StreamProvider<Profile?> currentProfileProvider =
     StreamProvider<Profile?>(
-  (Ref ref) => ref.watch(profileRepositoryProvider).watchCurrentProfile(),
-);
+      (Ref ref) => ref.watch(profileRepositoryProvider).watchCurrentProfile(),
+    );
 
 /// Поток каталога профилей для подбора.
 final StreamProvider<List<Profile>> discoveryProfilesProvider =
     StreamProvider<List<Profile>>(
-  (Ref ref) => ref.watch(profileRepositoryProvider).watchDiscoveryProfiles(),
-);
+      (Ref ref) =>
+          ref.watch(profileRepositoryProvider).watchDiscoveryProfiles(),
+    );
 
 /// Поток мэтчей.
 final StreamProvider<List<Match>> matchesProvider = StreamProvider<List<Match>>(
@@ -100,21 +99,22 @@ final StreamProvider<List<Match>> matchesProvider = StreamProvider<List<Match>>(
 /// Поток диалогов.
 final StreamProvider<List<Conversation>> conversationsProvider =
     StreamProvider<List<Conversation>>(
-  (Ref ref) => ref.watch(chatRepositoryProvider).watchConversations(),
-);
+      (Ref ref) => ref.watch(chatRepositoryProvider).watchConversations(),
+    );
 
 /// Поток сообщений диалога.
 final StreamProviderFamily<List<Message>, String> messagesProvider =
     StreamProvider.family<List<Message>, String>(
-  (Ref ref, String conversationId) =>
-      ref.watch(chatRepositoryProvider).watchMessages(conversationId),
-);
+      (Ref ref, String conversationId) =>
+          ref.watch(chatRepositoryProvider).watchMessages(conversationId),
+    );
 
 /// Процент совместимости текущего пользователя с [other].
 final FutureProviderFamily<int, Profile> compatibilityProvider =
     FutureProvider.family<int, Profile>((Ref ref, Profile other) async {
-  final Profile? me =
-      await ref.watch(profileRepositoryProvider).getCurrentProfile();
-  if (me == null) return 0;
-  return ref.watch(aiServiceProvider).computeCompatibility(me, other);
-});
+      final Profile? me = await ref
+          .watch(profileRepositoryProvider)
+          .getCurrentProfile();
+      if (me == null) return 0;
+      return ref.watch(aiServiceProvider).computeCompatibility(me, other);
+    });

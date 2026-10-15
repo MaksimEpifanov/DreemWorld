@@ -40,7 +40,8 @@ class MockChatRepository implements ChatRepository {
         conversationId: 'c_anna',
         senderId: 'p_anna',
         text: 'Hey! I loved your photos from the mountains 🏔️',
-        translatedText: 'Привет! Мне очень понравились твои горные фотографии 🏔️',
+        translatedText:
+            'Привет! Мне очень понравились твои горные фотографии 🏔️',
         translatedTo: 'ru',
         status: MessageStatus.read,
         isRead: true,
@@ -133,7 +134,9 @@ class MockChatRepository implements ChatRepository {
     );
     _conversations[conversation.id] = conversation;
     _notifyConversations();
-    realtime?.emit(RealtimeEvent.conversationUpdated(conversation: conversation));
+    realtime?.emit(
+      RealtimeEvent.conversationUpdated(conversation: conversation),
+    );
     return conversation;
   }
 
@@ -143,9 +146,11 @@ class MockChatRepository implements ChatRepository {
     int limit = 50,
   }) async {
     final List<Message> messages = _messages[conversationId] ?? <Message>[];
-    return List<Message>.unmodifiable(messages.length <= limit
-        ? messages
-        : messages.sublist(messages.length - limit));
+    return List<Message>.unmodifiable(
+      messages.length <= limit
+          ? messages
+          : messages.sublist(messages.length - limit),
+    );
   }
 
   @override
@@ -167,8 +172,10 @@ class MockChatRepository implements ChatRepository {
       status: MessageStatus.sent,
       createdAt: DateTime.now(),
     );
-    final List<Message> messages =
-        _messages.putIfAbsent(conversationId, () => <Message>[]);
+    final List<Message> messages = _messages.putIfAbsent(
+      conversationId,
+      () => <Message>[],
+    );
     messages.add(message);
 
     final Conversation? conversation = _conversations[conversationId];
@@ -202,17 +209,20 @@ class MockChatRepository implements ChatRepository {
         );
       }
     }
-    _conversations[conversationId] =
-        conversation.copyWith(unreadCount: 0, lastMessage: messages.lastOrNull);
+    _conversations[conversationId] = conversation.copyWith(
+      unreadCount: 0,
+      lastMessage: messages.lastOrNull,
+    );
     _notifyConversations();
   }
 
   List<Conversation> _sortedConversations() {
-    final List<Conversation> conversations =
-        _conversations.values.toList(growable: false);
+    final List<Conversation> conversations = _conversations.values.toList(
+      growable: false,
+    );
     conversations.sort(
-      (Conversation a, Conversation b) => (b.updatedAt ?? DateTime(0))
-          .compareTo(a.updatedAt ?? DateTime(0)),
+      (Conversation a, Conversation b) =>
+          (b.updatedAt ?? DateTime(0)).compareTo(a.updatedAt ?? DateTime(0)),
     );
     return List<Conversation>.unmodifiable(conversations);
   }

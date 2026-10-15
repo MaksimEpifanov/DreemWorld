@@ -6,14 +6,14 @@ class MockTranslationService implements TranslationService {
 
   @override
   List<String> get supportedLanguages => const <String>[
-        'ru',
-        'en',
-        'es',
-        'de',
-        'fr',
-        'zh',
-        'ja',
-      ];
+    'ru',
+    'en',
+    'es',
+    'de',
+    'fr',
+    'zh',
+    'ja',
+  ];
 
   @override
   String get defaultTargetLanguage => 'en';

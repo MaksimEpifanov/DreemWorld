@@ -112,10 +112,7 @@ final class TypingRealtimeEvent extends RealtimeEvent {
 
 /// Событие смены статуса «онлайн».
 final class PresenceRealtimeEvent extends RealtimeEvent {
-  const PresenceRealtimeEvent({
-    required this.userId,
-    required this.isOnline,
-  });
+  const PresenceRealtimeEvent({required this.userId, required this.isOnline});
 
   final String userId;
   final bool isOnline;

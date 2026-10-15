@@ -15,7 +15,7 @@ enum MatchStatus {
   @JsonValue('active')
   active,
   @JsonValue('unmatched')
-  unmatched;
+  unmatched,
 }
 
 /// Односторонняя или взаимная симпатия.

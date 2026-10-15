@@ -16,10 +16,7 @@ abstract interface class ChatRepository {
   Future<Conversation> getOrCreateConversation(String otherUserId);
 
   /// Сообщения диалога (последние [limit]).
-  Future<List<Message>> getMessages(
-    String conversationId, {
-    int limit = 50,
-  });
+  Future<List<Message>> getMessages(String conversationId, {int limit = 50});
 
   /// Поток сообщений диалога.
   Stream<List<Message>> watchMessages(String conversationId);

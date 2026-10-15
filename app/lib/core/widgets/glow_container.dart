@@ -36,9 +36,7 @@ class GlowContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
         borderRadius: borderRadius,
-        border: borderColor != null
-            ? Border.all(color: borderColor!)
-            : null,
+        border: borderColor != null ? Border.all(color: borderColor!) : null,
         boxShadow: glowing
             ? <BoxShadow>[
                 BoxShadow(

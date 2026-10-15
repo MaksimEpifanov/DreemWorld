@@ -16,14 +16,17 @@ class MockAiService implements AiService {
     final Set<String> shared = aIds.intersection(bIds);
     final Set<String> union = aIds.union(bIds);
 
-    final double interestScore = union.isEmpty ? 0.2 : shared.length / union.length;
+    final double interestScore = union.isEmpty
+        ? 0.2
+        : shared.length / union.length;
 
     final int ageDiff = (a.age - b.age).abs();
     final double ageScore = ageDiff >= 15 ? 0 : 1 - ageDiff / 15;
 
     final double goalsScore = _stringOverlap(a.goals, b.goals);
 
-    final double score = interestScore * 0.6 + ageScore * 0.2 + goalsScore * 0.2;
+    final double score =
+        interestScore * 0.6 + ageScore * 0.2 + goalsScore * 0.2;
     return (score * 100).round().clamp(0, 100).toInt();
   }
 
@@ -36,8 +39,7 @@ class MockAiService implements AiService {
     };
 
     final List<String> topics = <String>[
-      if (sharedNames.isNotEmpty)
-        'Общие интересы: ${sharedNames.join(', ')}',
+      if (sharedNames.isNotEmpty) 'Общие интересы: ${sharedNames.join(', ')}',
       ...sharedNames.map((String name) => 'Что увлекает в «$name»?'),
       if (a.city != null && a.city == b.city)
         'Как вам нравится жить в ${a.city}?',

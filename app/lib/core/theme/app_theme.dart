@@ -67,13 +67,17 @@ class AppTheme {
           side: WidgetStatePropertyAll<BorderSide>(
             BorderSide(color: palette.primary.withValues(alpha: 0.8)),
           ),
-          backgroundColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+          backgroundColor: const WidgetStatePropertyAll<Color>(
+            Colors.transparent,
+          ),
           foregroundColor: WidgetStatePropertyAll<Color>(palette.primary),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: _buttonStyle(scheme).copyWith(
-          backgroundColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+          backgroundColor: const WidgetStatePropertyAll<Color>(
+            Colors.transparent,
+          ),
           foregroundColor: WidgetStatePropertyAll<Color>(palette.primary),
           elevation: const WidgetStatePropertyAll<double>(0),
         ),

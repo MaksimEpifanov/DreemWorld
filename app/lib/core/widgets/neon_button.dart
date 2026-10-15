@@ -34,40 +34,41 @@ class NeonButton extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final Color accent = color ?? theme.colorScheme.primary;
     final bool enabled = onPressed != null && !isLoading;
-    final Color contentColor =
-        variant == NeonButtonVariant.filled ? theme.colorScheme.onPrimary : accent;
+    final Color contentColor = variant == NeonButtonVariant.filled
+        ? theme.colorScheme.onPrimary
+        : accent;
 
     final Widget button = switch (variant) {
       NeonButtonVariant.filled => FilledButton(
-          onPressed: onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: accent,
-            foregroundColor: contentColor,
-            disabledBackgroundColor: accent.withValues(alpha: 0.25),
-            disabledForegroundColor: contentColor.withValues(alpha: 0.5),
-            shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          ),
-          child: _content(contentColor),
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(
+          backgroundColor: accent,
+          foregroundColor: contentColor,
+          disabledBackgroundColor: accent.withValues(alpha: 0.25),
+          disabledForegroundColor: contentColor.withValues(alpha: 0.5),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
         ),
+        child: _content(contentColor),
+      ),
       NeonButtonVariant.outlined => OutlinedButton(
-          onPressed: onPressed,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: accent,
-            disabledForegroundColor: accent.withValues(alpha: 0.5),
-            side: BorderSide(color: accent.withValues(alpha: 0.8)),
-            shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          ),
-          child: _content(contentColor),
+        onPressed: onPressed,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: accent,
+          disabledForegroundColor: accent.withValues(alpha: 0.5),
+          side: BorderSide(color: accent.withValues(alpha: 0.8)),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
         ),
+        child: _content(contentColor),
+      ),
       NeonButtonVariant.ghost => TextButton(
-          onPressed: onPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: accent,
-            disabledForegroundColor: accent.withValues(alpha: 0.5),
-            shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          ),
-          child: _content(contentColor),
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          foregroundColor: accent,
+          disabledForegroundColor: accent.withValues(alpha: 0.5),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
         ),
+        child: _content(contentColor),
+      ),
     };
 
     final Widget result = GlowContainer(
@@ -87,10 +88,7 @@ class NeonButton extends StatelessWidget {
       return SizedBox(
         width: 20,
         height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: contentColor,
-        ),
+        child: CircularProgressIndicator(strokeWidth: 2, color: contentColor),
       );
     }
     if (icon != null) {

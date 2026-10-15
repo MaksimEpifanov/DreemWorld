@@ -93,10 +93,7 @@ class MockMatchRepository implements MatchRepository {
       }
       return _replace(
         existing,
-        existing.copyWith(
-          status: MatchStatus.liked,
-          matchedAt: DateTime.now(),
-        ),
+        existing.copyWith(status: MatchStatus.liked, matchedAt: DateTime.now()),
       );
     }
 
@@ -135,17 +132,18 @@ class MockMatchRepository implements MatchRepository {
 
   @override
   Future<void> updateMatchStatus(String matchId, MatchStatus status) async {
-    final Match? match =
-        _matches.firstWhereOrNull((Match item) => item.id == matchId);
+    final Match? match = _matches.firstWhereOrNull(
+      (Match item) => item.id == matchId,
+    );
     if (match == null) return;
     _replace(match, match.copyWith(status: status));
   }
 
   Match? _matchWith(String profileId) => _matches.firstWhereOrNull(
-        (Match match) =>
-            match.otherUserId(currentUserId) == profileId &&
-            match.status != MatchStatus.unmatched,
-      );
+    (Match match) =>
+        match.otherUserId(currentUserId) == profileId &&
+        match.status != MatchStatus.unmatched,
+  );
 
   Match _replace(Match oldMatch, Match newMatch) {
     final int index = _matches.indexOf(oldMatch);

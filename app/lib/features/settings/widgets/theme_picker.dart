@@ -45,8 +45,9 @@ class _ThemeTile extends ConsumerWidget {
           color: palette.primary,
           glowRadius: selected ? 18 : 0,
           glowOpacity: selected ? 0.45 : 0,
-          borderColor:
-              selected ? palette.primary : palette.primary.withValues(alpha: 0.3),
+          borderColor: selected
+              ? palette.primary
+              : palette.primary.withValues(alpha: 0.3),
           background: palette.surface,
           borderRadius: AppRadius.mdAll,
           padding: const EdgeInsets.symmetric(
@@ -70,7 +71,11 @@ class _ThemeTile extends ConsumerWidget {
                   ],
                 ),
                 child: selected
-                    ? Icon(Icons.check_rounded, size: 18, color: palette.onPrimary)
+                    ? Icon(
+                        Icons.check_rounded,
+                        size: 18,
+                        color: palette.onPrimary,
+                      )
                     : null,
               ),
               const SizedBox(width: AppSpacing.sm),

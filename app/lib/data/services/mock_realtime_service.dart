@@ -7,7 +7,7 @@ import 'realtime_service.dart';
 /// Эмулирует мгновенную синхронизацию между экранами без сети.
 class MockRealtimeService implements RealtimeService {
   MockRealtimeService()
-      : _controller = StreamController<RealtimeEvent>.broadcast();
+    : _controller = StreamController<RealtimeEvent>.broadcast();
 
   final StreamController<RealtimeEvent> _controller;
   final Set<String> _subscriptions = <String>{};

@@ -35,7 +35,7 @@ enum InterestCategory {
   @JsonValue('languages')
   languages,
   @JsonValue('other')
-  other;
+  other,
 }
 
 /// Увлечение пользователя.

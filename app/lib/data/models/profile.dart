@@ -15,7 +15,7 @@ enum RelationshipGoal {
   @JsonValue('dating')
   dating,
   @JsonValue('serious')
-  serious;
+  serious,
 }
 
 /// Анкета пользователя: то, что видят другие в подборе.
@@ -46,6 +46,7 @@ abstract class Profile with _$Profile {
   const Profile._();
 
   /// Названия интересов профиля.
-  List<String> get interestNames =>
-      interests.map((Interest interest) => interest.name).toList(growable: false);
+  List<String> get interestNames => interests
+      .map((Interest interest) => interest.name)
+      .toList(growable: false);
 }

@@ -26,7 +26,7 @@ abstract class Conversation with _$Conversation {
 
   /// Идентификатор собеседника относительно [currentUserId].
   String otherParticipantId(String currentUserId) => participantIds.firstWhere(
-        (String id) => id != currentUserId,
-        orElse: () => currentUserId,
-      );
+    (String id) => id != currentUserId,
+    orElse: () => currentUserId,
+  );
 }

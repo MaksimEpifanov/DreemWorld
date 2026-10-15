@@ -8,7 +8,7 @@ import 'realtime_service.dart';
 /// Supabase выполняется по задаче подключения бэкенда.
 class SupabaseRealtimeService implements RealtimeService {
   SupabaseRealtimeService()
-      : _controller = StreamController<RealtimeEvent>.broadcast();
+    : _controller = StreamController<RealtimeEvent>.broadcast();
 
   final StreamController<RealtimeEvent> _controller;
   final Set<String> _subscriptions = <String>{};
