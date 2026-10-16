@@ -1,14 +1,16 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/theme/index.dart';
 import '../../../core/utils/image_utils.dart';
 import '../../../core/widgets/index.dart';
 import '../../../data/models/index.dart';
 
-/// Карточка кандидата в подборе: фото-заглушка, имя, возраст, город,
-/// интересы, процент совместимости и кнопки «Пропустить» / «Нравится».
+/// Карточка кандидата в подборе: крупное фото, имя/возраст, город,
+/// интересы, круговой индикатор совместимости и круглые кнопки действий.
 class UserCard extends StatelessWidget {
   const UserCard({
     super.key,
@@ -21,7 +23,7 @@ class UserCard extends StatelessWidget {
 
   final Profile profile;
 
-  /// Процент совместимости (0–100) из [AiService].
+  /// Процент совместимости (0–100) из AiService.
   final int compatibility;
 
   /// Блокирует кнопки во время запроса.
@@ -32,8 +34,7 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color primary = theme.colorScheme.primary;
+    final Color primary = Theme.of(context).colorScheme.primary;
 
     return NeonCard(
       color: primary,
@@ -41,126 +42,95 @@ class UserCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _Photo(profile: profile, compatibility: compatibility),
+          _PhotoBanner(profile: profile, compatibility: compatibility),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _Title(profile: profile),
                 if ((profile.city ?? '').isNotEmpty) ...<Widget>[
-                  const SizedBox(height: AppSpacing.xs),
-                  Row(
-                    children: <Widget>[
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: AppSpacing.xs),
-                      Flexible(
-                        child: Text(
-                          profile.city!,
-                          style: AppTextStyles.caption(),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _City(city: profile.city!),
+                  const SizedBox(height: AppSpacing.sm),
                 ],
                 if ((profile.bio ?? '').isNotEmpty) ...<Widget>[
-                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     profile.bio!,
-                    style: AppTextStyles.body(
-                      color: AppColors.textSecondary,
-                    ),
+                    style: AppTextStyles.body(color: AppColors.textSecondary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: AppSpacing.sm),
                 ],
-                if (profile.interests.isNotEmpty) ...<Widget>[
-                  const SizedBox(height: AppSpacing.md),
+                if (profile.interests.isNotEmpty)
                   _Interests(interests: profile.interests, color: primary),
-                ],
                 const SizedBox(height: AppSpacing.lg),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: NeonButton(
-                        label: 'Пропустить',
-                        icon: Icons.close_rounded,
-                        variant: NeonButtonVariant.outlined,
-                        color: AppColors.error,
-                        onPressed: isBusy ? null : onPass,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: NeonButton(
-                        label: 'Нравится',
-                        icon: Icons.favorite_rounded,
-                        onPressed: isBusy ? null : onLike,
-                      ),
-                    ),
-                  ],
+                _Actions(
+                  isBusy: isBusy,
+                  onLike: onLike,
+                  onPass: onPass,
                 ),
               ],
             ),
           ),
         ],
       ),
-    );
+    )
+        .animate()
+        .fadeIn(duration: 350.ms)
+        .slideY(begin: 0.05, end: 0, curve: Curves.easeOutCubic)
+        .scale(
+          begin: const Offset(0.96, 0.96),
+          end: const Offset(1, 1),
+          duration: 400.ms,
+          curve: Curves.easeOutBack,
+        );
   }
 }
 
-class _Title extends StatelessWidget {
-  const _Title({required this.profile});
+class _City extends StatelessWidget {
+  const _City({required this.city});
 
-  final Profile profile;
+  final String city;
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
       children: <Widget>[
+        Icon(Icons.location_on_outlined, size: 16, color: primary),
+        const SizedBox(width: AppSpacing.xs),
         Flexible(
           child: Text(
-            profile.name,
-            style: AppTextStyles.headline(),
+            city,
+            style: AppTextStyles.caption(),
             overflow: TextOverflow.ellipsis,
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Text(
-          '${profile.age}',
-          style: AppTextStyles.title(color: AppColors.textSecondary),
         ),
       ],
     );
   }
 }
 
-/// Фото-заглушка с бейджем совместимости.
-class _Photo extends StatelessWidget {
-  const _Photo({required this.profile, required this.compatibility});
+/// Крупное фото с затемнением, именем/возрастом и индикатором совместимости.
+class _PhotoBanner extends StatelessWidget {
+  const _PhotoBanner({required this.profile, required this.compatibility});
 
   final Profile profile;
   final int compatibility;
 
   @override
   Widget build(BuildContext context) {
-    final Color primary = Theme.of(context).colorScheme.primary;
-    final Color secondary = Theme.of(context).colorScheme.secondary;
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     final Uint8List? photoBytes = decodeDataUri(profile.photoUrl);
+    final double photoHeight =
+        (MediaQuery.sizeOf(context).height * 0.42).clamp(240.0, 520.0);
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(
         top: Radius.circular(AppRadius.lg),
       ),
       child: SizedBox(
-        height: 260,
+        height: photoHeight,
         width: double.infinity,
         child: Stack(
           fit: StackFit.expand,
@@ -168,35 +138,36 @@ class _Photo extends StatelessWidget {
             if (photoBytes != null)
               Image.memory(photoBytes, fit: BoxFit.cover)
             else
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: <Color>[
-                      primary.withValues(alpha: 0.45),
-                      secondary.withValues(alpha: 0.18),
-                      AppColors.surfaceElevated,
-                    ],
-                  ),
+              _Placeholder(profile: profile),
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.center,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[Colors.transparent, Color(0xE6080510)],
                 ),
-                child: Center(
-                  child: Text(
-                    profile.name.isNotEmpty
-                        ? profile.name.substring(0, 1).toUpperCase()
-                        : '?',
-                    style: AppTextStyles.display(color: AppColors.white),
-                  ),
-                ),
-              ),
-            Positioned(
-              right: AppSpacing.md,
-              top: AppSpacing.md,
-              child: _CompatibilityBadge(
-                compatibility: compatibility,
-                color: primary,
               ),
             ),
+            Positioned(
+              left: AppSpacing.md,
+              right: AppSpacing.md,
+              bottom: AppSpacing.md,
+              child: _Nameplate(profile: profile),
+            ),
+            Positioned(
+              top: AppSpacing.md,
+              right: AppSpacing.md,
+              child: _CompatibilityRing(
+                compatibility: compatibility,
+                color: scheme.primary,
+              ),
+            ),
+            if (profile.isOnline)
+              const Positioned(
+                top: AppSpacing.md,
+                left: AppSpacing.md,
+                child: _OnlineBadge(),
+              ),
           ],
         ),
       ),
@@ -204,37 +175,203 @@ class _Photo extends StatelessWidget {
   }
 }
 
-class _CompatibilityBadge extends StatelessWidget {
-  const _CompatibilityBadge({required this.compatibility, required this.color});
+class _Placeholder extends StatelessWidget {
+  const _Placeholder({required this.profile});
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            scheme.primary.withValues(alpha: 0.5),
+            scheme.secondary.withValues(alpha: 0.25),
+            scheme.tertiary.withValues(alpha: 0.18),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Text(
+          profile.name.isNotEmpty
+              ? profile.name.substring(0, 1).toUpperCase()
+              : '?',
+          style: AppTextStyles.display(color: AppColors.white).copyWith(
+            fontSize: 120,
+            shadows: <Shadow>[
+              Shadow(
+                color: scheme.primary.withValues(alpha: 0.8),
+                blurRadius: 32,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Nameplate extends StatelessWidget {
+  const _Nameplate({required this.profile});
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: <Widget>[
+        Flexible(
+          child: Text(
+            profile.name,
+            style: AppTextStyles.display(color: AppColors.white).copyWith(
+              shadows: <Shadow>[
+                Shadow(
+                  color: scheme.primary.withValues(alpha: 0.7),
+                  blurRadius: 18,
+                ),
+              ],
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Text(
+          '${profile.age}',
+          style: AppTextStyles.headline(
+            color: AppColors.white.withValues(alpha: 0.9),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OnlineBadge extends StatelessWidget {
+  const _OnlineBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.black.withValues(alpha: 0.4),
+        borderRadius: AppRadius.pillAll,
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.6)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const Icon(Icons.circle, size: 8, color: AppColors.success),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            'онлайн',
+            style: AppTextStyles.caption(color: AppColors.white),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Круговой индикатор совместимости (CustomPainter).
+class _CompatibilityRing extends StatelessWidget {
+  const _CompatibilityRing({required this.compatibility, required this.color});
 
   final int compatibility;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return GlowContainer(
-      color: color,
-      glowRadius: 12,
-      glowOpacity: 0.5,
-      borderColor: color,
-      background: AppColors.surface.withValues(alpha: 0.8),
-      borderRadius: AppRadius.pillAll,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md - 4,
-        vertical: AppSpacing.sm - 2,
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.black.withValues(alpha: 0.35),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: color.withValues(alpha: 0.55),
+            blurRadius: 18,
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        alignment: Alignment.center,
         children: <Widget>[
-          Icon(Icons.auto_awesome, size: 14, color: color),
-          const SizedBox(width: AppSpacing.xs),
+          CustomPaint(
+            size: const Size.square(64),
+            painter: _CompatibilityRingPainter(
+              value: compatibility / 100,
+              color: color,
+              trackColor: color.withValues(alpha: 0.18),
+            ),
+          ),
           Text(
             '$compatibility%',
-            style: AppTextStyles.label(color: AppColors.textPrimary),
+            style: AppTextStyles.label(color: AppColors.white),
           ),
         ],
       ),
     );
+  }
+}
+
+class _CompatibilityRingPainter extends CustomPainter {
+  _CompatibilityRingPainter({
+    required this.value,
+    required this.color,
+    required this.trackColor,
+  });
+
+  static const double _strokeWidth = 6;
+
+  final double value;
+  final Color color;
+  final Color trackColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Offset center = Offset(size.width / 2, size.height / 2);
+    final double radius =
+        math.min(size.width, size.height) / 2 - _strokeWidth / 2;
+    final Rect rect = Rect.fromCircle(center: center, radius: radius);
+
+    final Paint track = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..color = trackColor;
+    final Paint foreground = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+
+    canvas.drawArc(rect, -math.pi / 2, 2 * math.pi, false, track);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      2 * math.pi * value.clamp(0.0, 1.0),
+      false,
+      foreground,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _CompatibilityRingPainter oldDelegate) {
+    return oldDelegate.value != value ||
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }
 
@@ -269,6 +406,92 @@ class _Interests extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _Actions extends StatelessWidget {
+  const _Actions({required this.isBusy, this.onLike, this.onPass});
+
+  final bool isBusy;
+  final VoidCallback? onLike;
+  final VoidCallback? onPass;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        _ActionButton(
+          icon: Icons.close_rounded,
+          label: 'Пропустить',
+          color: AppColors.error,
+          onTap: isBusy ? null : onPass,
+        ),
+        _ActionButton(
+          icon: Icons.favorite_rounded,
+          label: 'Нравится',
+          color: primary,
+          filled: true,
+          onTap: isBusy ? null : onLike,
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.filled = false,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final bool filled;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool enabled = onTap != null;
+    final Color onPrimary = Theme.of(context).colorScheme.onPrimary;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          GlowContainer(
+            color: color,
+            glowRadius: enabled ? 22 : 0,
+            glowOpacity: enabled ? 0.55 : 0,
+            borderColor: color,
+            background: filled ? color : color.withValues(alpha: 0.08),
+            borderRadius: AppRadius.pillAll,
+            padding: const EdgeInsets.all(AppSpacing.md + 2),
+            child: Icon(
+              icon,
+              size: 32,
+              color: filled
+                  ? onPrimary
+                  : (enabled ? color : AppColors.textMuted),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            label,
+            style: AppTextStyles.label(
+              color: enabled ? AppColors.textPrimary : AppColors.textMuted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
