@@ -28,7 +28,7 @@ void main() {
         expect(theme.useMaterial3, isTrue);
         expect(theme.brightness, Brightness.dark);
         expect(theme.colorScheme.primary, name.palette.primary);
-        expect(theme.scaffoldBackgroundColor, name.palette.background);
+        expect(theme.scaffoldBackgroundColor, Colors.transparent);
       }
     });
   });

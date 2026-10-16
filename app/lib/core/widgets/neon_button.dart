@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_radius.dart';
+import 'animated_press.dart';
 import 'glow_container.dart';
 
-/// Вариант неоновой кнопки.
+/// Варианты неоновой кнопки.
 enum NeonButtonVariant { filled, outlined, ghost }
 
-/// Неоновая кнопка с эффектом свечения.
+/// Неоновая кнопка с градиентом, свечением и плавным нажатием.
+///
+/// Нажатие обрабатывает [AnimatedPress] (внешний жест), а внутренняя
+/// Material-кнопка отвечает только за визуальное состояние — так тап
+/// срабатывает ровно один раз.
 class NeonButton extends StatelessWidget {
   const NeonButton({
     super.key,
@@ -26,61 +31,93 @@ class NeonButton extends StatelessWidget {
   final Color? color;
   final bool isLoading;
 
-  /// Растянуть кнопку по ширине родителя.
+  /// Растягивает кнопку на всю доступную ширину.
   final bool expanded;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final Color accent = color ?? theme.colorScheme.primary;
+    final ColorScheme scheme = theme.colorScheme;
+    final Color accent = color ?? scheme.primary;
+    final Color gradientEnd = color != null
+        ? Color.lerp(accent, Colors.black, 0.22)!
+        : Color.lerp(accent, scheme.secondary, 0.45)!;
     final bool enabled = onPressed != null && !isLoading;
-    final Color contentColor = variant == NeonButtonVariant.filled
-        ? theme.colorScheme.onPrimary
-        : accent;
+    final Color contentColor =
+        variant == NeonButtonVariant.filled ? scheme.onPrimary : accent;
+    final Color muted = contentColor.withValues(alpha: 0.5);
 
     final Widget button = switch (variant) {
       NeonButtonVariant.filled => FilledButton(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: accent,
-          foregroundColor: contentColor,
-          disabledBackgroundColor: accent.withValues(alpha: 0.25),
-          disabledForegroundColor: contentColor.withValues(alpha: 0.5),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          onPressed: null,
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            foregroundColor: contentColor,
+            disabledBackgroundColor: Colors.transparent,
+            disabledForegroundColor: enabled ? contentColor : muted,
+            shadowColor: Colors.transparent,
+            shape:
+                const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          ),
+          child: _content(enabled ? contentColor : muted),
         ),
-        child: _content(contentColor),
-      ),
       NeonButtonVariant.outlined => OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: accent,
-          disabledForegroundColor: accent.withValues(alpha: 0.5),
-          side: BorderSide(color: accent.withValues(alpha: 0.8)),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          onPressed: null,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: accent,
+            disabledForegroundColor: enabled ? accent : accent.withValues(alpha: 0.5),
+            side: BorderSide(color: accent.withValues(alpha: 0.9)),
+            shape:
+                const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          ),
+          child: _content(enabled ? accent : accent.withValues(alpha: 0.5)),
         ),
-        child: _content(contentColor),
-      ),
       NeonButtonVariant.ghost => TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: accent,
-          disabledForegroundColor: accent.withValues(alpha: 0.5),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          onPressed: null,
+          style: TextButton.styleFrom(
+            foregroundColor: accent,
+            disabledForegroundColor: enabled ? accent : accent.withValues(alpha: 0.5),
+            shape:
+                const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+          ),
+          child: _content(enabled ? accent : accent.withValues(alpha: 0.5)),
         ),
-        child: _content(contentColor),
-      ),
     };
 
-    final Widget result = GlowContainer(
-      color: accent,
-      glowRadius: enabled ? 16 : 0,
-      glowOpacity: enabled ? 0.35 : 0,
-      borderRadius: AppRadius.mdAll,
+    final Widget decorated = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: AppRadius.mdAll,
+        gradient: variant == NeonButtonVariant.filled
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: <Color>[
+                  accent,
+                  gradientEnd,
+                ],
+              )
+            : null,
+        border: variant == NeonButtonVariant.filled
+            ? Border.all(color: Colors.white.withValues(alpha: 0.25))
+            : null,
+      ),
       child: button,
     );
 
-    if (expanded) return SizedBox(width: double.infinity, child: result);
-    return result;
+    final Widget result = GlowContainer(
+      color: accent,
+      glowRadius: enabled ? 18 : 0,
+      glowOpacity: enabled ? 0.42 : 0,
+      borderRadius: AppRadius.mdAll,
+      child: decorated,
+    );
+
+    final Widget pressed = enabled
+        ? AnimatedPress(onPressed: onPressed, child: result)
+        : result;
+
+    if (expanded) return SizedBox(width: double.infinity, child: pressed);
+    return pressed;
   }
 
   Widget _content(Color contentColor) {

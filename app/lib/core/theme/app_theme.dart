@@ -40,10 +40,13 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: scheme,
-      scaffoldBackgroundColor: palette.background,
+      scaffoldBackgroundColor: Colors.transparent,
+      extensions: <ThemeExtension<dynamic>>[
+        NeonPaletteExtension(palette: palette),
+      ],
       textTheme: _textTheme(scheme),
       appBarTheme: AppBarThemeData(
-        backgroundColor: palette.background,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         foregroundColor: scheme.onSurface,
         elevation: 0,
@@ -51,12 +54,12 @@ class AppTheme {
         titleTextStyle: AppTextStyles.headline(),
       ),
       cardTheme: CardThemeData(
-        color: palette.surface,
+        color: palette.surface.withValues(alpha: 0.75),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.lgAll,
-          side: BorderSide(color: palette.primary.withValues(alpha: 0.35)),
+          side: BorderSide(color: palette.primary.withValues(alpha: 0.5)),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -84,7 +87,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: palette.surface,
+        fillColor: palette.surface.withValues(alpha: 0.9),
         hintStyle: AppTextStyles.body(color: AppColors.textMuted),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
@@ -175,5 +178,25 @@ class AppTheme {
       shape: RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
       textStyle: AppTextStyles.title(color: scheme.onPrimary),
     );
+  }
+}
+
+class NeonPaletteExtension extends ThemeExtension<NeonPaletteExtension> {
+  const NeonPaletteExtension({required this.palette});
+
+  final NeonPalette palette;
+
+  @override
+  ThemeExtension<NeonPaletteExtension> copyWith({NeonPalette? palette}) {
+    return NeonPaletteExtension(palette: palette ?? this.palette);
+  }
+
+  @override
+  ThemeExtension<NeonPaletteExtension> lerp(
+    covariant ThemeExtension<NeonPaletteExtension>? other,
+    double t,
+  ) {
+    if (other is! NeonPaletteExtension) return this;
+    return NeonPaletteExtension(palette: other.palette);
   }
 }

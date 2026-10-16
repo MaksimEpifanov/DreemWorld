@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_radius.dart';
 
-/// Контейнер с неоновым свечением вокруг.
+/// Контейнер с усиленным неоновым свечением.
 class GlowContainer extends StatelessWidget {
   const GlowContainer({
     super.key,
@@ -41,8 +41,18 @@ class GlowContainer extends StatelessWidget {
             ? <BoxShadow>[
                 BoxShadow(
                   color: color.withValues(alpha: glowOpacity),
-                  blurRadius: glowRadius,
-                  spreadRadius: glowRadius / 6,
+                  blurRadius: glowRadius * 1.2,
+                  spreadRadius: glowRadius / 5,
+                ),
+                BoxShadow(
+                  color: color.withValues(alpha: glowOpacity * 0.6),
+                  blurRadius: glowRadius * 2.2,
+                  spreadRadius: glowRadius / 12,
+                ),
+                BoxShadow(
+                  color: color.withValues(alpha: glowOpacity * 0.3),
+                  blurRadius: glowRadius * 3,
+                  spreadRadius: -glowRadius / 8,
                 ),
               ]
             : null,
