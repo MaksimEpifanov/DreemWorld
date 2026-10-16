@@ -100,9 +100,9 @@ class AppNavigationBar extends StatelessWidget {
               backgroundColor: Colors.transparent,
               destinations: <NavigationDestination>[
                 NavigationDestination(
-                  icon: const Icon(Icons.explore_outlined),
-                  selectedIcon: _glowingIcon(Icons.explore, scheme),
-                  label: 'Подбор',
+                  icon: const Icon(Icons.public_outlined),
+                  selectedIcon: _glowingIcon(Icons.public, scheme),
+                  label: 'Главная',
                 ),
                 NavigationDestination(
                   icon: const Icon(Icons.chat_bubble_outline),

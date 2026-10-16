@@ -24,7 +24,7 @@ void main() {
       );
 
       expect(find.byType(NavigationBar), findsOneWidget);
-      expect(find.text('Подбор'), findsOneWidget);
+      expect(find.text('Главная'), findsOneWidget);
       expect(find.text('Чаты'), findsOneWidget);
       expect(find.text('Профиль'), findsOneWidget);
       expect(find.text('Настройки'), findsOneWidget);

@@ -12,6 +12,8 @@ import '../../features/discovery/discovery_screen.dart';
 import '../../features/match/match_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
+import '../../features/planets/detail/planet_detail_screen.dart';
+import '../../features/planets/home/planet_home_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
 import '../../features/profile/profile_view_edit_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -151,8 +153,26 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
                 path: '/main',
                 name: 'main',
                 builder: (BuildContext context, GoRouterState state) {
-                  return const DiscoveryScreen();
+                  return const PlanetHomeScreen();
                 },
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: 'planet/:id',
+                    name: 'planet',
+                    builder: (BuildContext context, GoRouterState state) {
+                      final String id =
+                          state.pathParameters['id'] ?? '';
+                      return PlanetDetailScreen(planetId: id);
+                    },
+                  ),
+                  GoRoute(
+                    path: 'discovery',
+                    name: 'discovery',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const DiscoveryScreen();
+                    },
+                  ),
+                ],
               ),
             ],
           ),
