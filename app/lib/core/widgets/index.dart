@@ -1,5 +1,11 @@
+export 'animated_gradient_background.dart';
+export 'animated_press.dart';
 export 'app_bar.dart';
+export 'aura_avatar.dart';
+export 'compatibility_ring.dart';
+export 'glass_card.dart';
 export 'glow_container.dart';
 export 'neon_button.dart';
 export 'neon_card.dart';
+export 'neon_gradient_text.dart';
 export 'responsive_content.dart';
