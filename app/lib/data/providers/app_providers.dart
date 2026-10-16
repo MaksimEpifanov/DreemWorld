@@ -84,6 +84,20 @@ final StreamProvider<Profile?> currentProfileProvider =
       (Ref ref) => ref.watch(profileRepositoryProvider).watchCurrentProfile(),
     );
 
+/// Есть ли сохранённый профиль текущего пользователя (для редиректа после
+/// восстановления сессии). Никогда не бросает — вернёт `false` при сбое.
+final FutureProvider<bool> hasSavedProfileProvider = FutureProvider<bool>((
+  Ref ref,
+) async {
+  try {
+    final ProfileRepository repository = ref.watch(profileRepositoryProvider);
+    if (repository is! MockProfileRepository) return true;
+    return await repository.hasSavedProfileAsync();
+  } catch (_) {
+    return false;
+  }
+});
+
 /// Поток каталога профилей для подбора.
 final StreamProvider<List<Profile>> discoveryProfilesProvider =
     StreamProvider<List<Profile>>(

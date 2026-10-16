@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/providers/app_providers.dart';
 import '../../data/providers/auth_providers.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
@@ -14,6 +15,7 @@ import '../../features/onboarding/splash_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
 import '../../features/profile/profile_view_edit_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/shell/app_shell.dart';
 
 /// Публичные маршруты, доступные без аутентификации.
 const Set<String> _publicRoutes = <String>{
@@ -33,14 +35,22 @@ class RouterNotifier extends ChangeNotifier {
       authControllerProvider,
       (AuthState? previous, AuthState next) => notifyListeners(),
     );
+    // Когда восстановление профиля завершится, пересчитываем redirect.
+    _profileSubscription = ref.listen<AsyncValue<bool>>(
+      hasSavedProfileProvider,
+      (AsyncValue<bool>? previous, AsyncValue<bool> next) => notifyListeners(),
+    );
   }
 
   ProviderSubscription<AuthState>? _subscription;
+  ProviderSubscription<AsyncValue<bool>>? _profileSubscription;
 
   @override
   void dispose() {
     _subscription?.close();
     _subscription = null;
+    _profileSubscription?.close();
+    _profileSubscription = null;
     super.dispose();
   }
 }
@@ -73,9 +83,19 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
         return '/login';
       }
 
-      // Авторизован: со сплэша — на главную, со вход/регистрации — к анкете.
-      if (location == '/splash') return '/main';
-      if (isLogin) return '/profile-setup';
+      // Авторизован: со вход/регистрации — на главную.
+      if (isLogin) return '/main';
+
+      // Авторизован: со сплэша — на главную (или к анкете, если профиля нет).
+      if (location == '/splash') {
+        final AsyncValue<bool> saved = ref.read(hasSavedProfileProvider);
+        if (!saved.hasValue) {
+          // Профиль ещё восстанавливается — держимся на сплэше.
+          return '/splash';
+        }
+        return saved.value! ? '/main' : '/profile-setup';
+      }
+
       return null;
     },
     routes: <RouteBase>[
@@ -114,20 +134,64 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
           return const ProfileSetupScreen();
         },
       ),
-      GoRoute(
-        path: '/main',
-        name: 'main',
-        builder: (BuildContext context, GoRouterState state) {
-          return const DiscoveryScreen();
-        },
+      // Оболочка с нижней навигацией: подбор, чаты, профиль, настройки.
+      StatefulShellRoute.indexedStack(
+        builder:
+            (
+              BuildContext context,
+              GoRouterState state,
+              StatefulNavigationShell navigationShell,
+            ) {
+              return AppShell(shell: navigationShell);
+            },
+        branches: <StatefulShellBranch>[
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/main',
+                name: 'main',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const DiscoveryScreen();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/chats',
+                name: 'chats',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const ConversationsListScreen();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/profile',
+                name: 'profile',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const ProfileViewEditScreen();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/settings',
+                name: 'settings',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const SettingsScreen();
+                },
+              ),
+            ],
+          ),
+        ],
       ),
-      GoRoute(
-        path: '/chats',
-        name: 'chats',
-        builder: (BuildContext context, GoRouterState state) {
-          return const ConversationsListScreen();
-        },
-      ),
+      // Полноэкранные маршруты поверх оболочки.
       GoRoute(
         path: '/chat/:id',
         name: 'chat',
@@ -137,25 +201,11 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
         },
       ),
       GoRoute(
-        path: '/settings',
-        name: 'settings',
-        builder: (BuildContext context, GoRouterState state) {
-          return const SettingsScreen();
-        },
-      ),
-      GoRoute(
         path: '/match',
         name: 'match',
         builder: (BuildContext context, GoRouterState state) {
           final String? userId = state.uri.queryParameters['userId'];
           return MatchScreen(userId: userId);
-        },
-      ),
-      GoRoute(
-        path: '/profile-edit',
-        name: 'profile-edit',
-        builder: (BuildContext context, GoRouterState state) {
-          return const ProfileViewEditScreen();
         },
       ),
     ],

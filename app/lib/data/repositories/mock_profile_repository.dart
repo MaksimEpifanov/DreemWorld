@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/interest.dart';
 import '../models/profile.dart';
@@ -6,6 +9,10 @@ import '../services/realtime_service.dart';
 import 'profile_repository.dart';
 
 /// Профили в памяти с сид-данными для демо.
+///
+/// Текущий профиль (`id == currentUserId`) дополнительно сохраняется
+/// в `shared_preferences` (ключ [savedProfileKey]) и восстанавливается
+/// при создании репозитория — профиль не теряется между перезапусками.
 class MockProfileRepository implements ProfileRepository {
   MockProfileRepository({
     this.currentUserId = defaultCurrentUserId,
@@ -14,10 +21,14 @@ class MockProfileRepository implements ProfileRepository {
     for (final Profile profile in seedProfiles) {
       _profiles[profile.id] = profile;
     }
+    _restoreFuture = _restore();
   }
 
   /// Идентификатор текущего пользователя в мок-режиме.
   static const String defaultCurrentUserId = 'me';
+
+  /// Ключ `shared_preferences` с сохранённым профилем текущего пользователя.
+  static const String savedProfileKey = 'saved_profile_me';
 
   /// Демо-профили: текущий пользователь и кандидаты для подбора.
   static const List<Profile> seedProfiles = <Profile>[
@@ -136,17 +147,63 @@ class MockProfileRepository implements ProfileRepository {
 
   /// Опциональная шина реалтайм-событий.
   final RealtimeService? realtime;
+
   final Map<String, Profile> _profiles = <String, Profile>{};
   final StreamController<Profile?> _currentController =
       StreamController<Profile?>.broadcast();
   final StreamController<List<Profile>> _catalogController =
       StreamController<List<Profile>>.broadcast();
 
+  late final Future<void> _restoreFuture;
+  bool _hasSavedProfile = false;
+
+  /// Восстановлен ли сохранённый профиль (после завершения загрузки из
+  /// `shared_preferences`). Сид-профиль текущего пользователя не считается.
+  bool get hasSavedProfile => _hasSavedProfile;
+
+  /// Ждёт завершения восстановления и сообщает, был ли сохранённый профиль.
+  Future<bool> hasSavedProfileAsync() async {
+    await _restoreFuture;
+    return _hasSavedProfile;
+  }
+
+  Future<void> _restore() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? raw = prefs.getString(savedProfileKey);
+      if (raw == null || raw.isEmpty) return;
+
+      final Object? decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return;
+
+      final Profile profile = Profile.fromJson(decoded);
+      if (profile.id != currentUserId) return;
+
+      _profiles[currentUserId] = profile;
+      _hasSavedProfile = true;
+    } catch (_) {
+      // Битые данные или недоступное хранилище — оставляем сид-профиль.
+    }
+  }
+
+  Future<void> _persistCurrentProfile(Profile profile) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(savedProfileKey, jsonEncode(profile.toJson()));
+    } catch (_) {
+      // Мок: сбой хранилища не должен ломать сохранение в памяти.
+    }
+  }
+
   @override
-  Future<Profile?> getCurrentProfile() async => _profiles[currentUserId];
+  Future<Profile?> getCurrentProfile() async {
+    await _restoreFuture;
+    return _profiles[currentUserId];
+  }
 
   @override
   Stream<Profile?> watchCurrentProfile() async* {
+    await _restoreFuture;
     yield _profiles[currentUserId];
     yield* _currentController.stream;
   }
@@ -174,11 +231,14 @@ class MockProfileRepository implements ProfileRepository {
 
   @override
   Future<void> saveProfile(Profile profile) async {
+    await _restoreFuture;
     _profiles[profile.id] = profile;
     _catalogController.add(List<Profile>.unmodifiable(_profiles.values));
     if (profile.id == currentUserId) {
+      _hasSavedProfile = true;
       _currentController.add(profile);
       realtime?.emit(RealtimeEvent.profileUpdated(profile: profile));
+      await _persistCurrentProfile(profile);
     }
   }
 

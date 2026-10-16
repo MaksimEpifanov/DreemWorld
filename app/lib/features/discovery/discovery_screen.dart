@@ -76,15 +76,8 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     );
 
     return Scaffold(
-      appBar: NeonAppBar(
+      appBar: const NeonAppBar(
         title: 'Dreem World',
-        actions: <Widget>[
-          IconButton(
-            tooltip: 'Профиль',
-            onPressed: () => context.push('/profile-edit'),
-            icon: const Icon(Icons.person_outline_rounded),
-          ),
-        ],
       ),
       body: SafeArea(
         child: ResponsiveContent(

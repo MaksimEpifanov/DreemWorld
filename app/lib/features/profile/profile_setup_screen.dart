@@ -7,6 +7,7 @@ import '../../core/widgets/neon_button.dart';
 import '../../core/widgets/responsive_content.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
+import 'widgets/photo_picker.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -54,6 +55,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   ];
   final Set<String> _selectedGoals = <String>{};
 
+  String? _photoDataUri;
+
   bool _isSaving = false;
 
   @override
@@ -81,6 +84,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       city: _cityController.text.trim(),
       country: 'Россия',
       bio: _bioController.text.trim(),
+      photoUrl: _photoDataUri,
       interests: _selectedInterests.map((s) {
         switch (s) {
           case 'Путешествия':
@@ -277,21 +281,13 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Фото-заглушка', style: AppTextStyles.title()),
+                Text('Фото', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.add_photo_alternate_outlined, size: 48),
-                  ),
+                PhotoPicker(
+                  photoDataUri: _photoDataUri,
+                  onPicked: (String dataUri) {
+                    setState(() => _photoDataUri = dataUri);
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 NeonButton(

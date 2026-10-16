@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/index.dart';
+import '../../../core/utils/image_utils.dart';
 import '../../../core/widgets/index.dart';
 import '../../../data/models/index.dart';
 
@@ -150,6 +153,7 @@ class _Photo extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color primary = Theme.of(context).colorScheme.primary;
     final Color secondary = Theme.of(context).colorScheme.secondary;
+    final Uint8List? photoBytes = decodeDataUri(profile.photoUrl);
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(
@@ -161,27 +165,30 @@ class _Photo extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: <Color>[
-                    primary.withValues(alpha: 0.45),
-                    secondary.withValues(alpha: 0.18),
-                    AppColors.surfaceElevated,
-                  ],
+            if (photoBytes != null)
+              Image.memory(photoBytes, fit: BoxFit.cover)
+            else
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: <Color>[
+                      primary.withValues(alpha: 0.45),
+                      secondary.withValues(alpha: 0.18),
+                      AppColors.surfaceElevated,
+                    ],
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    profile.name.isNotEmpty
+                        ? profile.name.substring(0, 1).toUpperCase()
+                        : '?',
+                    style: AppTextStyles.display(color: AppColors.white),
+                  ),
                 ),
               ),
-              child: Center(
-                child: Text(
-                  profile.name.isNotEmpty
-                      ? profile.name.substring(0, 1).toUpperCase()
-                      : '?',
-                  style: AppTextStyles.display(color: AppColors.white),
-                ),
-              ),
-            ),
             Positioned(
               right: AppSpacing.md,
               top: AppSpacing.md,

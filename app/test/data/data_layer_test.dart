@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dreem_world/data/models/conversation.dart';
 import 'package:dreem_world/data/models/interest.dart';
@@ -151,6 +152,45 @@ void main() {
       expect(me?.id, 'me');
 
       repository.dispose();
+    });
+  });
+
+  group('MockProfileRepository сохранение профиля', () {
+    test('без сохранённого профиля использует сид-данные', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      final MockProfileRepository repository = MockProfileRepository();
+      addTearDown(repository.dispose);
+
+      expect(await repository.hasSavedProfileAsync(), isFalse);
+      expect((await repository.getCurrentProfile())?.name, 'Ты');
+    });
+
+    test('сохраняет и восстанавливает текущий профиль между запусками',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+
+      final MockProfileRepository first = MockProfileRepository();
+      final Profile? original = await first.getCurrentProfile();
+      expect(original, isNotNull);
+
+      final Profile updated = original!.copyWith(
+        name: 'Сохранённый',
+        city: 'Казань',
+        photoUrl: 'data:image/jpeg;base64,AAAA',
+      );
+      await first.saveProfile(updated);
+      expect(first.hasSavedProfile, isTrue);
+      first.dispose();
+
+      final MockProfileRepository second = MockProfileRepository();
+      addTearDown(second.dispose);
+      final Profile? restored = await second.getCurrentProfile();
+
+      expect(restored, isNotNull);
+      expect(restored!.name, 'Сохранённый');
+      expect(restored.city, 'Казань');
+      expect(restored.photoUrl, 'data:image/jpeg;base64,AAAA');
+      expect(await second.hasSavedProfileAsync(), isTrue);
     });
   });
 

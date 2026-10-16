@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
 import '../../core/widgets/neon_button.dart';
 import '../../core/widgets/responsive_content.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
+import 'widgets/photo_picker.dart';
 
 class ProfileViewEditScreen extends ConsumerStatefulWidget {
   const ProfileViewEditScreen({super.key});
@@ -54,6 +56,8 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
   ];
   final Set<String> _selectedGoals = <String>{};
 
+  String? _photoDataUri;
+
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -71,6 +75,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
       _ageController.text = profile.age.toString();
       _cityController.text = profile.city ?? '';
       _bioController.text = profile.bio ?? '';
+      _photoDataUri = profile.photoUrl;
       _relationshipGoal = profile.relationshipGoal;
       _selectedGoals.clear();
       _selectedGoals.addAll(profile.goals);
@@ -113,6 +118,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
       city: _cityController.text.trim(),
       country: 'Россия',
       bio: _bioController.text.trim(),
+      photoUrl: _photoDataUri,
       interests: _selectedInterests.map((s) {
         switch (s) {
           case 'Путешествия':
@@ -152,7 +158,10 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
     await profileRepo.saveProfile(updatedProfile);
 
     if (mounted) {
-      Navigator.of(context).pop();
+      final GoRouter router = GoRouter.of(context);
+      if (router.canPop()) {
+        router.pop();
+      }
     }
   }
 
@@ -315,21 +324,13 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Фото-заглушка', style: AppTextStyles.title()),
+                Text('Фото', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.add_photo_alternate_outlined, size: 48),
-                  ),
+                PhotoPicker(
+                  photoDataUri: _photoDataUri,
+                  onPicked: (String dataUri) {
+                    setState(() => _photoDataUri = dataUri);
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 NeonButton(
