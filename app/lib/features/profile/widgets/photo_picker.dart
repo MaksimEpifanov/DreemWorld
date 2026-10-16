@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/theme/index.dart';
 import '../../../core/utils/image_utils.dart';
+import '../../../core/widgets/index.dart';
 
 /// Выбор фото профиля: галерея или камера.
 ///
@@ -17,7 +18,7 @@ class PhotoPicker extends StatelessWidget {
     super.key,
     required this.photoDataUri,
     required this.onPicked,
-    this.height = 120,
+    this.height = 200,
   });
 
   /// Текущее фото (data URI) или `null`, если фото ещё нет.
@@ -45,6 +46,7 @@ class PhotoPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
     final Uint8List? bytes = decodeDataUri(photoDataUri);
 
     return Column(
@@ -52,23 +54,33 @@ class PhotoPicker extends StatelessWidget {
       children: <Widget>[
         GestureDetector(
           onTap: () => _pick(ImageSource.gallery),
-          child: Container(
+          child: SizedBox(
             height: height,
             width: double.infinity,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
+            child: GlowContainer(
+              color: scheme.primary,
+              glowRadius: bytes != null ? 24 : 14,
+              glowOpacity: bytes != null ? 0.5 : 0.3,
+              borderColor: bytes != null
+                  ? scheme.primary.withValues(alpha: 0.6)
+                  : scheme.primary.withValues(alpha: 0.4),
+              background: AppColors.surface,
+              borderRadius: AppRadius.lgAll,
+              child: ClipRRect(
+                borderRadius: AppRadius.lgAll,
+                child: bytes != null
+                    ? SizedBox.expand(
+                        child: Image.memory(bytes, fit: BoxFit.cover),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.add_photo_alternate_outlined,
+                          size: 56,
+                          color: scheme.primary,
+                        ),
+                      ),
+              ),
             ),
-            child: bytes != null
-                ? Image.memory(bytes, fit: BoxFit.cover)
-                : const Center(
-                    child: Icon(
-                      Icons.add_photo_alternate_outlined,
-                      size: 48,
-                    ),
-                  ),
           ),
         ),
         const SizedBox(height: AppSpacing.sm),

@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
-import '../../core/widgets/neon_button.dart';
-import '../../core/widgets/responsive_content.dart';
+import '../../core/widgets/index.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
 import 'widgets/photo_picker.dart';
@@ -141,153 +140,197 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Имя'),
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Введите имя';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _ageController,
-                  decoration: const InputDecoration(labelText: 'Возраст'),
-                  keyboardType: TextInputType.number,
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Введите возраст';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _cityController,
-                  decoration: const InputDecoration(labelText: 'Город'),
-                  validator: (String? value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Введите город';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Интересы', style: AppTextStyles.title()),
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _interestOptions.map((String interest) {
-                    final bool selected = _selectedInterests.contains(interest);
-                    return FilterChip(
-                      label: Text(interest),
-                      selected: selected,
-                      onSelected: (bool value) {
-                        setState(() {
-                          if (value) {
-                            _selectedInterests.add(interest);
-                          } else {
-                            _selectedInterests.remove(interest);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Цель отношений', style: AppTextStyles.title()),
-                const SizedBox(height: AppSpacing.sm),
-                SegmentedButton<RelationshipGoal>(
-                  segments: const <ButtonSegment<RelationshipGoal>>[
-                    ButtonSegment<RelationshipGoal>(
-                      value: RelationshipGoal.friendship,
-                      label: Text('Дружба'),
-                    ),
-                    ButtonSegment<RelationshipGoal>(
-                      value: RelationshipGoal.chat,
-                      label: Text('Чат'),
-                    ),
-                    ButtonSegment<RelationshipGoal>(
-                      value: RelationshipGoal.dating,
-                      label: Text('Свидания'),
-                    ),
-                    ButtonSegment<RelationshipGoal>(
-                      value: RelationshipGoal.serious,
-                      label: Text('Серьезные'),
-                    ),
-                  ],
-                  selected: <RelationshipGoal>{_relationshipGoal},
-                  onSelectionChanged: (Set<RelationshipGoal> newSelection) {
-                    setState(() {
-                      _relationshipGoal = newSelection.first;
-                    });
-                  },
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Ценности', style: AppTextStyles.title()),
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _valueOptions.map((String value) {
-                    final bool selected = _selectedValues.contains(value);
-                    return FilterChip(
-                      label: Text(value),
-                      selected: selected,
-                      onSelected: (bool valueChip) {
-                        setState(() {
-                          if (valueChip) {
-                            _selectedValues.add(value);
-                          } else {
-                            _selectedValues.remove(value);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Цель', style: AppTextStyles.title()),
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _goalOptions.map((String goal) {
-                    final bool selected = _selectedGoals.contains(goal);
-                    return FilterChip(
-                      label: Text(goal),
-                      selected: selected,
-                      onSelected: (bool value) {
-                        setState(() {
-                          if (value) {
-                            _selectedGoals.add(goal);
-                          } else {
-                            _selectedGoals.remove(goal);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text('О себе', style: AppTextStyles.title()),
-                const SizedBox(height: AppSpacing.sm),
-                TextFormField(
-                  controller: _bioController,
-                  decoration: const InputDecoration(labelText: 'Коротко о себе'),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Фото', style: AppTextStyles.title()),
                 const SizedBox(height: AppSpacing.sm),
                 PhotoPicker(
                   photoDataUri: _photoDataUri,
-                  onPicked: (String dataUri) {
-                    setState(() => _photoDataUri = dataUri);
+                  onPicked: (String uri) {
+                    setState(() => _photoDataUri = uri);
                   },
+                  height: 220,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                NeonCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Основные данные', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(labelText: 'Имя'),
+                        validator: (String? value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Введите имя';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: _ageController,
+                        decoration: const InputDecoration(labelText: 'Возраст'),
+                        keyboardType: TextInputType.number,
+                        validator: (String? value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Введите возраст';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      TextFormField(
+                        controller: _cityController,
+                        decoration: const InputDecoration(labelText: 'Город'),
+                        validator: (String? value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Введите город';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                NeonCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Интересы', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.sm),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _interestOptions.map((String interest) {
+                          final bool selected = _selectedInterests.contains(interest);
+                          return FilterChip(
+                            label: Text(interest),
+                            selected: selected,
+                            onSelected: (bool value) {
+                              setState(() {
+                                if (value) {
+                                  _selectedInterests.add(interest);
+                                } else {
+                                  _selectedInterests.remove(interest);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                NeonCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Цель отношений', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.sm),
+                      SegmentedButton<RelationshipGoal>(
+                        segments: const <ButtonSegment<RelationshipGoal>>[
+                          ButtonSegment<RelationshipGoal>(
+                            value: RelationshipGoal.friendship,
+                            label: Text('Дружба'),
+                          ),
+                          ButtonSegment<RelationshipGoal>(
+                            value: RelationshipGoal.chat,
+                            label: Text('Чат'),
+                          ),
+                          ButtonSegment<RelationshipGoal>(
+                            value: RelationshipGoal.dating,
+                            label: Text('Свидания'),
+                          ),
+                          ButtonSegment<RelationshipGoal>(
+                            value: RelationshipGoal.serious,
+                            label: Text('Серьезные'),
+                          ),
+                        ],
+                        selected: <RelationshipGoal>{_relationshipGoal},
+                        onSelectionChanged: (Set<RelationshipGoal> newSelection) {
+                          setState(() {
+                            _relationshipGoal = newSelection.first;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                NeonCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Ценности', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.sm),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _valueOptions.map((String value) {
+                          final bool selected = _selectedValues.contains(value);
+                          return FilterChip(
+                            label: Text(value),
+                            selected: selected,
+                            onSelected: (bool valueChip) {
+                              setState(() {
+                                if (valueChip) {
+                                  _selectedValues.add(value);
+                                } else {
+                                  _selectedValues.remove(value);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                NeonCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('Цели', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.sm),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _goalOptions.map((String goal) {
+                          final bool selected = _selectedGoals.contains(goal);
+                          return FilterChip(
+                            label: Text(goal),
+                            selected: selected,
+                            onSelected: (bool value) {
+                              setState(() {
+                                if (value) {
+                                  _selectedGoals.add(goal);
+                                } else {
+                                  _selectedGoals.remove(goal);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                NeonCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text('О себе', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.sm),
+                      TextFormField(
+                        controller: _bioController,
+                        decoration: const InputDecoration(labelText: 'Коротко о себе'),
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 NeonButton(

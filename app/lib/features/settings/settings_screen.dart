@@ -7,8 +7,8 @@ import '../../core/widgets/index.dart';
 import '../../data/providers/auth_providers.dart';
 import 'widgets/theme_picker.dart';
 
-/// Экран настроек: выбор темы, раздел «Приватность»,
-/// «О приложении» и выход из аккаунта.
+/// Экран настроек: выбор темы, параметры приватности,
+/// информация о приложении и выход из аккаунта.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -27,7 +27,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('Выйти из аккаунта?'),
-        content: const Text('Вы всегда сможете войти снова.'),
+        content: const Text('Вы сможете войти снова в любой момент.'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -137,14 +137,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
-                NeonButton(
-                  label: _isLoggingOut ? 'Выход...' : 'Выйти',
+                const _SectionTitle(
                   icon: Icons.logout_rounded,
-                  variant: NeonButtonVariant.outlined,
+                  text: 'Аккаунт',
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                NeonCard(
                   color: AppColors.error,
-                  isLoading: _isLoggingOut,
-                  onPressed: _isLoggingOut ? null : _logout,
-                  expanded: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        'Выйти из аккаунта',
+                        style: AppTextStyles.title(color: AppColors.error),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        'Вы сможете войти снова в любой момент.',
+                        style: AppTextStyles.caption(),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      NeonButton(
+                        label: _isLoggingOut ? 'Выход...' : 'Выйти',
+                        icon: Icons.logout_rounded,
+                        variant: NeonButtonVariant.outlined,
+                        color: AppColors.error,
+                        isLoading: _isLoggingOut,
+                        onPressed: _isLoggingOut ? null : _logout,
+                        expanded: true,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
               ],
@@ -167,7 +190,14 @@ class _SectionTitle extends StatelessWidget {
     final Color primary = Theme.of(context).colorScheme.primary;
     return Row(
       children: <Widget>[
-        Icon(icon, size: 20, color: primary),
+        GlowContainer(
+          color: primary,
+          glowRadius: 12,
+          glowOpacity: 0.5,
+          borderRadius: AppRadius.smAll,
+          padding: const EdgeInsets.all(AppSpacing.xs),
+          child: Icon(icon, size: 18, color: primary),
+        ),
         const SizedBox(width: AppSpacing.sm),
         Text(text, style: AppTextStyles.title()),
       ],
@@ -190,11 +220,29 @@ class _PrivacyToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
     return SwitchListTile(
       title: Text(title, style: AppTextStyles.body()),
       subtitle: Text(subtitle, style: AppTextStyles.caption()),
       value: value,
       onChanged: onChanged,
+      thumbColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.selected)) {
+          return scheme.primary;
+        }
+        return scheme.outline;
+      }),
+      trackColor: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.selected)) {
+          return scheme.primary.withValues(alpha: 0.4);
+        }
+        return scheme.surfaceContainerHighest;
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith<Color>(
+        (Set<WidgetState> states) => scheme.primary.withValues(
+          alpha: states.contains(WidgetState.selected) ? 0.7 : 0.3,
+        ),
+      ),
     );
   }
 }
