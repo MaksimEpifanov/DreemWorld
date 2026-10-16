@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -76,81 +77,130 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     );
 
     return Scaffold(
-      appBar: const NeonAppBar(
-        title: 'Dreem World',
-      ),
+      appBar: const NeonAppBar(title: 'Dreem World'),
       body: SafeArea(
         child: ResponsiveContent(
           child: profilesAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (Object error, StackTrace stackTrace) => _Message(
-            icon: Icons.error_outline_rounded,
-            text: 'Не удалось загрузить анкеты',
-          ),
-          data: (List<Profile> profiles) {
-            if (profiles.isEmpty) {
-              return const _Message(
-                icon: Icons.explore_off_outlined,
-                text: 'Пока нет анкет для подбора',
-              );
-            }
-            if (_index >= profiles.length) {
-              return _Message(
-                icon: Icons.done_all_rounded,
-                text: 'Анкеты закончились',
-                actionLabel: 'Начать заново',
-                onAction: _restart,
-              );
-            }
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (Object error, StackTrace stackTrace) => const _Message(
+              icon: Icons.error_outline_rounded,
+              text: 'Не удалось загрузить анкеты',
+            ),
+            data: (List<Profile> profiles) {
+              if (profiles.isEmpty) {
+                return const _Message(
+                  icon: Icons.explore_off_outlined,
+                  text: 'Пока нет анкет для подбора',
+                );
+              }
+              if (_index >= profiles.length) {
+                return _Message(
+                  icon: Icons.done_all_rounded,
+                  text: 'Анкеты закончились',
+                  actionLabel: 'Начать заново',
+                  onAction: _restart,
+                );
+              }
 
-            final Profile profile = profiles[_index];
-            final int compatibility =
-                ref.watch(compatibilityProvider(profile)).asData?.value ?? 0;
+              final Profile profile = profiles[_index];
+              final int compatibility =
+                  ref.watch(compatibilityProvider(profile)).asData?.value ?? 0;
 
-            return Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.sm,
-                    AppSpacing.md,
-                    0,
+              return Column(
+                children: <Widget>[
+                  _ProgressHeader(
+                    index: _index,
+                    total: profiles.length,
+                    isBusy: _isBusy,
                   ),
-                  child: Row(
-                    children: <Widget>[
-                      Text(
-                        'Анкета ${_index + 1} из ${profiles.length}',
-                        style: AppTextStyles.caption(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: AppSpacing.page,
+                      child: UserCard(
+                        key: ValueKey<String>(profile.id),
+                        profile: profile,
+                        compatibility: compatibility,
+                        isBusy: _isBusy,
+                        onLike: () => _like(profile),
+                        onPass: () => _pass(profile),
                       ),
-                      const Spacer(),
-                      if (_isBusy)
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: AppSpacing.page,
-                    child: UserCard(
-                      profile: profile,
-                      compatibility: compatibility,
-                      isBusy: _isBusy,
-                      onLike: () => _like(profile),
-                      onPass: () => _pass(profile),
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
           ),
         ),
       ),
     );
+  }
+}
+
+class _ProgressHeader extends StatelessWidget {
+  const _ProgressHeader({
+    required this.index,
+    required this.total,
+    required this.isBusy,
+  });
+
+  final int index;
+  final int total;
+  final bool isBusy;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final double progress = total == 0 ? 0 : (index + 1) / total;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        0,
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(Icons.auto_awesome, size: 16, color: scheme.primary),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                'Анкета ${index + 1} из $total',
+                style: AppTextStyles.caption(),
+              ),
+              const Spacer(),
+              if (isBusy)
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: scheme.primary,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          ClipRRect(
+            borderRadius: AppRadius.pillAll,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: progress),
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOut,
+              builder: (BuildContext context, double value, Widget? child) {
+                return LinearProgressIndicator(
+                  value: value,
+                  minHeight: 6,
+                  backgroundColor: scheme.primary.withValues(alpha: 0.12),
+                  valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 300.ms);
   }
 }
 
@@ -169,18 +219,24 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
     return Center(
       child: Padding(
         padding: AppSpacing.page,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Icon(
-              icon,
-              size: 48,
-              color: Theme.of(context).colorScheme.primary,
+            GlowContainer(
+              color: primary,
+              glowRadius: 24,
+              glowOpacity: 0.45,
+              borderColor: primary,
+              background: AppColors.surface,
+              borderRadius: AppRadius.pillAll,
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Icon(icon, size: 40, color: primary),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.lg),
             Text(
               text,
               style: AppTextStyles.title(),
@@ -193,6 +249,10 @@ class _Message extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ).animate().fadeIn(duration: 400.ms).scale(
+          begin: const Offset(0.95, 0.95),
+          end: const Offset(1, 1),
+          curve: Curves.easeOutBack,
+        );
   }
 }

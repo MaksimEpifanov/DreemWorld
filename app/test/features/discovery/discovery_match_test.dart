@@ -46,8 +46,11 @@ void main() {
       expect(find.text('Нравится'), findsOneWidget);
       expect(find.text('Пропустить'), findsOneWidget);
 
+      await tester.pump(const Duration(milliseconds: 600));
       await tester.tap(find.text('Нравится'));
+      await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.text('Пропустить'));
+      await tester.pump(const Duration(milliseconds: 100));
       expect(liked, isTrue);
       expect(passed, isTrue);
     });
@@ -71,7 +74,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
 
       expect(find.text('У вас взаимная симпатия!'), findsOneWidget);
       expect(find.textContaining('Анна'), findsWidgets);
@@ -91,7 +95,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800));
 
       expect(find.text('Мэтч не найден'), findsOneWidget);
     });

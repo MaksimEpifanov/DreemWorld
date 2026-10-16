@@ -3,6 +3,10 @@
 import '../../../core/theme/index.dart';
 import '../../../data/models/message.dart';
 
+/// Пузырь сообщения.
+///
+/// Свои сообщения — неоновый градиент, чужие — полупрозрачная подложка.
+/// Внутри пузыря отображаются текст и время (а для своих — статус доставки).
 class MessageBubble extends StatelessWidget {
   const MessageBubble({
     super.key,
@@ -16,10 +20,32 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
-    final Color backgroundColor = isMine
-        ? scheme.primary.withValues(alpha: 0.9)
-        : scheme.surfaceContainerHighest;
-    final Color textColor = isMine ? scheme.onPrimary : scheme.onSurface;
+    final Color primary = scheme.primary;
+    final Color secondary = scheme.secondary;
+
+    final Color textColor = isMine ? scheme.onPrimary : AppColors.textPrimary;
+
+    final BoxDecoration decoration = isMine
+        ? BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[primary, secondary],
+            ),
+            borderRadius: _radiusFor(isMine),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: primary.withValues(alpha: 0.45),
+                blurRadius: 18,
+                spreadRadius: -2,
+              ),
+            ],
+          )
+        : BoxDecoration(
+            color: primary.withValues(alpha: 0.10),
+            borderRadius: _radiusFor(isMine),
+            border: Border.all(color: primary.withValues(alpha: 0.28)),
+          );
 
     return Align(
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
@@ -27,18 +53,12 @@ class MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          vertical: AppSpacing.sm + 2,
         ),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
+          maxWidth: MediaQuery.sizeOf(context).width * 0.75,
         ),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: AppRadius.mdAll.copyWith(
-            bottomRight: isMine ? const Radius.circular(AppRadius.sm) : const Radius.circular(AppRadius.lg),
-            bottomLeft: isMine ? const Radius.circular(AppRadius.lg) : const Radius.circular(AppRadius.sm),
-          ),
-        ),
+        decoration: decoration,
         child: Column(
           crossAxisAlignment:
               isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -46,27 +66,64 @@ class MessageBubble extends StatelessWidget {
           children: <Widget>[
             Text(
               message.displayText,
-              style: AppTextStyles.body().copyWith(color: textColor),
+              style: AppTextStyles.body(color: textColor),
             ),
-            if (message.createdAt != null) ...<Widget>[
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                _formatTime(message.createdAt!),
-                style: AppTextStyles.caption().copyWith(
-                  color: textColor.withValues(alpha: 0.7),
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  _formatTime(message.createdAt),
+                  style: AppTextStyles.caption(
+                    color: textColor.withValues(alpha: 0.72),
+                  ),
                 ),
-              ),
-            ],
+                if (isMine) ...<Widget>[
+                  const SizedBox(width: AppSpacing.xs),
+                  Icon(
+                    _statusIcon(message.status),
+                    size: 14,
+                    color: textColor.withValues(alpha: 0.72),
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  String _formatTime(DateTime time) {
+  BorderRadius _radiusFor(bool mine) {
+    const Radius round = Radius.circular(AppRadius.lg + 4);
+    const Radius tail = Radius.circular(AppRadius.sm - 2);
+    return BorderRadius.only(
+      topLeft: round,
+      topRight: round,
+      bottomLeft: mine ? round : tail,
+      bottomRight: mine ? tail : round,
+    );
+  }
+
+  IconData _statusIcon(MessageStatus status) {
+    switch (status) {
+      case MessageStatus.read:
+        return Icons.done_all_rounded;
+      case MessageStatus.delivered:
+        return Icons.done_all_rounded;
+      case MessageStatus.failed:
+        return Icons.error_outline_rounded;
+      case MessageStatus.sending:
+        return Icons.access_time_rounded;
+      case MessageStatus.sent:
+        return Icons.done_rounded;
+    }
+  }
+
+  String _formatTime(DateTime? time) {
+    if (time == null) return '';
     final String hour = time.hour.toString().padLeft(2, '0');
     final String minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
 }
-

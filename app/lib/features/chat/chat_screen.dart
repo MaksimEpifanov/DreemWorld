@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,6 +11,8 @@ import '../../../data/services/mock_ai_service.dart';
 import '../../../data/services/translation_service.dart';
 import 'widgets/message_bubble.dart';
 
+/// Экран диалога: градиентные пузыри, неоновое поле ввода,
+/// перевод сообщений и подсказки тем от ИИ.
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key, required this.conversationId});
 
@@ -44,8 +47,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         .read(chatRepositoryProvider)
         .sendMessage(widget.conversationId, text);
     _textController.clear();
-    _showingTopics = false;
-    _suggestedTopics = <String>[];
+    setState(() {
+      _showingTopics = false;
+      _suggestedTopics = <String>[];
+    });
     _scrollToBottom();
   }
 
@@ -74,10 +79,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _showingTopics = true;
       _suggestedTopics = <String>[];
     });
-    final Profile? me = await ref.read(profileRepositoryProvider).getCurrentProfile();
-    final Profile? other = await ref.read(profileRepositoryProvider).getProfileById(
-          await _getOtherUserId(),
-        );
+    final Profile? me = await ref
+        .read(profileRepositoryProvider)
+        .getCurrentProfile();
+    final Profile? other = await ref
+        .read(profileRepositoryProvider)
+        .getProfileById(await _getOtherUserId());
     if (me != null && other != null) {
       final List<String> topics = await _aiService.suggestTopics(me, other);
       if (mounted) {
@@ -101,8 +108,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _useTopic(String topic) {
     _textController.text = topic;
-    _showingTopics = false;
-    _suggestedTopics = <String>[];
+    setState(() {
+      _showingTopics = false;
+      _suggestedTopics = <String>[];
+    });
     FocusScope.of(context).nextFocus();
   }
 
@@ -120,8 +129,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<List<Message>> messagesAsync =
-        ref.watch(messagesProvider(widget.conversationId));
+    final AsyncValue<List<Message>> messagesAsync = ref.watch(
+      messagesProvider(widget.conversationId),
+    );
     final String currentUserId = ref.watch(currentUserIdProvider);
 
     return Scaffold(
@@ -135,168 +145,398 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: SafeArea(
         child: ResponsiveContent(
           child: Column(
-          children: <Widget>[
-            Expanded(
-              child: messagesAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (Object error, StackTrace stackTrace) => const Center(
-                  child: Text('Не удалось загрузить сообщения'),
-                ),
-                data: (List<Message> messages) {
-                  _scrollToBottom();
-                  if (messages.isEmpty) {
-                    return const Center(
-                      child: Padding(
-                        padding: AppSpacing.page,
-                        child: Text(
-                          'Пока нет сообщений. Напишите первое!',
-
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: AppSpacing.page,
-                    itemCount: messages.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final Message message = messages[index];
-                      final bool isMine = message.senderId == currentUserId;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          MessageBubble(
-                            message: message,
-                            isMine: isMine,
-                          ),
-                          if (!isMine) ...<Widget>[
-                            const SizedBox(height: 2),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: TextButton(
-                                onPressed: _translatingMessageId == message.id
-                                    ? null
-                                    : () => _translateMessage(message),
-                                child: Text(
-                                  _translatingMessageId == message.id
-                                      ? 'Перевод...'
-                                      : 'Перевод',
-                                  style: AppTextStyles.caption(),
-                                ),
-                              ),
-                            ),
-                            if (_translations[message.id] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: AppSpacing.xs,
-                                  bottom: AppSpacing.xs,
-                                ),
-                                child: Text(
-                                  _translations[message.id]!,
-                                  style: AppTextStyles.caption(),
-                                ),
-                              ),
-                          ],
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            if (_showingTopics && _suggestedTopics.isNotEmpty) ...<Widget>[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  border: Border(
-                    top: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
+            children: <Widget>[
+              Expanded(
+                child: messagesAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (Object error, StackTrace stackTrace) => const Center(
+                    child: Text('Не удалось загрузить сообщения'),
                   ),
+                  data: (List<Message> messages) {
+                    _scrollToBottom();
+                    if (messages.isEmpty) {
+                      return const _EmptyChat();
+                    }
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                      ),
+                      itemCount: messages.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final Message message = messages[index];
+                        final bool isMine = message.senderId == currentUserId;
+                        return _MessageRow(
+                          message: message,
+                          isMine: isMine,
+                          translation: _translations[message.id],
+                          isTranslating: _translatingMessageId == message.id,
+                          onTranslate: () => _translateMessage(message),
+                        )
+                            .animate(key: ValueKey<String>(message.id))
+                            .fadeIn(duration: 250.ms)
+                            .slideY(
+                              begin: 0.12,
+                              end: 0,
+                              curve: Curves.easeOut,
+                            );
+                      },
+                    );
+                  },
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Подсказки тем',
-                      style: AppTextStyles.title(),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      runSpacing: AppSpacing.xs,
-                      children: _suggestedTopics
-                          .map(
-                            (String topic) => ActionChip(
-                              label: Text(topic),
-                              onPressed: () => _useTopic(topic),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ],
-                ),
+              ),
+              if (_showingTopics && _suggestedTopics.isNotEmpty)
+                _TopicPanel(topics: _suggestedTopics, onSelect: _useTopic),
+              _InputBar(
+                controller: _textController,
+                onSend: _sendMessage,
+                onSuggest: _suggestTopics,
               ),
             ],
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: Border(
-                  top: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
-              ),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      decoration: const InputDecoration(
-                        hintText: 'Введите сообщение...',
-                        border: OutlineInputBorder(),
-                      ),
-                      minLines: 1,
-                      maxLines: 4,
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  IconButton(
-                    tooltip: 'Подсказки тем',
-                    onPressed: _suggestTopics,
-                    icon: const Icon(Icons.lightbulb_outline_rounded),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                  IconButton(
-                    tooltip: 'Отправить',
-                    onPressed: _sendMessage,
-                    icon: const Icon(Icons.send_rounded),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
         ),
       ),
     );
   }
 }
 
+class _EmptyChat extends StatelessWidget {
+  const _EmptyChat();
 
+  @override
+  Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
+    return Center(
+      child: Padding(
+        padding: AppSpacing.page,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            GlowContainer(
+              color: primary,
+              glowRadius: 22,
+              glowOpacity: 0.45,
+              borderColor: primary,
+              background: AppColors.surface,
+              borderRadius: AppRadius.pillAll,
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Icon(
+                Icons.chat_bubble_outline_rounded,
+                size: 40,
+                color: primary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Пока нет сообщений. Напишите первое!',
+              style: AppTextStyles.title(),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
+class _MessageRow extends StatelessWidget {
+  const _MessageRow({
+    required this.message,
+    required this.isMine,
+    required this.translation,
+    required this.isTranslating,
+    required this.onTranslate,
+  });
 
+  final Message message;
+  final bool isMine;
+  final String? translation;
+  final bool isTranslating;
+  final VoidCallback onTranslate;
 
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        MessageBubble(message: message, isMine: isMine),
+        if (!isMine) ...<Widget>[
+          const SizedBox(height: 2),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _TranslateButton(
+              isLoading: isTranslating,
+              onTap: onTranslate,
+            ),
+          ),
+          if (translation != null)
+            Padding(
+              padding: const EdgeInsets.only(
+                left: AppSpacing.xs,
+                bottom: AppSpacing.xs,
+              ),
+              child: _TranslatedText(text: translation!),
+            ),
+        ],
+      ],
+    );
+  }
+}
 
+class _TranslateButton extends StatelessWidget {
+  const _TranslateButton({required this.isLoading, required this.onTap});
 
+  final bool isLoading;
+  final VoidCallback onTap;
 
+  @override
+  Widget build(BuildContext context) {
+    final Color accent = Theme.of(context).colorScheme.primary;
+    return TextButton.icon(
+      onPressed: isLoading ? null : onTap,
+      icon: Icon(
+        Icons.translate_rounded,
+        size: 16,
+        color: accent,
+      ),
+      label: Text(
+        isLoading ? 'Перевод...' : 'Перевод',
+        style: AppTextStyles.caption(color: accent),
+      ),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xxs,
+        ),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+  }
+}
 
+class _TranslatedText extends StatelessWidget {
+  const _TranslatedText({required this.text});
 
+  final String text;
 
+  @override
+  Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm + 2,
+        vertical: AppSpacing.xs + 2,
+      ),
+      decoration: BoxDecoration(
+        color: primary.withValues(alpha: 0.08),
+        borderRadius: AppRadius.smAll,
+        border: Border(
+          left: BorderSide(color: primary, width: 2),
+        ),
+      ),
+      child: Text(
+        text,
+        style: AppTextStyles.caption(color: AppColors.textSecondary),
+      ),
+    );
+  }
+}
 
+class _TopicPanel extends StatelessWidget {
+  const _TopicPanel({required this.topics, required this.onSelect});
 
+  final List<String> topics;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.9),
+        border: Border(
+          top: BorderSide(color: primary.withValues(alpha: 0.35)),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(Icons.lightbulb_rounded, size: 18, color: primary),
+              const SizedBox(width: AppSpacing.xs),
+              Text('Подсказки тем', style: AppTextStyles.title()),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: <Widget>[
+              for (final String topic in topics)
+                ActionChip(
+                  label: Text(topic),
+                  labelStyle: AppTextStyles.caption(
+                    color: AppColors.textPrimary,
+                  ),
+                  backgroundColor: primary.withValues(alpha: 0.12),
+                  side: BorderSide(color: primary.withValues(alpha: 0.4)),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.pillAll,
+                  ),
+                  onPressed: () => onSelect(topic),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Нижняя панель ввода: закруглённое поле, подсказки и неоновая отправка.
+class _InputBar extends StatelessWidget {
+  const _InputBar({
+    required this.controller,
+    required this.onSend,
+    required this.onSuggest,
+  });
+
+  final TextEditingController controller;
+  final VoidCallback onSend;
+  final VoidCallback onSuggest;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color primary = scheme.primary;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.md,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.85),
+        border: Border(
+          top: BorderSide(color: primary.withValues(alpha: 0.3)),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surfaceElevated,
+                borderRadius: AppRadius.pillAll,
+                border: Border.all(color: primary.withValues(alpha: 0.35)),
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.xs,
+              ),
+              child: TextField(
+                controller: controller,
+                style: AppTextStyles.body(),
+                cursorColor: primary,
+                decoration: InputDecoration(
+                  hintText: 'Введите сообщение...',
+                  border: InputBorder.none,
+                  isDense: true,
+                  filled: false,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.sm,
+                  ),
+                  hintStyle: AppTextStyles.body(color: AppColors.textMuted),
+                ),
+                minLines: 1,
+                maxLines: 4,
+                onSubmitted: (_) => onSend(),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          _NeonIconButton(
+            icon: Icons.lightbulb_outline_rounded,
+            tooltip: 'Подсказки тем',
+            onTap: onSuggest,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          _NeonSendButton(onTap: onSend),
+        ],
+      ),
+    );
+  }
+}
+
+class _NeonIconButton extends StatelessWidget {
+  const _NeonIconButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color primary = Theme.of(context).colorScheme.primary;
+    return Tooltip(
+      message: tooltip,
+      child: GlowContainer(
+        color: primary,
+        glowRadius: 12,
+        glowOpacity: 0.25,
+        borderColor: primary.withValues(alpha: 0.4),
+        background: AppColors.surfaceElevated,
+        borderRadius: AppRadius.pillAll,
+        child: IconButton(
+          onPressed: onTap,
+          icon: Icon(icon, color: primary),
+          iconSize: 22,
+        ),
+      ),
+    );
+  }
+}
+
+class _NeonSendButton extends StatelessWidget {
+  const _NeonSendButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: GlowContainer(
+        color: scheme.primary,
+        glowRadius: 20,
+        glowOpacity: 0.6,
+        borderColor: scheme.primary,
+        background: scheme.primary,
+        borderRadius: AppRadius.pillAll,
+        padding: const EdgeInsets.all(AppSpacing.sm + 2),
+        child: Icon(
+          Icons.send_rounded,
+          color: scheme.onPrimary,
+          size: 24,
+        ),
+      ),
+    );
+  }
+}
