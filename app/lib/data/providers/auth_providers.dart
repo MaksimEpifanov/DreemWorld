@@ -2,11 +2,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
+import '../services/firebase_bootstrap.dart';
 import '../services/mock_auth_service.dart';
 
-/// Сервис аутентификации (в мок-режиме — in-memory + shared_preferences).
+/// Сервис аутентификации.
+///
+/// Если Firebase инициализирован ([isFirebaseInitialized]) — реальная
+/// аутентификация через Firebase, иначе безопасный откат на мок-режим
+/// (in-memory + shared_preferences).
 final Provider<AuthService> authServiceProvider = Provider<AuthService>(
-  (Ref ref) => MockAuthService(),
+  (Ref ref) =>
+      isFirebaseInitialized ? FirebaseAuthService() : MockAuthService(),
 );
 
 /// Статус аутентификации.
