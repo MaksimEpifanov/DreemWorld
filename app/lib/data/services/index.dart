@@ -1,5 +1,7 @@
 export 'ai_service.dart';
 export 'auth_service.dart';
+export 'firebase_auth_service.dart';
+export 'firebase_bootstrap.dart';
 export 'mock_ai_service.dart';
 export 'mock_auth_service.dart';
 export 'mock_realtime_service.dart';
