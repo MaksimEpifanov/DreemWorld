@@ -1,3 +1,4 @@
+export 'app_user.dart';
 export 'conversation.dart';
 export 'interest.dart';
 export 'match.dart';

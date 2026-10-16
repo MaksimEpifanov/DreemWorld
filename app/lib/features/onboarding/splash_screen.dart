@@ -1,26 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
 import '../../core/widgets/responsive_content.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        context.go('/onboarding');
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

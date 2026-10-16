@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/config/app_info.dart';
 import '../../core/theme/index.dart';
 import '../../core/widgets/index.dart';
+import '../../data/providers/auth_providers.dart';
 import 'widgets/theme_picker.dart';
 
 /// Экран настроек: выбор темы, раздел «Приватность»,
@@ -43,9 +43,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (confirmed != true || !mounted) return;
     setState(() => _isLoggingOut = true);
-    await Future<void>.delayed(const Duration(milliseconds: 300));
+    await ref.read(authControllerProvider.notifier).logout();
     if (mounted) {
-      context.go('/splash');
+      setState(() => _isLoggingOut = false);
     }
   }
 

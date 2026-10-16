@@ -60,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      context.go('/profile-setup');
+      context.go('/register');
     }
   }
 
