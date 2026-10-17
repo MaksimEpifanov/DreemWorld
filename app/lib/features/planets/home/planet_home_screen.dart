@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,6 +7,7 @@ import '../../../core/theme/index.dart';
 import '../../../core/widgets/index.dart';
 import '../../../data/models/planet.dart';
 import '../../../data/providers/planet_providers.dart';
+import 'widgets/galaxy_header.dart';
 import 'widgets/planet_card.dart';
 
 /// Главный экран: планеты-сообщества по интересам.
@@ -25,7 +27,7 @@ class PlanetHomeScreen extends ConsumerWidget {
         child: ResponsiveContent(
           child: CustomScrollView(
             slivers: <Widget>[
-              const SliverToBoxAdapter(child: _HomeHeader()),
+              SliverToBoxAdapter(child: GalaxyHeader(planets: planets)),
               SliverPadding(
                 padding: AppSpacing.page,
                 sliver: SliverGrid(
@@ -34,7 +36,7 @@ class PlanetHomeScreen extends ConsumerWidget {
                         maxCrossAxisExtent: 280,
                         mainAxisSpacing: AppSpacing.md,
                         crossAxisSpacing: AppSpacing.md,
-                        childAspectRatio: 0.78,
+                        childAspectRatio: 0.74,
                       ),
                   delegate: SliverChildBuilderDelegate((
                     BuildContext context,
@@ -42,9 +44,17 @@ class PlanetHomeScreen extends ConsumerWidget {
                   ) {
                     final Planet planet = planets[index];
                     return PlanetCard(
-                      planet: planet,
-                      onTap: () => context.go('/main/planet/${planet.id}'),
-                    );
+                          planet: planet,
+                          onTap: () => context.go('/main/planet/${planet.id}'),
+                        )
+                        .animate(delay: (40 * index).ms)
+                        .fadeIn(duration: 360.ms)
+                        .slideY(
+                          begin: 0.1,
+                          end: 0,
+                          duration: 440.ms,
+                          curve: Curves.easeOutCubic,
+                        );
                   }, childCount: planets.length),
                 ),
               ),
@@ -54,42 +64,6 @@ class PlanetHomeScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _HomeHeader extends StatelessWidget {
-  const _HomeHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.sm,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          NeonGradientText(
-            'Выбери свою планету',
-            gradient: LinearGradient(
-              colors: <Color>[
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary,
-              ],
-            ),
-            style: AppTextStyles.display(),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Планеты объединяют людей по интересам. Заходи и находи своих.',
-            style: AppTextStyles.body(color: AppColors.textSecondary),
-          ),
-        ],
       ),
     );
   }
