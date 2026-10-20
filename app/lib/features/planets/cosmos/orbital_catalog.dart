@@ -53,20 +53,23 @@ class OrbitalCatalog extends StatelessWidget {
         final int ringCount = rings.length;
 
         // Компактное солнце: чистое и яркое, но не «съедающее» место планет.
-        final double sunSize = (base * 0.20).clamp(54.0, 170.0);
+        final double sunSize = (base * 0.19).clamp(52.0, 160.0);
 
-        // Максимальный размер планеты с учётом запаса под кольцо и подпись.
+        // Максимальный размер сферы планеты.
         final double maxPlanet = (sunSize * 0.42).clamp(16.0, 46.0);
 
-        // Полуоси орбит: по вертикали — с запасом под планету, кольцо и
-        // подпись; по горизонтали — до края с запасом под планету.
-        final double ringPad = maxPlanet * 0.5;
+        // Полный след планеты на экране: кольца/свечение выходят за сферу,
+        // поэтому резерв считаем по увеличенному габариту, а не по сфере.
+        final double maxFootprint = maxPlanet * 1.5;
         final double labelHeight = maxPlanet * 0.6 + 6;
+
+        // Полуоси орбит: по вертикали — с запасом под полный след планеты и
+        // подпись; по горизонтали — до края с запасом под след планеты.
         final double maxRy = math.max(
           30.0,
-          h / 2 - maxPlanet / 2 - ringPad / 2 - labelHeight - 8,
+          h / 2 - maxFootprint / 2 - labelHeight - 6,
         );
-        final double maxRx = math.max(30.0, w / 2 - maxPlanet / 2 - ringPad - 16);
+        final double maxRx = math.max(30.0, w / 2 - maxFootprint / 2 - 12);
 
         // Кольца разнесены по радиусу так, чтобы соседние не наслаивались.
         final double inner = 0.46;
@@ -85,13 +88,14 @@ class OrbitalCatalog extends StatelessWidget {
           final double rx = radiiX[r];
           final double ry = rx * (maxRy / maxRx).clamp(0.35, 1.0);
 
-          // Размер планеты ограничен ещё и шагом по дуге, чтобы планеты
-          // одного кольца не смыкались (запас под кольцо учтён).
-          final double arcGap = (2 * math.pi * rx / count) * 0.66;
+          // Размер сферы планеты ограничен ещё и шагом по дуге, чтобы планеты
+          // одного кольца не смыкались (с учётом полного следа).
+          final double arcGap = (2 * math.pi * rx / count) * 0.62;
           final double planetSize = math.min(
             sunSize * (0.42 - r * 0.04),
-            math.min(arcGap / 1.6, maxPlanet),
+            math.min(arcGap / 1.5, maxPlanet),
           ).clamp(18.0, 46.0);
+          final double footprint = planetSize * 1.5;
           final double labelWidth = planetSize * 3.4;
 
           // Кольцо орбиты.
@@ -125,10 +129,10 @@ class OrbitalCatalog extends StatelessWidget {
 
             children.add(
               Positioned(
-                left: px - planetSize / 2,
-                top: py - planetSize / 2,
-                width: planetSize,
-                height: planetSize,
+                left: px - footprint / 2,
+                top: py - footprint / 2,
+                width: footprint,
+                height: footprint,
                 child: _RotatingPlanet(
                   planet: planet,
                   size: planetSize,
@@ -147,7 +151,7 @@ class OrbitalCatalog extends StatelessWidget {
               children.add(
                 Positioned(
                   left: px - labelWidth / 2,
-                  top: py + planetSize / 2 + 2,
+                  top: py + footprint / 2 - planetSize * 0.25 + 2,
                   width: labelWidth,
                   child: IgnorePointer(
                     child: Center(child: _PlanetLabel(planet: planet)),
@@ -212,7 +216,7 @@ class _RotatingPlanetState extends State<_RotatingPlanet>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: (28000 / widget.speed).round()),
+      duration: Duration(milliseconds: (12000 / widget.speed).round()),
     )..repeat();
   }
 
