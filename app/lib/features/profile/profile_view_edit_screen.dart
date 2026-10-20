@@ -62,6 +62,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
 
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _isPremium = false;
 
   @override
   void initState() {
@@ -167,6 +168,50 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
     }
   }
 
+  Future<void> _subscribe() async {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Подписка Dreem+'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Открывает все планеты, видеозвонки и безлимит сообщений. '
+              'Первые 7 дней бесплатно.',
+              style: AppTextStyles.body(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text('Оплата пока не подключена.', style: AppTextStyles.caption()),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Позже'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: scheme.primary),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Оформить'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() => _isPremium = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Пробный период Dreem+ активирован (демо)'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -192,6 +237,11 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
                   age: _ageController.text.trim(),
                   city: _cityController.text.trim(),
                   interests: _selectedInterests.toList(),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                _SubscriptionCard(
+                  isPremium: _isPremium,
+                  onSubscribe: () => _subscribe(),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 NeonButton(
@@ -418,6 +468,68 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
           ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Карточка подписки Dreem+ (демо-режим, реальная оплата не подключена).
+class _SubscriptionCard extends StatelessWidget {
+  const _SubscriptionCard({
+    required this.isPremium,
+    required this.onSubscribe,
+  });
+
+  final bool isPremium;
+  final VoidCallback onSubscribe;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+
+    return GlowContainer(
+      color: scheme.primary,
+      glowRadius: 20,
+      glowOpacity: 0.35,
+      borderColor: scheme.primary.withValues(alpha: 0.6),
+      background: AppColors.surface,
+      borderRadius: AppRadius.lgAll,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(Icons.workspace_premium_rounded, color: scheme.secondary),
+              const SizedBox(width: AppSpacing.sm),
+              Text('Dreem+', style: AppTextStyles.title()),
+              const Spacer(),
+              Chip(
+                label: Text(isPremium ? 'Активна' : 'Бесплатно'),
+                side: BorderSide(
+                  color: scheme.primary.withValues(alpha: 0.5),
+                ),
+                backgroundColor: scheme.primary.withValues(alpha: 0.12),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            isPremium
+                ? 'Спасибо! Все планеты, видеозвонки и безлимит сообщений открыты.'
+                : 'Откройте все планеты, видеозвонки и безлимит сообщений.',
+            style: AppTextStyles.body(color: AppColors.textSecondary),
+          ),
+          if (!isPremium) ...<Widget>[
+            const SizedBox(height: AppSpacing.md),
+            NeonButton(
+              label: 'Оформить подписку',
+              icon: Icons.workspace_premium_rounded,
+              expanded: true,
+              onPressed: onSubscribe,
+            ),
+          ],
+        ],
       ),
     );
   }
