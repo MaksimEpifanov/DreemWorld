@@ -35,6 +35,20 @@ final Provider<List<Planet>> featuredPlanetsProvider = Provider<List<Planet>>((
   return (matched.isEmpty ? all : matched).take(4).toList(growable: false);
 });
 
+/// Планеты «других интересов» — всё, что не попало в избранные (до 4).
+final Provider<List<Planet>> otherPlanetsProvider = Provider<List<Planet>>((
+  Ref ref,
+) {
+  final List<Planet> all = ref.watch(planetsProvider);
+  final Set<String> featured = ref
+      .watch(featuredPlanetsProvider)
+      .map((Planet planet) => planet.id)
+      .toSet();
+  return all
+      .where((Planet planet) => !featured.contains(planet.id))
+      .toList(growable: false);
+});
+
 /// Планета по идентификатору.
 final ProviderFamily<Planet?, String> planetByIdProvider =
     Provider.family<Planet?, String>(
