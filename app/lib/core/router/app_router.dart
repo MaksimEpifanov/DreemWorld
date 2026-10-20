@@ -9,6 +9,8 @@ import '../../features/auth/register_screen.dart';
 import '../../features/chat/chat_screen.dart';
 import '../../features/chat/conversations_list_screen.dart';
 import '../../features/contacts/contacts_screen.dart';
+import '../../features/contacts/my_qr_screen.dart';
+import '../../features/contacts/scan_qr_screen.dart';
 import '../../features/discovery/discovery_screen.dart';
 import '../../features/match/match_screen.dart';
 import '../../features/minigames/mini_games_screen.dart';
@@ -239,6 +241,22 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
                 builder: (BuildContext context, GoRouterState state) {
                   return const ContactsScreen();
                 },
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: 'my-qr',
+                    name: 'contacts-my-qr',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const MyQrScreen();
+                    },
+                  ),
+                  GoRoute(
+                    path: 'scan',
+                    name: 'contacts-scan',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const ScanQrScreen();
+                    },
+                  ),
+                ],
               ),
             ],
           ),
