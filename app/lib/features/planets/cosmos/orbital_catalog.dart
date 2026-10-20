@@ -11,9 +11,9 @@ import 'realistic_sun.dart';
 
 /// Орбитальный каталог: солнце в центре и планеты по эллиптическим орбитам.
 ///
-/// Вся система рисуется на фиксированном «чертеже» и масштабируется
-/// через [FittedBox] под размер экрана, поэтому все планеты и подписи
-/// всегда полностью помещаются — и на телефоне, и на компьютере.
+/// Раскладка считается от реальных размеров экрана: планеты и солнце —
+/// крупные (от ширины), орбиты заполняют прямоугольник, поэтому всё
+/// помещается и выглядит крупно и на телефоне, и на компьютере.
 class OrbitalCatalog extends StatelessWidget {
   const OrbitalCatalog({
     super.key,
@@ -34,125 +34,124 @@ class OrbitalCatalog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Фиксированный чертёж: FittedBox сам подберёт масштаб под экран.
-    const double design = 1000.0;
-    final double center = design / 2;
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double w = constraints.maxWidth;
+        final double h = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : constraints.maxWidth;
+        final Offset center = Offset(w / 2, h / 2);
 
-    final List<int> rings = _ringCounts(planets.length);
-    final int ringCount = rings.length;
+        final List<int> rings = _ringCounts(planets.length);
+        final int ringCount = rings.length;
 
-    final double sunSize = design * 0.13;
+        // Солнце и планеты — крупные, от ширины экрана.
+        final double sunSize = (w * 0.28).clamp(70.0, 240.0);
+        final double planetMax = sunSize * 0.55;
 
-    // Крупные планеты, но с запасом по краям под подписи.
-    final double planetMax = sunSize * 0.66;
-    final double margin = planetMax / 2 + design * 0.045;
-    final double maxR = design / 2 - margin;
-    const double ellipse = 0.62;
+        // Запас по краям: планета + подпись, чтобы ничего не выходило.
+        final double margin = planetMax / 2 + 26;
+        final double maxRx = math.max(40.0, w / 2 - margin);
+        final double maxRy = math.max(40.0, h / 2 - planetMax / 2 - 24);
 
-    // Орбиты заметно ближе к солнцу — компактная система.
-    final double innerRadius = maxR * 0.34;
-    final double outerRadius = maxR * 0.92;
-    final List<double> radii = <double>[
-      for (int i = 0; i < ringCount; i++)
-        ringCount == 1
-            ? maxR * 0.6
-            : innerRadius +
-                (outerRadius - innerRadius) * (i / (ringCount - 1)),
-    ];
+        // Орбиты заполняют прямоугольник целиком.
+        final double innerRx = maxRx * 0.42;
+        final double outerRx = maxRx;
+        final List<double> radiiX = <double>[
+          for (int i = 0; i < ringCount; i++)
+            ringCount == 1
+                ? maxRx * 0.7
+                : innerRx +
+                    (outerRx - innerRx) * (i / (ringCount - 1)),
+        ];
 
-    int index = 0;
-    final List<Widget> children = <Widget>[];
+        int index = 0;
+        final List<Widget> children = <Widget>[];
 
-    for (int r = 0; r < ringCount; r++) {
-      final int count = rings[r];
-      final double radius = radii[r];
-      final double planetSize =
-          sunSize * (0.66 - r * 0.09).clamp(0.38, 0.66);
-      final double labelWidth = planetSize * 3.0;
+        for (int r = 0; r < ringCount; r++) {
+          final int count = rings[r];
+          final double rx = radiiX[r];
+          final double ry = rx * (maxRy / maxRx).clamp(0.45, 1.0);
+          final double planetSize =
+              sunSize * (0.55 - r * 0.08).clamp(0.34, 0.55);
+          final double labelWidth = planetSize * 3.0;
 
-      // Кольцо орбиты.
-      children.add(
-        Positioned(
-          left: center - radius,
-          top: center - radius * ellipse,
-          width: radius * 2,
-          height: radius * 2 * ellipse,
-          child: CustomPaint(
-            painter: _CatalogOrbitPainter(
-              color: Theme.of(context).colorScheme.primary,
-              emphasis: 1 - r / ringCount,
-            ),
-          ),
-        ),
-      );
-
-      final double angleOffset = r * (math.pi / 4);
-      for (int i = 0; i < count && index < planets.length; i++, index++) {
-        final Planet planet = planets[index];
-        final double angle = angleOffset + (2 * math.pi / count) * i;
-        final double px = center + math.cos(angle) * radius;
-        final double py = center + math.sin(angle) * radius * ellipse;
-
-        children.add(
-          Positioned(
-            left: px - planetSize / 2,
-            top: py - planetSize / 2,
-            width: planetSize,
-            height: planetSize,
-            child: _CatalogPlanet(
-              planet: planet,
-              size: planetSize,
-              lightAlignment: Alignment(-math.cos(angle), -math.sin(angle)),
-              onTap: () => onPlanetTap(planet),
-            )
-                .animate(delay: (index * 40).ms)
-                .fadeIn(duration: 500.ms)
-                .scale(
-                  begin: const Offset(0.6, 0.6),
-                  end: const Offset(1, 1),
-                  curve: Curves.easeOutBack,
-                ),
-          ),
-        );
-
-        if (showLabels) {
+          // Кольцо орбиты.
           children.add(
             Positioned(
-              left: px - labelWidth / 2,
-              top: py + planetSize / 2 + 2,
-              width: labelWidth,
-              child: IgnorePointer(
-                child: Center(child: _PlanetLabel(planet: planet)),
+              left: center.dx - rx,
+              top: center.dy - ry,
+              width: rx * 2,
+              height: ry * 2,
+              child: CustomPaint(
+                painter: _CatalogOrbitPainter(
+                  color: Theme.of(context).colorScheme.primary,
+                  emphasis: 1 - r / ringCount,
+                ),
               ),
             ),
           );
-        }
-      }
-    }
 
-    return CosmicBackground(
-      child: Center(
-        child: FittedBox(
-          fit: BoxFit.contain,
-          child: SizedBox(
-            width: design,
-            height: design,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: <Widget>[
-                ...children,
+          final double angleOffset = r * (math.pi / 4);
+          for (int i = 0; i < count && index < planets.length; i++, index++) {
+            final Planet planet = planets[index];
+            final double angle = angleOffset + (2 * math.pi / count) * i;
+            final double px = center.dx + math.cos(angle) * rx;
+            final double py = center.dy + math.sin(angle) * ry;
+
+            children.add(
+              Positioned(
+                left: px - planetSize / 2,
+                top: py - planetSize / 2,
+                width: planetSize,
+                height: planetSize,
+                child: _CatalogPlanet(
+                  planet: planet,
+                  size: planetSize,
+                  lightAlignment: Alignment(-math.cos(angle), -math.sin(angle)),
+                  onTap: () => onPlanetTap(planet),
+                )
+                    .animate(delay: (index * 40).ms)
+                    .fadeIn(duration: 500.ms)
+                    .scale(
+                      begin: const Offset(0.6, 0.6),
+                      end: const Offset(1, 1),
+                      curve: Curves.easeOutBack,
+                    ),
+              ),
+            );
+
+            if (showLabels) {
+              children.add(
                 Positioned(
-                  left: center - sunSize / 2,
-                  top: center - sunSize / 2,
-                  width: sunSize,
-                  height: sunSize,
-                  child: RealisticSun(size: sunSize, glow: 0.45),
+                  left: px - labelWidth / 2,
+                  top: py + planetSize / 2 + 2,
+                  width: labelWidth,
+                  child: IgnorePointer(
+                    child: Center(child: _PlanetLabel(planet: planet)),
+                  ),
                 ),
-              ],
-            ),
+              );
+            }
+          }
+        }
+
+        return CosmicBackground(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              ...children,
+              Positioned(
+                left: center.dx - sunSize / 2,
+                top: center.dy - sunSize / 2,
+                width: sunSize,
+                height: sunSize,
+                child: RealisticSun(size: sunSize, glow: 0.45),
+              ),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
