@@ -19,14 +19,80 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: shell,
-      bottomNavigationBar: AppNavigationBar(
-        currentIndex: shell.currentIndex,
-        onDestinationSelected: (int index) {
-          shell.goBranch(
-            index,
-            initialLocation: index == shell.currentIndex,
-          );
-        },
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _MiniGamesBanner(onTap: () => context.go('/minigames')),
+          AppNavigationBar(
+            currentIndex: shell.currentIndex,
+            onDestinationSelected: (int index) {
+              shell.goBranch(
+                index,
+                initialLocation: index == shell.currentIndex,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Плашка входа в мини-игры над нижним баром.
+class _MiniGamesBanner extends StatelessWidget {
+  const _MiniGamesBanner({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        0,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.xs,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.pillAll,
+            gradient: LinearGradient(
+              colors: <Color>[
+                scheme.tertiary.withValues(alpha: 0.9),
+                scheme.primary.withValues(alpha: 0.9),
+              ],
+            ),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: scheme.tertiary.withValues(alpha: 0.45),
+                blurRadius: 20,
+                spreadRadius: -4,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Icon(
+                Icons.sports_esports_rounded,
+                size: 20,
+                color: Colors.white,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                'Мини-игры · заработай монеты',
+                style: AppTextStyles.label(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -105,19 +171,19 @@ class AppNavigationBar extends StatelessWidget {
                   label: 'Главная',
                 ),
                 NavigationDestination(
+                  icon: const Icon(Icons.explore_outlined),
+                  selectedIcon: _glowingIcon(Icons.explore, scheme),
+                  label: 'Подбор',
+                ),
+                NavigationDestination(
                   icon: const Icon(Icons.chat_bubble_outline),
                   selectedIcon: _glowingIcon(Icons.chat_bubble, scheme),
                   label: 'Чаты',
                 ),
                 NavigationDestination(
-                  icon: const Icon(Icons.person_outline),
-                  selectedIcon: _glowingIcon(Icons.person, scheme),
-                  label: 'Профиль',
-                ),
-                NavigationDestination(
-                  icon: const Icon(Icons.settings_outlined),
-                  selectedIcon: _glowingIcon(Icons.settings, scheme),
-                  label: 'Настройки',
+                  icon: const Icon(Icons.people_outline),
+                  selectedIcon: _glowingIcon(Icons.people, scheme),
+                  label: 'Контакты',
                 ),
               ],
             ),

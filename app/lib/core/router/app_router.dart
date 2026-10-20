@@ -8,8 +8,10 @@ import '../../features/auth/login_screen.dart';
 import '../../features/auth/register_screen.dart';
 import '../../features/chat/chat_screen.dart';
 import '../../features/chat/conversations_list_screen.dart';
+import '../../features/contacts/contacts_screen.dart';
 import '../../features/discovery/discovery_screen.dart';
 import '../../features/match/match_screen.dart';
+import '../../features/minigames/mini_games_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
 import '../../features/planets/catalog/other_interests_screen.dart';
@@ -138,7 +140,7 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
           return const ProfileSetupScreen();
         },
       ),
-      // Оболочка с нижней навигацией: подбор, чаты, профиль, настройки.
+      // Оболочка с нижней навигацией: главная, подбор, чаты, контакты.
       StatefulShellRoute.indexedStack(
         builder:
             (
@@ -181,14 +183,18 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
                       return PlanetDetailScreen(planetId: id);
                     },
                   ),
-                  GoRoute(
-                    path: 'discovery',
-                    name: 'discovery',
-                    builder: (BuildContext context, GoRouterState state) {
-                      return const DiscoveryScreen();
-                    },
-                  ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
+                path: '/discovery',
+                name: 'discovery',
+                builder: (BuildContext context, GoRouterState state) {
+                  return const DiscoveryScreen();
+                },
               ),
             ],
           ),
@@ -206,21 +212,10 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
-                path: '/profile',
-                name: 'profile',
+                path: '/contacts',
+                name: 'contacts',
                 builder: (BuildContext context, GoRouterState state) {
-                  return const ProfileViewEditScreen();
-                },
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: <RouteBase>[
-              GoRoute(
-                path: '/settings',
-                name: 'settings',
-                builder: (BuildContext context, GoRouterState state) {
-                  return const SettingsScreen();
+                  return const ContactsScreen();
                 },
               ),
             ],
@@ -228,6 +223,27 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
         ],
       ),
       // Полноэкранные маршруты поверх оболочки.
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        builder: (BuildContext context, GoRouterState state) {
+          return const ProfileViewEditScreen();
+        },
+      ),
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        builder: (BuildContext context, GoRouterState state) {
+          return const SettingsScreen();
+        },
+      ),
+      GoRoute(
+        path: '/minigames',
+        name: 'minigames',
+        builder: (BuildContext context, GoRouterState state) {
+          return const MiniGamesScreen();
+        },
+      ),
       GoRoute(
         path: '/chat/:id',
         name: 'chat',

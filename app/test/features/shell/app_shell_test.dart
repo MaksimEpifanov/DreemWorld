@@ -25,16 +25,16 @@ void main() {
 
       expect(find.byType(NavigationBar), findsOneWidget);
       expect(find.text('Главная'), findsOneWidget);
+      expect(find.text('Подбор'), findsOneWidget);
       expect(find.text('Чаты'), findsOneWidget);
-      expect(find.text('Профиль'), findsOneWidget);
-      expect(find.text('Настройки'), findsOneWidget);
+      expect(find.text('Контакты'), findsOneWidget);
       expect(find.byType(NavigationDestination), findsNWidgets(4));
 
       await tester.tap(find.text('Чаты'));
       await tester.pumpAndSettle();
-      expect(selected, 1);
+      expect(selected, 2);
 
-      await tester.tap(find.text('Настройки'));
+      await tester.tap(find.text('Контакты'));
       await tester.pumpAndSettle();
       expect(selected, 3);
     });

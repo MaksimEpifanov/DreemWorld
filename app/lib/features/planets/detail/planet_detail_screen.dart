@@ -83,7 +83,7 @@ class PlanetDetailScreen extends ConsumerWidget {
                     variant: NeonButtonVariant.outlined,
                     expanded: true,
                     color: planet.secondary,
-                    onPressed: () => context.go('/main/discovery'),
+                    onPressed: () => context.go('/discovery'),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Text('Участники планеты', style: AppTextStyles.title()),
