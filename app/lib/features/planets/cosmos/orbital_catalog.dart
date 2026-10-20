@@ -11,9 +11,9 @@ import 'realistic_sun.dart';
 
 /// Орбитальный каталог: солнце в центре и планеты по эллиптическим орбитам.
 ///
-/// Раскладка считается от реальных размеров экрана: планеты и солнце —
-/// крупные (от ширины), орбиты заполняют прямоугольник, поэтому всё
-/// помещается и выглядит крупно и на телефоне, и на компьютере.
+/// Раскладка считается от реальных размеров экрана, планеты и солнце —
+/// крупные, орбиты заполняют прямоугольник, поэтому всё помещается и
+/// выглядит крупно и на телефоне, и на компьютере.
 class OrbitalCatalog extends StatelessWidget {
   const OrbitalCatalog({
     super.key,
@@ -29,7 +29,7 @@ class OrbitalCatalog extends StatelessWidget {
   /// Количество планет на каждом кольце (в сумме — все планеты).
   static List<int> _ringCounts(int total) {
     if (total <= 6) return <int>[total];
-    return <int>[4, 6, 6, total - 16];
+    return <int>[6, 7, total - 13];
   }
 
   @override
@@ -46,21 +46,21 @@ class OrbitalCatalog extends StatelessWidget {
         final int ringCount = rings.length;
 
         // Солнце и планеты — крупные, от ширины экрана.
-        final double sunSize = (w * 0.28).clamp(70.0, 240.0);
-        final double planetMax = sunSize * 0.55;
+        final double sunSize = (w * 0.34).clamp(90.0, 300.0);
+        final double planetMax = sunSize * 0.58;
 
         // Запас по краям: планета + подпись, чтобы ничего не выходило.
-        final double margin = planetMax / 2 + 26;
+        final double margin = planetMax / 2 + 28;
         final double maxRx = math.max(40.0, w / 2 - margin);
         final double maxRy = math.max(40.0, h / 2 - planetMax / 2 - 24);
 
         // Орбиты заполняют прямоугольник целиком.
-        final double innerRx = maxRx * 0.42;
+        final double innerRx = maxRx * 0.5;
         final double outerRx = maxRx;
         final List<double> radiiX = <double>[
           for (int i = 0; i < ringCount; i++)
             ringCount == 1
-                ? maxRx * 0.7
+                ? maxRx * 0.75
                 : innerRx +
                     (outerRx - innerRx) * (i / (ringCount - 1)),
         ];
@@ -73,7 +73,7 @@ class OrbitalCatalog extends StatelessWidget {
           final double rx = radiiX[r];
           final double ry = rx * (maxRy / maxRx).clamp(0.45, 1.0);
           final double planetSize =
-              sunSize * (0.55 - r * 0.08).clamp(0.34, 0.55);
+              sunSize * (0.58 - r * 0.10).clamp(0.36, 0.58);
           final double labelWidth = planetSize * 3.0;
 
           // Кольцо орбиты.
