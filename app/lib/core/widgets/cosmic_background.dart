@@ -60,10 +60,95 @@ class _CosmosPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final math.Random rnd = math.Random(seed);
 
+    _paintMilkyWay(canvas, size, rnd);
     _paintNebulae(canvas, size, rnd);
     _paintGalaxies(canvas, size, rnd);
     _paintStars(canvas, size, rnd);
     _paintTint(canvas, size);
+  }
+
+  /// Млечный Путь: светлая туманная полоса, пересекающая диагональ фона.
+  void _paintMilkyWay(Canvas canvas, Size size, math.Random rnd) {
+    final double diagonal =
+        math.sqrt(size.width * size.width + size.height * size.height);
+    final double angle = -0.35;
+    final Offset start = Offset(
+      size.width * 0.5 - math.cos(angle) * diagonal * 0.6,
+      size.height * 0.5 - math.sin(angle) * diagonal * 0.6,
+    );
+    final Offset end = Offset(
+      size.width * 0.5 + math.cos(angle) * diagonal * 0.6,
+      size.height * 0.5 + math.sin(angle) * diagonal * 0.6,
+    );
+
+    // Мягкая светящаяся лента — несколько слоёв с размытием.
+    final List<List<Object>> layers = <List<Object>>[
+      <Object>[size.shortestSide * 0.16, 0.05, const Color(0xFF6D5AA8)],
+      <Object>[size.shortestSide * 0.09, 0.06, const Color(0xFF9C8FD0)],
+      <Object>[size.shortestSide * 0.04, 0.07, const Color(0xFFD9D2F2)],
+    ];
+    for (final List<Object> layer in layers) {
+      final double w = layer[0] as double;
+      final double a = layer[1] as double;
+      final Color c = layer[2] as Color;
+      canvas.drawLine(
+        start,
+        end,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = w
+          ..strokeCap = StrokeCap.round
+          ..color = c.withValues(alpha: a)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, w * 0.6),
+      );
+    }
+
+    // Плотные «облака» вдоль полосы.
+    for (int i = 0; i < 22; i++) {
+      final double t = rnd.nextDouble();
+      final Offset p = Offset.lerp(start, end, t)!;
+      final double spread = size.shortestSide * 0.05;
+      final Offset jitter = Offset(
+        (rnd.nextDouble() - 0.5) * spread,
+        (rnd.nextDouble() - 0.5) * spread,
+      );
+      final double r = size.shortestSide * (0.01 + rnd.nextDouble() * 0.03);
+      canvas.drawCircle(
+        p + jitter,
+        r,
+        Paint()
+          ..color = const Color(0xFFDCD3F5).withValues(alpha: 0.10)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 1.2),
+      );
+    }
+
+    // Тёмная «пылевая» жила вдоль полосы для реалистичности.
+    canvas.drawLine(
+      start,
+      end,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = size.shortestSide * 0.02
+        ..color = const Color(0xFF0A0612).withValues(alpha: 0.35)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, size.shortestSide * 0.02),
+    );
+
+    // Плотное звёздное скопление вдоль полосы.
+    for (int i = 0; i < 160; i++) {
+      final double t = rnd.nextDouble();
+      final Offset p = Offset.lerp(start, end, t)!;
+      final double spread = size.shortestSide * (0.02 + rnd.nextDouble() * 0.07);
+      final Offset jitter = Offset(
+        (rnd.nextDouble() - 0.5) * spread,
+        (rnd.nextDouble() - 0.5) * spread,
+      );
+      final double r = rnd.nextDouble() * 1.1 + 0.2;
+      canvas.drawCircle(
+        p + jitter,
+        r,
+        Paint()..color = Colors.white.withValues(alpha: 0.5 + rnd.nextDouble() * 0.5),
+      );
+    }
   }
 
   void _paintNebulae(Canvas canvas, Size size, math.Random rnd) {
