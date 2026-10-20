@@ -53,23 +53,22 @@ class OrbitalCatalog extends StatelessWidget {
         final int ringCount = rings.length;
 
         // Компактное солнце: чистое и яркое, но не «съедающее» место планет.
-        final double sunSize = (base * 0.19).clamp(52.0, 160.0);
+        final double sunSize = (base * 0.18).clamp(48.0, 150.0);
 
         // Максимальный размер сферы планеты.
-        final double maxPlanet = (sunSize * 0.42).clamp(16.0, 46.0);
+        final double maxPlanet = (sunSize * 0.42).clamp(16.0, 44.0);
 
-        // Полный след планеты на экране: кольца/свечение выходят за сферу,
-        // поэтому резерв считаем по увеличенному габариту, а не по сфере.
+        // Полный след планеты на экране (кольца/свечение выходят за сферу).
         final double maxFootprint = maxPlanet * 1.5;
-        final double labelHeight = maxPlanet * 0.6 + 6;
+        // Высота подписи под планетой (с запасом).
+        final double labelHeight = maxPlanet * 0.55 + 18;
 
-        // Полуоси орбит: по вертикали — с запасом под полный след планеты и
-        // подпись; по горизонтали — до края с запасом под след планеты.
-        final double maxRy = math.max(
-          30.0,
-          h / 2 - maxFootprint / 2 - labelHeight - 6,
-        );
-        final double maxRx = math.max(30.0, w / 2 - maxFootprint / 2 - 12);
+        // Полуоси орбит. По ВЕРТИКАЛИ обязательно оставляем place под
+        // половину следа планеты сверху/снизу И подпись снизу — тогда ни одна
+        // планета и её подпись не выйдут за пределы области.
+        final double verticalNeed = maxFootprint / 2 + labelHeight;
+        final double maxRy = math.max(20.0, h / 2 - verticalNeed);
+        final double maxRx = math.max(20.0, w / 2 - maxFootprint / 2 - 10);
 
         // Кольца разнесены по радиусу так, чтобы соседние не наслаивались.
         final double inner = 0.46;
@@ -151,7 +150,7 @@ class OrbitalCatalog extends StatelessWidget {
               children.add(
                 Positioned(
                   left: px - labelWidth / 2,
-                  top: py + footprint / 2 - planetSize * 0.25 + 2,
+                  top: py + planetSize / 2 + 2,
                   width: labelWidth,
                   child: IgnorePointer(
                     child: Center(child: _PlanetLabel(planet: planet)),
@@ -163,18 +162,20 @@ class OrbitalCatalog extends StatelessWidget {
         }
 
         return CosmicBackground(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              ...children,
-              Positioned(
-                left: center.dx - sunSize / 2,
-                top: center.dy - sunSize / 2,
-                width: sunSize,
-                height: sunSize,
-                child: RealisticSun(size: sunSize, glow: 0.55),
-              ),
-            ],
+          child: ClipRect(
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: <Widget>[
+                ...children,
+                Positioned(
+                  left: center.dx - sunSize / 2,
+                  top: center.dy - sunSize / 2,
+                  width: sunSize,
+                  height: sunSize,
+                  child: RealisticSun(size: sunSize, glow: 0.55),
+                ),
+              ],
+            ),
           ),
         );
       },
