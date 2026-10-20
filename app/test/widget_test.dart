@@ -12,12 +12,11 @@ Widget _host(Widget child) {
 }
 
 void main() {
-  testWidgets('AnimatedGradientBackground renders and animates', (tester) async {
+  testWidgets('CosmicBackground рисует космический фон', (tester) async {
     await tester.pumpWidget(
-      _host(const AnimatedGradientBackground()),
+      _host(const CosmicBackground()),
     );
-    expect(find.byType(AnimatedGradientBackground), findsOneWidget);
-    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(CosmicBackground), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));
   });
 

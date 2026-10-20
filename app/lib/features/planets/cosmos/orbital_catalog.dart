@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/theme/index.dart';
 import '../../../../data/models/planet.dart';
-import 'cosmic_background.dart';
+import '../../../../core/widgets/cosmic_background.dart';
 import 'realistic_planet.dart';
 import 'realistic_sun.dart';
 
