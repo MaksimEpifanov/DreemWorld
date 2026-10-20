@@ -40,7 +40,6 @@ class OrbitalCatalog extends StatelessWidget {
         final double height = constraints.maxHeight.isFinite
             ? constraints.maxHeight
             : constraints.maxWidth;
-        final double side = width;
 
         final double canvasWidth = width;
         final double canvasHeight = height;
@@ -49,26 +48,29 @@ class OrbitalCatalog extends StatelessWidget {
         final List<int> rings = _ringCounts(planets.length);
         final int ringCount = rings.length;
 
-        final double sunSize = side * 0.11;
-        // Равномерно разносим кольца: заметный отступ от солнца и между
-        // орбитами, чтобы планеты не слипались и всё влезало на телефон.
-        final double innerRadius = side * 0.26;
-        final double outerRadius = side * 0.47;
+        final double sunSize = (width * 0.11).clamp(24.0, 90.0);
+
+        // Запас по краям под размер планеты и подпись, чтобы ничего не
+        // уезжало за пределы экрана ни по горизонтали, ни по вертикали.
+        final double marginX = sunSize * 1.6 + 28;
+        final double marginY = sunSize * 1.6 + 44;
+        final double maxRx = math.max(40.0, canvasWidth / 2 - marginX);
+        final double maxRy = math.max(40.0, canvasHeight / 2 - marginY);
+        // Соотношение полуосей берём из реального прямоугольника карты.
+        final double ellipse = (maxRy / maxRx).clamp(0.5, 1.15);
+
+        final double innerRadius = maxRx * 0.55;
+        final double outerRadius = maxRx;
         final List<double> radii = <double>[
           for (int i = 0; i < ringCount; i++)
             ringCount == 1
-                ? side * 0.36
+                ? maxRx * 0.8
                 : innerRadius +
                     (outerRadius - innerRadius) * (i / (ringCount - 1)),
         ];
 
         int index = 0;
         final List<Widget> children = <Widget>[];
-
-        // По вертикали орбиты заметно вытянуты — так планеты расходятся
-        // и не наезжают друг на друга даже на небольшом экране.
-        final double ellipse =
-            (canvasHeight / canvasWidth).clamp(0.85, 1.35) * 0.72;
 
         for (int r = 0; r < ringCount; r++) {
           final int count = rings[r];
