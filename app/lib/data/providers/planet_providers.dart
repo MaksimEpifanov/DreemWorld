@@ -1,7 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/map_spot.dart';
 import '../models/planet.dart';
 import '../models/profile.dart';
+import '../repositories/map_repository.dart';
+import '../repositories/mock_map_repository.dart';
 import '../repositories/mock_planet_repository.dart';
 import '../repositories/planet_repository.dart';
 import 'app_providers.dart';
@@ -9,6 +12,10 @@ import 'app_providers.dart';
 /// Репозиторий планет-сообществ.
 final Provider<PlanetRepository> planetRepositoryProvider =
     Provider<PlanetRepository>((Ref ref) => const MockPlanetRepository());
+
+/// Репозиторий отметок на карте планет.
+final Provider<MapRepository> mapRepositoryProvider =
+    Provider<MapRepository>((Ref ref) => const MockMapRepository());
 
 /// Каталог планет.
 final Provider<List<Planet>> planetsProvider = Provider<List<Planet>>(
@@ -79,4 +86,12 @@ final ProviderFamily<AsyncValue<List<Profile>>, String> planetMembersProvider =
         .toList(growable: false);
     return matched.isEmpty ? all : matched;
   });
+});
+
+/// Отметки на карте планеты.
+final ProviderFamily<List<MapSpot>, String> planetMapSpotsProvider =
+    Provider.family<List<MapSpot>, String>((Ref ref, String id) {
+  final Planet? planet = ref.watch(planetByIdProvider(id));
+  if (planet == null) return const <MapSpot>[];
+  return ref.watch(mapRepositoryProvider).spotsFor(planet);
 });

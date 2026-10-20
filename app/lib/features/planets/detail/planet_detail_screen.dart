@@ -86,6 +86,16 @@ class PlanetDetailScreen extends ConsumerWidget {
                     onPressed: () => context.go('/discovery'),
                   ),
                   const SizedBox(height: AppSpacing.lg),
+                  NeonButton(
+                    label: 'Карта планеты',
+                    icon: Icons.map_outlined,
+                    variant: NeonButtonVariant.outlined,
+                    expanded: true,
+                    color: planet.accent,
+                    onPressed: () =>
+                        context.go('/main/planet/${planet.id}/map'),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                   Text('Участники планеты', style: AppTextStyles.title()),
                   const SizedBox(height: AppSpacing.sm),
                   members.when(
