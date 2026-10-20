@@ -4,12 +4,14 @@ import '../models/conversation.dart';
 import '../models/match.dart';
 import '../models/message.dart';
 import '../models/profile.dart';
+import '../models/relationship_status.dart';
 import '../repositories/chat_repository.dart';
 import '../repositories/match_repository.dart';
 import '../repositories/mock_chat_repository.dart';
 import '../repositories/mock_match_repository.dart';
 import '../repositories/mock_profile_repository.dart';
 import '../repositories/profile_repository.dart';
+import '../repositories/relationship_status_repository.dart';
 import '../services/ai_service.dart';
 import '../services/mock_ai_service.dart';
 import '../services/mock_realtime_service.dart';
@@ -132,3 +134,16 @@ final FutureProviderFamily<int, Profile> compatibilityProvider =
       if (me == null) return 0;
       return ref.watch(aiServiceProvider).computeCompatibility(me, other);
     });
+
+/// Репозиторий статуса отношений участников.
+final Provider<RelationshipStatusRepository> relationshipStatusRepositoryProvider =
+    Provider<RelationshipStatusRepository>(
+  (Ref ref) => const MockRelationshipStatusRepository(),
+);
+
+/// Статус отношений участника по его идентификатору.
+final ProviderFamily<RelationshipStatus, String> relationshipStatusProvider =
+    Provider.family<RelationshipStatus, String>(
+  (Ref ref, String profileId) =>
+      ref.watch(relationshipStatusRepositoryProvider).statusFor(profileId),
+);

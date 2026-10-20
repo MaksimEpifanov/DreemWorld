@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dreem_world/core/theme/index.dart';
 import 'package:dreem_world/data/models/index.dart';
+import 'package:dreem_world/data/models/relationship_status.dart';
 import 'package:dreem_world/data/repositories/mock_profile_repository.dart';
 import 'package:dreem_world/features/discovery/widgets/user_card.dart';
 
@@ -85,5 +86,32 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(liked, isFalse);
+  });
+
+  testWidgets('UserCard показывает статус отношений', (
+    WidgetTester tester,
+  ) async {
+    sizeViewport(tester);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.of(AppThemeName.neonViolet),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: UserCard(
+              profile: anna,
+              compatibility: 60,
+              relationshipStatus: RelationshipStatus.activelyLooking,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 800));
+
+    expect(
+      find.text(RelationshipStatus.activelyLooking.label),
+      findsOneWidget,
+    );
   });
 }

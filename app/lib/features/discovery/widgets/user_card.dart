@@ -8,14 +8,17 @@ import '../../../core/theme/index.dart';
 import '../../../core/utils/image_utils.dart';
 import '../../../core/widgets/index.dart';
 import '../../../data/models/index.dart';
+import '../../../data/models/relationship_status.dart';
 
 /// Карточка кандидата в подборе: крупное фото, имя/возраст, город,
-/// интересы, круговой индикатор совместимости и круглые кнопки действий.
+/// статус отношений, интересы, круговой индикатор совместимости и
+/// круглые кнопки действий.
 class UserCard extends StatelessWidget {
   const UserCard({
     super.key,
     required this.profile,
     required this.compatibility,
+    this.relationshipStatus = RelationshipStatus.unspecified,
     this.isBusy = false,
     this.onLike,
     this.onPass,
@@ -25,6 +28,9 @@ class UserCard extends StatelessWidget {
 
   /// Процент совместимости (0–100) из AiService.
   final int compatibility;
+
+  /// Публичный статус отношений участника.
+  final RelationshipStatus relationshipStatus;
 
   /// Блокирует кнопки во время запроса.
   final bool isBusy;
@@ -48,6 +54,8 @@ class UserCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                _RelationshipBadge(status: relationshipStatus),
+                const SizedBox(height: AppSpacing.sm),
                 if ((profile.city ?? '').isNotEmpty) ...<Widget>[
                   _City(city: profile.city!),
                   const SizedBox(height: AppSpacing.sm),
@@ -84,6 +92,44 @@ class UserCard extends StatelessWidget {
           duration: 400.ms,
           curve: Curves.easeOutBack,
         );
+  }
+}
+
+/// Бейдж статуса отношений участника.
+class _RelationshipBadge extends StatelessWidget {
+  const _RelationshipBadge({required this.status});
+
+  final RelationshipStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color color = status == RelationshipStatus.married ||
+            status == RelationshipStatus.inRelationship
+        ? scheme.tertiary
+        : scheme.secondary;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm + 2,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: AppRadius.pillAll,
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(status.emoji, style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            status.label,
+            style: AppTextStyles.label(color: color),
+          ),
+        ],
+      ),
+    );
   }
 }
 

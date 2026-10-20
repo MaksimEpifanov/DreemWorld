@@ -120,6 +120,9 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                         key: ValueKey<String>(profile.id),
                         profile: profile,
                         compatibility: compatibility,
+                        relationshipStatus: ref.watch(
+                          relationshipStatusProvider(profile.id),
+                        ),
                         isBusy: _isBusy,
                         onLike: () => _like(profile),
                         onPass: () => _pass(profile),
