@@ -11,9 +11,10 @@ import 'realistic_sun.dart';
 
 /// Орбитальный каталог: солнце в центре и планеты по эллиптическим орбитам.
 ///
-/// Раскладка считается от реальных размеров экрана. Планеты и солнце
-/// крупные, кольца разнесены (с чередованием угла), а по краям учтён запас
-/// под подписи — поэтому всё помещается и не наслаивается.
+/// Раскладка считается от РЕАЛЬНЫХ размеров области. Размер планет/солнца
+/// берётся от меньшей стороны (чтобы всё влезало по высоте на широком
+/// экране ПК), а орбиты растягиваются по ширине. Кольца разнесены, углы
+/// чередуются — планеты не наслаиваются.
 class OrbitalCatalog extends StatelessWidget {
   const OrbitalCatalog({
     super.key,
@@ -42,31 +43,30 @@ class OrbitalCatalog extends StatelessWidget {
             : constraints.maxWidth;
         final Offset center = Offset(w / 2, h / 2);
 
+        // Опорный размер — меньшая сторона области (безопасно по высоте).
+        final double base = math.min(w, h);
+
         final List<int> rings = _ringCounts(planets.length);
         final int ringCount = rings.length;
 
-        // Солнце и планеты — крупные, от ширины экрана.
-        final double sunSize = (w * 0.28).clamp(76.0, 230.0);
-        // Планета не крупнее четверти зазора между кольцами — чтобы
-        // соседние орбиты не наслаивались.
-        final double planetMax = sunSize * 0.42;
+        final double sunSize = (base * 0.26).clamp(64.0, 220.0);
+        final double planetMax = sunSize * 0.40;
         final double labelHeight = planetMax * 0.55 + 6;
 
-        // Запас по краям: планета (сбоку/сверху) и подпись (снизу).
-        final double margin = planetMax / 2 + 22;
-        final double maxRx = math.max(40.0, w / 2 - margin);
+        // Полуоси орбит: по вертикали — с запасом под планету и подпись,
+        // по горизонтали — до края с запасом под планету.
         final double maxRy =
-            math.max(40.0, h / 2 - planetMax / 2 - labelHeight);
+            math.max(30.0, h / 2 - planetMax / 2 - labelHeight - 8);
+        final double maxRx =
+            math.max(30.0, w / 2 - planetMax / 2 - 16);
 
-        // Кольца разнесены, внутреннее — ближе к солнцу, внешнее — к краю.
-        final double innerRx = maxRx * 0.44;
-        final double outerRx = maxRx;
+        // Кольца разнесены по радиусу так, чтобы соседние не наслаивались.
+        final double inner = 0.42;
         final List<double> radiiX = <double>[
           for (int i = 0; i < ringCount; i++)
             ringCount == 1
                 ? maxRx * 0.8
-                : innerRx +
-                    (outerRx - innerRx) * (i / (ringCount - 1)),
+                : maxRx * (inner + (1 - inner) * (i / (ringCount - 1))),
         ];
 
         int index = 0;
@@ -75,10 +75,16 @@ class OrbitalCatalog extends StatelessWidget {
         for (int r = 0; r < ringCount; r++) {
           final int count = rings[r];
           final double rx = radiiX[r];
-          final double ry = rx * (maxRy / maxRx).clamp(0.45, 1.0);
-          final double planetSize =
-              sunSize * (0.42 - r * 0.05).clamp(0.32, 0.42);
-          final double labelWidth = planetSize * 3.0;
+          final double ry = rx * (maxRy / maxRx).clamp(0.35, 1.0);
+
+          // Размер планеты ограничен ещё и шагом по дуге, чтобы планеты
+          // одного кольца не смыкались.
+          final double arcGap = (2 * math.pi * rx / count) * 0.72;
+          final double planetSize = math.min(
+            sunSize * (0.40 - r * 0.04),
+            math.min(arcGap, planetMax),
+          ).clamp(20.0, 40.0);
+          final double labelWidth = planetSize * 3.2;
 
           // Кольцо орбиты.
           children.add(
@@ -96,8 +102,8 @@ class OrbitalCatalog extends StatelessWidget {
             ),
           );
 
-          // Чередуем угол между кольцами, чтобы планеты соседних орбит
-          // не выстраивались в одну линию и не перекрывались.
+          // Углы колец чередуются, чтобы планеты разных орбит не совпадали
+          // по направлению и не перекрывались.
           final double angleOffset = r * (math.pi / count);
           for (int i = 0; i < count && index < planets.length; i++, index++) {
             final Planet planet = planets[index];
