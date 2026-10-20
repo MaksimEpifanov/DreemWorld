@@ -1,28 +1,34 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
+import '../wallet/wallet_controller.dart';
 
 /// Каркас основного интерфейса с нижней навигацией по разделам.
 ///
 /// Оборачивает [StatefulNavigationShell] из `StatefulShellRoute.indexedStack`:
 /// каждая вкладка хранит собственную историю переходов.
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.shell});
 
   /// Навигационная оболочка ветки StatefulShellRoute.
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final WalletState wallet = ref.watch(walletProvider);
     return Scaffold(
       body: shell,
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _MiniGamesBanner(onTap: () => context.go('/minigames')),
+          _MiniGamesBanner(
+            balance: wallet.balance,
+            onTap: () => context.go('/minigames'),
+          ),
           AppNavigationBar(
             currentIndex: shell.currentIndex,
             onDestinationSelected: (int index) {
@@ -40,9 +46,10 @@ class AppShell extends StatelessWidget {
 
 /// Плашка входа в мини-игры над нижним баром.
 class _MiniGamesBanner extends StatelessWidget {
-  const _MiniGamesBanner({required this.onTap});
+  const _MiniGamesBanner({required this.onTap, this.balance = 0});
 
   final VoidCallback onTap;
+  final int balance;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +94,9 @@ class _MiniGamesBanner extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.xs),
               Text(
-                'Мини-игры · заработай монеты',
+                balance > 0
+                    ? 'Мини-игры · $balance монет'
+                    : 'Мини-игры · заработай монеты',
                 style: AppTextStyles.label(color: Colors.white),
               ),
             ],
