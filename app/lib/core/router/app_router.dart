@@ -12,6 +12,7 @@ import '../../features/discovery/discovery_screen.dart';
 import '../../features/match/match_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
+import '../../features/planets/catalog/planets_catalog_screen.dart';
 import '../../features/planets/detail/planet_detail_screen.dart';
 import '../../features/planets/home/planet_home_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
@@ -156,6 +157,13 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
                   return const PlanetHomeScreen();
                 },
                 routes: <RouteBase>[
+                  GoRoute(
+                    path: 'planets',
+                    name: 'planets',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const PlanetsCatalogScreen();
+                    },
+                  ),
                   GoRoute(
                     path: 'planet/:id',
                     name: 'planet',

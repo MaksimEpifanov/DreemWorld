@@ -29,6 +29,21 @@ class PlanetHomeScreen extends ConsumerWidget {
             slivers: <Widget>[
               SliverToBoxAdapter(child: GalaxyHeader(planets: planets)),
               SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: NeonButton(
+                    label: 'Показать все планеты',
+                    icon: Icons.public,
+                    variant: NeonButtonVariant.outlined,
+                    expanded: true,
+                    onPressed: () => context.go('/main/planets'),
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+              SliverPadding(
                 padding: AppSpacing.page,
                 sliver: SliverGrid(
                   gridDelegate:

@@ -15,6 +15,26 @@ final Provider<List<Planet>> planetsProvider = Provider<List<Planet>>(
   (Ref ref) => ref.watch(planetRepositoryProvider).getPlanets(),
 );
 
+/// Избранные планеты на главной (до 4).
+///
+/// Если в профиле есть интересы — берём планеты, подходящие по ключевым
+/// словам. Если совпадений нет (или профиль ещё не загружен) — первые 4.
+final Provider<List<Planet>> featuredPlanetsProvider = Provider<List<Planet>>((
+  Ref ref,
+) {
+  final List<Planet> all = ref.watch(planetsProvider);
+  final List<String> interests =
+      ref.watch(currentProfileProvider).valueOrNull?.interestNames ??
+      const <String>[];
+  if (interests.isEmpty) {
+    return all.take(4).toList(growable: false);
+  }
+  final List<Planet> matched = all
+      .where((Planet planet) => planet.keywords.any(interests.contains))
+      .toList(growable: false);
+  return (matched.isEmpty ? all : matched).take(4).toList(growable: false);
+});
+
 /// Планета по идентификатору.
 final ProviderFamily<Planet?, String> planetByIdProvider =
     Provider.family<Planet?, String>(

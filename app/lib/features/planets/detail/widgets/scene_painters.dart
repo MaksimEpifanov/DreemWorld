@@ -72,6 +72,15 @@ CustomPainter scenePainterFor({
         secondary: secondary,
         accent: accent,
       );
+    default:
+      // Для новых тематик (кино, книги, авто и т.д.) до появления
+      // индивидуальных художников используем общую творческую сцену.
+      return _ArtPainter(
+        t: t,
+        primary: primary,
+        secondary: secondary,
+        accent: accent,
+      );
   }
 }
 

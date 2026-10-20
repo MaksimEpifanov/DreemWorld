@@ -17,8 +17,12 @@ void main() {
           .toList();
 
       expect(ids, isNotEmpty);
+      expect(ids.length, 22);
       expect(ids, contains('p_fishing'));
       expect(ids, contains('p_travel'));
+      expect(ids, contains('p_cinema'));
+      expect(ids, contains('p_books'));
+      expect(ids, contains('p_collecting'));
     });
 
     testWidgets('главный экран отображает планеты', (
