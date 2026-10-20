@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dreem_world/core/theme/index.dart';
 import 'package:dreem_world/features/chat/chat_screen.dart';
+import 'package:dreem_world/features/chat/conversations_list_screen.dart';
 
 void main() {
   Future<void> pumpChat(WidgetTester tester) async {
@@ -46,5 +47,41 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(message), findsOneWidget);
+  });
+
+  testWidgets('ChatScreen показывает заблокированный видеовызов', (
+    WidgetTester tester,
+  ) async {
+    await pumpChat(tester);
+
+    expect(find.byIcon(Icons.videocam_outlined), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.videocam_outlined));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Видеозвонки закрыты'), findsOneWidget);
+  });
+
+  testWidgets('список чатов показывает три подвкладки', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.of(AppThemeName.neonViolet),
+          home: const ConversationsListScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.text('Все'), findsOneWidget);
+    expect(find.text('По интересам'), findsOneWidget);
+    expect(find.text('Непрочитанные'), findsOneWidget);
   });
 }

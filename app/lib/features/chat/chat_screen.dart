@@ -127,6 +127,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  void _showVideoCallLocked(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Row(
+          children: <Widget>[
+            Icon(Icons.videocam_off_outlined, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: AppSpacing.sm),
+            const Expanded(child: Text('Видеозвонки закрыты')),
+          ],
+        ),
+        content: Text(
+          'Видеовызов откроется после повышения уровня аккаунта '
+          'и настройки безопасности. Продолжайте общаться текстом.',
+          style: AppTextStyles.body(color: AppColors.textSecondary),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Понятно'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<Message>> messagesAsync = ref.watch(
@@ -141,6 +168,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
         ),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Видеозвонок',
+            icon: const Icon(Icons.videocam_outlined),
+            onPressed: () => _showVideoCallLocked(context),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+        ],
       ),
       body: SafeArea(
         child: ResponsiveContent(

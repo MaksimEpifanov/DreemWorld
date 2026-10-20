@@ -11,13 +11,33 @@ import '../../core/widgets/index.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
 
-/// Список диалогов: круглый аватар, имя, последнее сообщение,
-/// время и бейдж непрочитанного.
-class ConversationsListScreen extends ConsumerWidget {
+/// Фильтр списка диалогов.
+enum _ChatFilter { all, byInterest, unread }
+
+/// Список диалогов с подвкладками «Все / По интересам / Непрочитанные».
+///
+/// Круглый аватар, имя, последнее сообщение, время и бейдж непрочитанного.
+class ConversationsListScreen extends ConsumerStatefulWidget {
   const ConversationsListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConversationsListScreen> createState() =>
+      _ConversationsListScreenState();
+}
+
+class _ConversationsListScreenState
+    extends ConsumerState<ConversationsListScreen> {
+  _ChatFilter _filter = _ChatFilter.all;
+
+  bool _matchesInterest(Profile? profile, Set<String> myInterests) {
+    if (profile == null) return false;
+    if (profile.interestNames.isEmpty) return false;
+    if (myInterests.isEmpty) return true;
+    return profile.interestNames.any(myInterests.contains);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final AsyncValue<List<Conversation>> conversationsAsync = ref.watch(
       conversationsProvider,
     );
@@ -28,51 +48,228 @@ class ConversationsListScreen extends ConsumerWidget {
               const <Profile>[])
         profile.id: profile,
     };
+    final Set<String> myInterests =
+        (ref.watch(currentProfileProvider).valueOrNull?.interestNames ??
+                const <String>[])
+            .toSet();
 
     return Scaffold(
       appBar: const NeonAppBar(title: 'Чаты'),
       body: SafeArea(
         child: ResponsiveContent(
-          child: conversationsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (Object error, StackTrace stackTrace) =>
-                const _EmptyChats(
-              icon: Icons.error_outline_rounded,
-              text: 'Не удалось загрузить чаты',
+          child: Column(
+            children: <Widget>[
+              _FilterBar(
+                selected: _filter,
+                onChanged: (_ChatFilter value) =>
+                    setState(() => _filter = value),
+              ),
+              Expanded(
+                child: conversationsAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (Object error, StackTrace stackTrace) =>
+                      const _EmptyChats(
+                    icon: Icons.error_outline_rounded,
+                    text: 'Не удалось загрузить чаты',
+                  ),
+                  data: (List<Conversation> conversations) {
+                    final List<Conversation> visible = conversations
+                        .where((Conversation conversation) {
+                          switch (_filter) {
+                            case _ChatFilter.all:
+                              return true;
+                            case _ChatFilter.unread:
+                              return conversation.hasUnread;
+                            case _ChatFilter.byInterest:
+                              final Profile? other = profiles[
+                                  conversation.otherParticipantId(
+                                currentUserId,
+                              )];
+                              return _matchesInterest(other, myInterests);
+                          }
+                        })
+                        .toList(growable: false);
+
+                    if (visible.isEmpty) {
+                      return _EmptyChats(
+                        icon: _emptyIcon(_filter),
+                        text: _emptyText(_filter),
+                      );
+                    }
+
+                    return ListView.separated(
+                      padding: AppSpacing.page,
+                      itemCount: visible.length,
+                      separatorBuilder:
+                          (BuildContext context, int index) =>
+                              const SizedBox(height: AppSpacing.sm),
+                      itemBuilder: (BuildContext context, int index) {
+                        final Conversation conversation = visible[index];
+                        final String otherId = conversation
+                            .otherParticipantId(currentUserId);
+                        return _ConversationTile(
+                          conversation: conversation,
+                          profile: profiles[otherId],
+                          fallbackLetter:
+                              otherId.isNotEmpty ? otherId[0].toUpperCase() : '?',
+                          index: index,
+                          onTap: () =>
+                              context.push('/chat/${conversation.id}'),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _emptyIcon(_ChatFilter filter) {
+    switch (filter) {
+      case _ChatFilter.all:
+        return Icons.forum_outlined;
+      case _ChatFilter.byInterest:
+        return Icons.interests_outlined;
+      case _ChatFilter.unread:
+        return Icons.mark_chat_unread_outlined;
+    }
+  }
+
+  String _emptyText(_ChatFilter filter) {
+    switch (filter) {
+      case _ChatFilter.all:
+        return 'Пока нет чатов';
+      case _ChatFilter.byInterest:
+        return 'Нет чатов по вашим интересам';
+      case _ChatFilter.unread:
+        return 'Нет непрочитанных сообщений';
+    }
+  }
+}
+
+/// Панель подвкладок фильтра.
+class _FilterBar extends StatelessWidget {
+  const _FilterBar({required this.selected, required this.onChanged});
+
+  final _ChatFilter selected;
+  final ValueChanged<_ChatFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
+      child: Row(
+        children: <Widget>[
+          _FilterChip(
+            label: 'Все',
+            active: selected == _ChatFilter.all,
+            onTap: () => onChanged(_ChatFilter.all),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          _FilterChip(
+            label: 'По интересам',
+            active: selected == _ChatFilter.byInterest,
+            onTap: () => onChanged(_ChatFilter.byInterest),
+            icon: Icons.interests_outlined,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          _FilterChip(
+            label: 'Непрочитанные',
+            active: selected == _ChatFilter.unread,
+            onTap: () => onChanged(_ChatFilter.unread),
+            icon: Icons.mark_chat_unread_outlined,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
+    required this.label,
+    required this.active,
+    required this.onTap,
+    this.icon,
+  });
+
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color color = scheme.primary;
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            color: active
+                ? color.withValues(alpha: 0.18)
+                : AppColors.surface.withValues(alpha: 0.5),
+            borderRadius: AppRadius.pillAll,
+            border: Border.all(
+              color: active
+                  ? color.withValues(alpha: 0.7)
+                  : AppColors.textMuted.withValues(alpha: 0.3),
             ),
-            data: (List<Conversation> conversations) {
-              if (conversations.isEmpty) {
-                return const _EmptyChats(
-                  icon: Icons.forum_outlined,
-                  text: 'Пока нет чатов',
-                );
-              }
-              return ListView.separated(
-                padding: AppSpacing.page,
-                itemCount: conversations.length,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (BuildContext context, int index) {
-                  final Conversation conversation = conversations[index];
-                  final String otherId =
-                      conversation.otherParticipantId(currentUserId);
-                  return _ConversationTile(
-                    conversation: conversation,
-                    profile: profiles[otherId],
-                    fallbackLetter:
-                        otherId.isNotEmpty ? otherId[0].toUpperCase() : '?',
-                    index: index,
-                    onTap: () => context.push('/chat/${conversation.id}'),
-                  );
-                },
-              );
-            },
+            boxShadow: active
+                ? <BoxShadow>[
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      spreadRadius: -2,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              if (icon != null) ...<Widget>[
+                Icon(
+                  icon,
+                  size: 15,
+                  color: active ? color : AppColors.textSecondary,
+                ),
+                const SizedBox(width: AppSpacing.xxs),
+              ],
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.label(
+                    color: active ? color : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+
 
 class _ConversationTile extends StatelessWidget {
   const _ConversationTile({
