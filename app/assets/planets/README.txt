@@ -1,0 +1,1 @@
+Положите сюда PNG планет: p_fishing.png, p_travel.png, ... p_collecting.png (квадрат, желательно 512x512+, прозрачный фон).

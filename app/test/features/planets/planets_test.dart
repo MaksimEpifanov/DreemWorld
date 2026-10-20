@@ -4,6 +4,10 @@ import 'package:dreem_world/data/models/planet.dart';
 import 'package:dreem_world/data/models/planet_news.dart';
 import 'package:dreem_world/data/providers/planet_providers.dart';
 import 'package:dreem_world/data/repositories/mock_news_repository.dart';
+import 'package:dreem_world/data/repositories/mock_planet_repository.dart';
+import 'package:dreem_world/features/planets/cosmos/orbital_catalog.dart';
+import 'package:dreem_world/features/planets/cosmos/realistic_planet.dart';
+import 'package:dreem_world/features/planets/cosmos/realistic_sun.dart';
 import 'package:dreem_world/features/planets/home/planet_home_screen.dart';
 import 'package:dreem_world/features/planets/map/planet_map_screen.dart';
 import 'package:dreem_world/features/planets/news/planet_news_screen.dart';
@@ -136,6 +140,66 @@ void main() {
 
       expect(find.textContaining('обновляется каждый час'), findsOneWidget);
       expect(find.byType(NewsCard), findsWidgets);
+    });
+  });
+
+  group('Орбитальный каталог', () {
+    testWidgets('каталог рисует солнце и планеты вокруг него', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final List<Planet> planets = const MockPlanetRepository().getPlanets();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.of(AppThemeName.neonViolet),
+          home: Scaffold(
+            body: OrbitalCatalog(
+              planets: planets,
+              onPlanetTap: (Planet planet) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RealisticSun), findsOneWidget);
+      expect(find.byType(RealisticPlanet), findsWidgets);
+    });
+
+    testWidgets('каждая планета обёрнута в обработчик нажатия', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1200, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final List<Planet> planets = const MockPlanetRepository().getPlanets();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.of(AppThemeName.neonViolet),
+          home: Scaffold(
+            body: OrbitalCatalog(
+              planets: planets,
+              onPlanetTap: (Planet planet) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byType(GestureDetector),
+        findsAtLeastNWidgets(planets.length),
+      );
     });
   });
 }
