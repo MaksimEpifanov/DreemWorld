@@ -48,7 +48,7 @@ class OrbitalCatalog extends StatelessWidget {
         final List<int> rings = _ringCounts(planets.length);
         final int ringCount = rings.length;
 
-        final double sunSize = (width * 0.11).clamp(24.0, 90.0);
+        final double sunSize = (width * 0.0935).clamp(20.0, 77.0);
 
         // Запас по краям под размер планеты и подпись, чтобы ничего не
         // уезжало за пределы экрана ни по горизонтали, ни по вертикали.
@@ -59,12 +59,12 @@ class OrbitalCatalog extends StatelessWidget {
         // Соотношение полуосей берём из реального прямоугольника карты.
         final double ellipse = (maxRy / maxRx).clamp(0.5, 1.15);
 
-        final double innerRadius = maxRx * 0.55;
-        final double outerRadius = maxRx;
+        final double innerRadius = maxRx * 0.24;
+        final double outerRadius = maxRx * 0.55;
         final List<double> radii = <double>[
           for (int i = 0; i < ringCount; i++)
             ringCount == 1
-                ? maxRx * 0.8
+                ? maxRx * 0.38
                 : innerRadius +
                     (outerRadius - innerRadius) * (i / (ringCount - 1)),
         ];
