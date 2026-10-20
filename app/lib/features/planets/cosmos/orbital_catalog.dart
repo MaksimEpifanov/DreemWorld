@@ -29,7 +29,7 @@ class OrbitalCatalog extends StatelessWidget {
   /// Количество планет на каждом кольце (в сумме — все планеты).
   static List<int> _ringCounts(int total) {
     if (total <= 6) return <int>[total];
-    return <int>[3, 5, 7, total - 15];
+    return <int>[4, 6, 6, total - 16];
   }
 
   @override
@@ -42,13 +42,21 @@ class OrbitalCatalog extends StatelessWidget {
               ? constraints.maxHeight
               : constraints.maxWidth,
         );
+        final double center = side / 2;
         final List<int> rings = _ringCounts(planets.length);
         final int ringCount = rings.length;
 
-        final double sunSize = side * 0.20;
+        final double sunSize = side * 0.16;
+        // Максимальный радиус орбиты держим внутри экрана с запасом на
+        // размер планеты и подпись, чтобы ничего не уезжало за рамки.
+        final double innerRadius = side * 0.24;
+        final double outerRadius = side * 0.40;
         final List<double> radii = <double>[
           for (int i = 0; i < ringCount; i++)
-            side * (0.30 + (0.60 / math.max(1, ringCount - 1)) * i),
+            ringCount == 1
+                ? side * 0.32
+                : innerRadius +
+                    (outerRadius - innerRadius) * (i / (ringCount - 1)),
         ];
 
         int index = 0;
@@ -57,12 +65,15 @@ class OrbitalCatalog extends StatelessWidget {
         for (int r = 0; r < ringCount; r++) {
           final int count = rings[r];
           final double radius = radii[r];
-          final double orbitPlanetSize =
-              sunSize * (0.62 - r * 0.11).clamp(0.24, 0.62);
+          final double planetSize =
+              sunSize * (0.80 - r * 0.12).clamp(0.40, 0.80);
+          final double labelWidth = planetSize * 3.2;
 
           // Рисуем саму орбиту.
           children.add(
-            SizedBox(
+            Positioned(
+              left: center - radius,
+              top: center - radius * 0.62,
               width: radius * 2,
               height: radius * 2 * 0.62,
               child: CustomPaint(
@@ -77,22 +88,23 @@ class OrbitalCatalog extends StatelessWidget {
           final double angleOffset = r * (math.pi / 6);
           for (int i = 0; i < count && index < planets.length; i++, index++) {
             final Planet planet = planets[index];
-            final double angle =
-                angleOffset + (2 * math.pi / count) * i;
-            final double x = math.cos(angle) * radius;
-            final double y = math.sin(angle) * radius * 0.62;
+            final double angle = angleOffset + (2 * math.pi / count) * i;
+            final double px = center + math.cos(angle) * radius;
+            final double py = center + math.sin(angle) * radius * 0.62;
 
             children.add(
-              Transform.translate(
-                offset: Offset(x, y),
+              Positioned(
+                left: px - planetSize / 2,
+                top: py - planetSize / 2,
+                width: planetSize,
+                height: planetSize,
                 child: _CatalogPlanet(
                   planet: planet,
-                  size: orbitPlanetSize,
+                  size: planetSize,
                   lightAlignment: Alignment(
                     -math.cos(angle),
                     -math.sin(angle),
                   ),
-                  showLabel: showLabels,
                   onTap: () => onPlanetTap(planet),
                 )
                     .animate(delay: (index * 40).ms)
@@ -104,29 +116,44 @@ class OrbitalCatalog extends StatelessWidget {
                     ),
               ),
             );
+
+            if (showLabels) {
+              children.add(
+                Positioned(
+                  left: px - labelWidth / 2,
+                  top: py + planetSize / 2 + 2,
+                  width: labelWidth,
+                  child: IgnorePointer(
+                    child: Center(
+                      child: _PlanetLabel(planet: planet),
+                    ),
+                  ),
+                ),
+              );
+            }
           }
         }
 
         return CosmicBackground(
           child: Center(
-            child: SizedBox(
-              width: side,
-              height: side,
-              child: InteractiveViewer(
-                minScale: 0.8,
-                maxScale: 3.0,
-                boundaryMargin: const EdgeInsets.all(120),
-                child: SizedBox(
-                  width: side,
-                  height: side,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
-                    children: <Widget>[
-                      ...children,
-                      RealisticSun(size: sunSize, glow: 0.45),
-                    ],
-                  ),
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: SizedBox(
+                width: side,
+                height: side,
+                child: Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    ...children,
+                    Positioned(
+                      left: center - sunSize / 2,
+                      top: center - sunSize / 2,
+                      width: sunSize,
+                      height: sunSize,
+                      child: RealisticSun(size: sunSize, glow: 0.45),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -137,61 +164,62 @@ class OrbitalCatalog extends StatelessWidget {
   }
 }
 
+/// Подпись под планетой.
+class _PlanetLabel extends StatelessWidget {
+  const _PlanetLabel({required this.planet});
+
+  final Planet planet;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.black.withValues(alpha: 0.45),
+        borderRadius: AppRadius.pillAll,
+        border: Border.all(
+          color: planet.accent.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Text(
+        planet.name.replaceFirst('Планета ', ''),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: AppTextStyles.caption(color: AppColors.textPrimary),
+      ),
+    );
+  }
+}
+
+/// Планета-шар с обработчиком нажатия (без подписи — она отдельно).
 class _CatalogPlanet extends StatelessWidget {
   const _CatalogPlanet({
     required this.planet,
     required this.size,
     required this.lightAlignment,
-    required this.showLabel,
     required this.onTap,
   });
 
   final Planet planet;
   final double size;
   final Alignment lightAlignment;
-  final bool showLabel;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final bool ring = _hasRing(planet);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          RealisticPlanet(
-            planet: planet,
-            size: size,
-            lightAlignment: lightAlignment,
-            showRing: ring,
-            glow: 0.4,
-          ),
-          if (showLabel)
-            Container(
-              constraints: const BoxConstraints(maxWidth: 96),
-              margin: const EdgeInsets.only(top: AppSpacing.xxs),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: 2,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.black.withValues(alpha: 0.45),
-                borderRadius: AppRadius.pillAll,
-                border: Border.all(
-                  color: planet.accent.withValues(alpha: 0.4),
-                ),
-              ),
-              child: Text(
-                planet.name.replaceFirst('Планета ', ''),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.caption(color: AppColors.textPrimary),
-              ),
-            ),
-        ],
+      child: RealisticPlanet(
+        planet: planet,
+        size: size,
+        lightAlignment: lightAlignment,
+        showRing: _hasRing(planet),
+        glow: 0.4,
       ),
     );
   }
