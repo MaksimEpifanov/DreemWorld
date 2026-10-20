@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../core/theme/index.dart';
 import '../../../../core/widgets/cosmic_background.dart';
@@ -14,7 +13,11 @@ import 'realistic_sun.dart';
 /// Раскладка считается от РЕАЛЬНЫХ размеров области. Размер планет/солнца
 /// берётся от меньшей стороны (чтобы всё влезало по высоте на широком
 /// экране ПК), а орбиты растягиваются по ширине. Кольца разнесены, углы
-/// чередуются — планеты не наслаиваются.
+/// чередуются — планеты не наслаиваются и не пересекаются.
+///
+/// Каждая планета медленно вращается на месте (лёгкое живое движение),
+/// навигация при этом не затрагивается: нажатие обрабатывает [GestureDetector]
+/// поверх визуала.
 class OrbitalCatalog extends StatelessWidget {
   const OrbitalCatalog({
     super.key,
@@ -49,19 +52,24 @@ class OrbitalCatalog extends StatelessWidget {
         final List<int> rings = _ringCounts(planets.length);
         final int ringCount = rings.length;
 
-        final double sunSize = (base * 0.26).clamp(64.0, 220.0);
-        final double planetMax = sunSize * 0.40;
-        final double labelHeight = planetMax * 0.55 + 6;
+        // Компактное солнце: чистое и яркое, но не «съедающее» место планет.
+        final double sunSize = (base * 0.20).clamp(54.0, 170.0);
 
-        // Полуоси орбит: по вертикали — с запасом под планету и подпись,
-        // по горизонтали — до края с запасом под планету.
-        final double maxRy =
-            math.max(30.0, h / 2 - planetMax / 2 - labelHeight - 8);
-        final double maxRx =
-            math.max(30.0, w / 2 - planetMax / 2 - 16);
+        // Максимальный размер планеты с учётом запаса под кольцо и подпись.
+        final double maxPlanet = (sunSize * 0.42).clamp(16.0, 46.0);
+
+        // Полуоси орбит: по вертикали — с запасом под планету, кольцо и
+        // подпись; по горизонтали — до края с запасом под планету.
+        final double ringPad = maxPlanet * 0.5;
+        final double labelHeight = maxPlanet * 0.6 + 6;
+        final double maxRy = math.max(
+          30.0,
+          h / 2 - maxPlanet / 2 - ringPad / 2 - labelHeight - 8,
+        );
+        final double maxRx = math.max(30.0, w / 2 - maxPlanet / 2 - ringPad - 16);
 
         // Кольца разнесены по радиусу так, чтобы соседние не наслаивались.
-        final double inner = 0.42;
+        final double inner = 0.46;
         final List<double> radiiX = <double>[
           for (int i = 0; i < ringCount; i++)
             ringCount == 1
@@ -78,13 +86,13 @@ class OrbitalCatalog extends StatelessWidget {
           final double ry = rx * (maxRy / maxRx).clamp(0.35, 1.0);
 
           // Размер планеты ограничен ещё и шагом по дуге, чтобы планеты
-          // одного кольца не смыкались.
-          final double arcGap = (2 * math.pi * rx / count) * 0.72;
+          // одного кольца не смыкались (запас под кольцо учтён).
+          final double arcGap = (2 * math.pi * rx / count) * 0.66;
           final double planetSize = math.min(
-            sunSize * (0.40 - r * 0.04),
-            math.min(arcGap, planetMax),
-          ).clamp(20.0, 40.0);
-          final double labelWidth = planetSize * 3.2;
+            sunSize * (0.42 - r * 0.04),
+            math.min(arcGap / 1.6, maxPlanet),
+          ).clamp(18.0, 46.0);
+          final double labelWidth = planetSize * 3.4;
 
           // Кольцо орбиты.
           children.add(
@@ -111,25 +119,27 @@ class OrbitalCatalog extends StatelessWidget {
             final double px = center.dx + math.cos(angle) * rx;
             final double py = center.dy + math.sin(angle) * ry;
 
+            // Лёгкое вращение: у каждой планеты своя скорость и фаза.
+            final double speed = 0.9 + (index % 5) * 0.14;
+            final double phase = (index * 0.17) % 1.0;
+
             children.add(
               Positioned(
                 left: px - planetSize / 2,
                 top: py - planetSize / 2,
                 width: planetSize,
                 height: planetSize,
-                child: _CatalogPlanet(
+                child: _RotatingPlanet(
                   planet: planet,
                   size: planetSize,
-                  lightAlignment: Alignment(-math.cos(angle), -math.sin(angle)),
+                  speed: speed,
+                  phase: phase,
+                  lightAlignment: Alignment(
+                    -math.cos(angle),
+                    -math.sin(angle),
+                  ),
                   onTap: () => onPlanetTap(planet),
-                )
-                    .animate(delay: (index * 40).ms)
-                    .fadeIn(duration: 500.ms)
-                    .scale(
-                      begin: const Offset(0.6, 0.6),
-                      end: const Offset(1, 1),
-                      curve: Curves.easeOutBack,
-                    ),
+                ),
               ),
             );
 
@@ -158,13 +168,93 @@ class OrbitalCatalog extends StatelessWidget {
                 top: center.dy - sunSize / 2,
                 width: sunSize,
                 height: sunSize,
-                child: RealisticSun(size: sunSize, glow: 0.45),
+                child: RealisticSun(size: sunSize, glow: 0.55),
               ),
             ],
           ),
         );
       },
     );
+  }
+}
+
+/// Планета с лёгким постоянным вращением поверхности.
+///
+/// Анимация касается только визуала; обработчик нажатия не двигается,
+/// поэтому навигация работает как раньше.
+class _RotatingPlanet extends StatefulWidget {
+  const _RotatingPlanet({
+    required this.planet,
+    required this.size,
+    required this.speed,
+    required this.phase,
+    required this.lightAlignment,
+    required this.onTap,
+  });
+
+  final Planet planet;
+  final double size;
+  final double speed;
+  final double phase;
+  final Alignment lightAlignment;
+  final VoidCallback onTap;
+
+  @override
+  State<_RotatingPlanet> createState() => _RotatingPlanetState();
+}
+
+class _RotatingPlanetState extends State<_RotatingPlanet>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: (28000 / widget.speed).round()),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          final double turns = (widget.phase + _controller.value) % 1.0;
+          return RealisticPlanet(
+            planet: widget.planet,
+            size: widget.size,
+            lightAlignment: widget.lightAlignment,
+            showRing: _hasRing(widget.planet),
+            glow: 0.4,
+            rotationTurns: turns,
+          );
+        },
+      ),
+    );
+  }
+
+  bool _hasRing(Planet planet) {
+    switch (planet.scene) {
+      case PlanetScene.cinema:
+      case PlanetScene.technology:
+      case PlanetScene.esoteric:
+      case PlanetScene.collecting:
+      case PlanetScene.other:
+        return true;
+      default:
+        return false;
+    }
   }
 }
 
@@ -196,49 +286,6 @@ class _PlanetLabel extends StatelessWidget {
         style: AppTextStyles.caption(color: AppColors.textPrimary),
       ),
     );
-  }
-}
-
-/// Планета-шар с обработчиком нажатия (без подписи — она отдельно).
-class _CatalogPlanet extends StatelessWidget {
-  const _CatalogPlanet({
-    required this.planet,
-    required this.size,
-    required this.lightAlignment,
-    required this.onTap,
-  });
-
-  final Planet planet;
-  final double size;
-  final Alignment lightAlignment;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: RealisticPlanet(
-        planet: planet,
-        size: size,
-        lightAlignment: lightAlignment,
-        showRing: _hasRing(planet),
-        glow: 0.4,
-      ),
-    );
-  }
-
-  bool _hasRing(Planet planet) {
-    switch (planet.scene) {
-      case PlanetScene.cinema:
-      case PlanetScene.technology:
-      case PlanetScene.esoteric:
-      case PlanetScene.collecting:
-      case PlanetScene.other:
-        return true;
-      default:
-        return false;
-    }
   }
 }
 

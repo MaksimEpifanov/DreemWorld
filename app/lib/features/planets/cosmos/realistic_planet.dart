@@ -11,6 +11,9 @@ import 'planet_art.dart';
 /// к центру системы). Если для планеты найден PNG (`assets/planets/<id>.png`),
 /// он используется как текстура поверхности; иначе рисуется процедурная
 /// поверхность: океаны/материки/кратеры, терминатор, блик и атмосфера.
+///
+/// [rotationTurns] — медленный поворот поверхности (0..1 — полный оборот).
+/// Поворачивается только текстура, освещение остаётся привязано к солнцу.
 class RealisticPlanet extends StatelessWidget {
   const RealisticPlanet({
     super.key,
@@ -19,6 +22,7 @@ class RealisticPlanet extends StatelessWidget {
     this.lightAlignment = const Alignment(-0.6, -0.5),
     this.showRing = false,
     this.glow = 0.55,
+    this.rotationTurns = 0,
   });
 
   final Planet planet;
@@ -34,6 +38,9 @@ class RealisticPlanet extends StatelessWidget {
 
   /// Сила внешнего свечения (0 — выключено).
   final double glow;
+
+  /// Текущий угол поворота поверхности в оборотах (0..1).
+  final double rotationTurns;
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +88,7 @@ class RealisticPlanet extends StatelessWidget {
                     planet: planet,
                     lightAlignment: lightAlignment,
                     showRing: showRing,
+                    rotationTurns: rotationTurns,
                   ),
                 );
               },
@@ -97,11 +105,13 @@ class _PlanetPainter extends CustomPainter {
     required this.planet,
     required this.lightAlignment,
     required this.showRing,
+    required this.rotationTurns,
   });
 
   final Planet planet;
   final Alignment lightAlignment;
   final bool showRing;
+  final double rotationTurns;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -118,7 +128,15 @@ class _PlanetPainter extends CustomPainter {
     canvas.save();
     canvas.clipPath(Path()..addOval(sphere));
 
+    // Поворачиваем только текстуру поверхности — освещение остаётся
+    // привязано к солнцу и не «крутится» вместе с планетой.
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotationTurns * 2 * math.pi);
+    canvas.translate(-center.dx, -center.dy);
     _paintSurface(canvas, size, radius, palette, rnd);
+    canvas.restore();
+
     _paintLighting(
       canvas,
       size,
@@ -364,6 +382,7 @@ class _PlanetPainter extends CustomPainter {
   bool shouldRepaint(covariant _PlanetPainter oldDelegate) {
     return oldDelegate.planet != planet ||
         oldDelegate.lightAlignment != lightAlignment ||
-        oldDelegate.showRing != showRing;
+        oldDelegate.showRing != showRing ||
+        oldDelegate.rotationTurns != rotationTurns;
   }
 }

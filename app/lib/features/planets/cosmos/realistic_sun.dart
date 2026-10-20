@@ -81,7 +81,7 @@ class _SunPainter extends CustomPainter {
     canvas.save();
     canvas.clipPath(Path()..addOval(disc));
 
-    // Базовая сфера плазмы.
+    // Базовая сфера плазмы — яркое чистое ядро.
     canvas.drawCircle(
       center,
       radius,
@@ -90,57 +90,46 @@ class _SunPainter extends CustomPainter {
           center: Alignment(-0.25, -0.3),
           radius: 1.05,
           colors: <Color>[
-            Color(0xFFFFFDE7),
-            Color(0xFFFFE08A),
-            Color(0xFFFFB347),
-            Color(0xFFF98A2B),
+            Color(0xFFFFFFFF),
+            Color(0xFFFFF9DC),
+            Color(0xFFFFE48A),
+            Color(0xFFFFC24D),
+            Color(0xFFF59A2B),
           ],
-          stops: <double>[0.0, 0.32, 0.7, 1.0],
+          stops: <double>[0.0, 0.28, 0.6, 0.85, 1.0],
         ).createShader(disc),
     );
 
-    // Грануляция плазмы: множество мягких пятен.
-    for (int i = 0; i < 140; i++) {
+    // Мягкая грануляция плазмы — только светлые «кипящие» пятна.
+    for (int i = 0; i < 90; i++) {
       final double a = rnd.nextDouble() * math.pi * 2;
-      final double d = rnd.nextDouble() * radius * 0.98;
-      final Offset p = center + Offset(math.cos(a) * d, math.sin(a) * d);
-      final bool hot = rnd.nextBool();
+      final double d = rnd.nextDouble() * radius * 0.95;
+      final Offset p = center + Offset(math.cos(a) * d, math.sin(a) * d * 0.9);
       canvas.drawCircle(
         p,
-        radius * (0.03 + rnd.nextDouble() * 0.07),
+        radius * (0.04 + rnd.nextDouble() * 0.08),
         Paint()
-          ..color = (hot ? const Color(0xFFFFF3C4) : const Color(0xFFE86A1E))
-              .withValues(alpha: 0.18)
-          ..maskFilter = MaskFilter.blur(
-            BlurStyle.normal,
-            radius * 0.03,
-          ),
+          ..color = const Color(0xFFFFF6D0).withValues(alpha: 0.12)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.05),
       );
     }
 
-    // Солнечные пятна: тёмные ядра с полутенью.
-    for (int i = 0; i < 12; i++) {
+    // Едва заметные солнечные пятна — не нарушают чисто́ту диска.
+    for (int i = 0; i < 5; i++) {
       final double a = rnd.nextDouble() * math.pi * 2;
-      final double d = rnd.nextDouble() * radius * 0.75;
+      final double d = rnd.nextDouble() * radius * 0.6;
       final Offset p = center + Offset(math.cos(a) * d, math.sin(a) * d);
-      final double spot = radius * (0.05 + rnd.nextDouble() * 0.09);
-      canvas.drawCircle(
-        p,
-        spot * 1.6,
-        Paint()
-          ..color = const Color(0xFFB04A12).withValues(alpha: 0.35)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, spot * 0.4),
-      );
+      final double spot = radius * (0.04 + rnd.nextDouble() * 0.05);
       canvas.drawCircle(
         p,
         spot,
         Paint()
-          ..color = const Color(0xFF5E2408).withValues(alpha: 0.55)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, spot * 0.25),
+          ..color = const Color(0xFFD97A1E).withValues(alpha: 0.18)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, spot * 0.5),
       );
     }
 
-    // Мягкое затемнение к краю — объём (лимб).
+    // Мягкий объём к краю — лимб (тёплый, а не грязный).
     canvas.drawCircle(
       center,
       radius,
@@ -150,9 +139,10 @@ class _SunPainter extends CustomPainter {
           colors: <Color>[
             Colors.transparent,
             Colors.transparent,
-            const Color(0xFF8A3B0A).withValues(alpha: 0.5),
+            const Color(0xFFFF9A2E).withValues(alpha: 0.35),
+            const Color(0xFFE0701A).withValues(alpha: 0.55),
           ],
-          stops: const <double>[0.6, 0.82, 1.0],
+          stops: const <double>[0.62, 0.85, 0.95, 1.0],
         ).createShader(disc),
     );
 

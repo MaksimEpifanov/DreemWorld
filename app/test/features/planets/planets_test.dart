@@ -166,7 +166,7 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 600));
 
       expect(find.byType(RealisticSun), findsOneWidget);
       expect(find.byType(RealisticPlanet), findsWidgets);
@@ -194,7 +194,7 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 600));
 
       expect(
         find.byType(GestureDetector),
