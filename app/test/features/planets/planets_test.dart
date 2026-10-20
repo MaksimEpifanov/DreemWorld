@@ -1,9 +1,13 @@
 import 'package:dreem_world/core/theme/index.dart';
 import 'package:dreem_world/data/models/map_spot.dart';
 import 'package:dreem_world/data/models/planet.dart';
+import 'package:dreem_world/data/models/planet_news.dart';
 import 'package:dreem_world/data/providers/planet_providers.dart';
+import 'package:dreem_world/data/repositories/mock_news_repository.dart';
 import 'package:dreem_world/features/planets/home/planet_home_screen.dart';
 import 'package:dreem_world/features/planets/map/planet_map_screen.dart';
+import 'package:dreem_world/features/planets/news/planet_news_screen.dart';
+import 'package:dreem_world/features/planets/news/widgets/news_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,6 +89,53 @@ void main() {
 
       expect(find.textContaining('отметок участников'), findsOneWidget);
       expect(find.textContaining('Отметить место'), findsOneWidget);
+    });
+  });
+
+  group('Новости планеты', () {
+    test('лента не пуста и обновляется при смене часа', () {
+      const MockNewsRepository repo = MockNewsRepository();
+      final ProviderContainer container = ProviderContainer();
+      addTearDown(container.dispose);
+      final Planet planet = container.read(planetByIdProvider('p_fishing'))!;
+
+      final DateTime h1 = DateTime(2026, 1, 1, 10, 5);
+      final DateTime h2 = DateTime(2026, 1, 1, 11, 5);
+
+      final List<PlanetNewsItem> a = repo.newsFor(planet, now: h1);
+      final List<PlanetNewsItem> b = repo.newsFor(planet, now: h1);
+      final List<PlanetNewsItem> c = repo.newsFor(planet, now: h2);
+
+      expect(a, isNotEmpty);
+      // В течение одного часа лента стабильна.
+      expect(
+        a.map((PlanetNewsItem n) => n.id),
+        equals(b.map((PlanetNewsItem n) => n.id)),
+      );
+      // В новый час — другая лента.
+      expect(
+        a.map((PlanetNewsItem n) => n.id),
+        isNot(equals(c.map((PlanetNewsItem n) => n.id))),
+      );
+      expect(a.first.tag, planet.keywords.first);
+    });
+
+    testWidgets('экран новостей показывает ленту', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: AppTheme.of(AppThemeName.neonViolet),
+            home: const PlanetNewsScreen(planetId: 'p_fishing'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.textContaining('обновляется каждый час'), findsOneWidget);
+      expect(find.byType(NewsCard), findsWidgets);
     });
   });
 }

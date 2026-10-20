@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/map_spot.dart';
 import '../models/planet.dart';
+import '../models/planet_news.dart';
 import '../models/profile.dart';
 import '../repositories/map_repository.dart';
 import '../repositories/mock_map_repository.dart';
+import '../repositories/mock_news_repository.dart';
 import '../repositories/mock_planet_repository.dart';
+import '../repositories/news_repository.dart';
 import '../repositories/planet_repository.dart';
 import 'app_providers.dart';
 
@@ -16,6 +21,10 @@ final Provider<PlanetRepository> planetRepositoryProvider =
 /// Репозиторий отметок на карте планет.
 final Provider<MapRepository> mapRepositoryProvider =
     Provider<MapRepository>((Ref ref) => const MockMapRepository());
+
+/// Репозиторий новостной ленты планет.
+final Provider<NewsRepository> newsRepositoryProvider =
+    Provider<NewsRepository>((Ref ref) => const MockNewsRepository());
 
 /// Каталог планет.
 final Provider<List<Planet>> planetsProvider = Provider<List<Planet>>(
@@ -95,3 +104,45 @@ final ProviderFamily<List<MapSpot>, String> planetMapSpotsProvider =
   if (planet == null) return const <MapSpot>[];
   return ref.watch(mapRepositoryProvider).spotsFor(planet);
 });
+
+/// Лента новостей планеты с обновлением раз в час.
+///
+/// Первый выпуск отдаётся сразу, затем лента пересобирается каждый час.
+final StreamProviderFamily<List<PlanetNewsItem>, String> planetNewsProvider =
+    StreamProvider.family<List<PlanetNewsItem>, String>((Ref ref, String id) {
+  final Planet? planet = ref.watch(planetByIdProvider(id));
+  if (planet == null) {
+    return Stream<List<PlanetNewsItem>>.value(const <PlanetNewsItem>[]);
+  }
+
+  final NewsRepository repository = ref.watch(newsRepositoryProvider);
+  return _hourlyNews(repository, planet);
+});
+
+/// Бесконечный поток новостей: сразу первая порция, далее раз в час.
+///
+/// Поток отменяет таймер при закрытии подписки (например, при уходе с
+/// экрана), поэтому не оставляет «висящих» таймеров.
+Stream<List<PlanetNewsItem>> _hourlyNews(
+  NewsRepository repository,
+  Planet planet,
+) {
+  StreamController<List<PlanetNewsItem>>? controller;
+  Timer? timer;
+
+  void emit() =>
+      controller?.add(repository.newsFor(planet, now: DateTime.now()));
+
+  controller = StreamController<List<PlanetNewsItem>>(
+    onListen: () {
+      emit();
+      timer = Timer.periodic(const Duration(hours: 1), (_) => emit());
+    },
+    onCancel: () {
+      timer?.cancel();
+      timer = null;
+    },
+  );
+
+  return controller.stream;
+}

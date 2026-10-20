@@ -11,6 +11,7 @@ import '../../../data/models/planet.dart';
 import '../../../data/models/profile.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/providers/planet_providers.dart';
+import '../news/widgets/news_section.dart';
 import 'widgets/planet_scene.dart';
 
 /// «Внутренний мир» планеты: оформление под её увлечение и участники.
@@ -95,6 +96,8 @@ class PlanetDetailScreen extends ConsumerWidget {
                     onPressed: () =>
                         context.go('/main/planet/${planet.id}/map'),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  NewsSection(planet: planet),
                   const SizedBox(height: AppSpacing.lg),
                   Text('Участники планеты', style: AppTextStyles.title()),
                   const SizedBox(height: AppSpacing.sm),

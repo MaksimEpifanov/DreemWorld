@@ -19,6 +19,7 @@ import '../../features/planets/catalog/planets_catalog_screen.dart';
 import '../../features/planets/detail/planet_detail_screen.dart';
 import '../../features/planets/home/planet_home_screen.dart';
 import '../../features/planets/map/planet_map_screen.dart';
+import '../../features/planets/news/planet_news_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
 import '../../features/profile/profile_view_edit_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -191,6 +192,15 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
                           final String id =
                               state.pathParameters['id'] ?? '';
                           return PlanetMapScreen(planetId: id);
+                        },
+                      ),
+                      GoRoute(
+                        path: 'news',
+                        name: 'planet-news',
+                        builder: (BuildContext context, GoRouterState state) {
+                          final String id =
+                              state.pathParameters['id'] ?? '';
+                          return PlanetNewsScreen(planetId: id);
                         },
                       ),
                     ],
