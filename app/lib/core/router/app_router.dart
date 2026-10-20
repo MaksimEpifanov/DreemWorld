@@ -24,6 +24,7 @@ import '../../features/planets/map/planet_map_screen.dart';
 import '../../features/planets/news/planet_news_screen.dart';
 import '../../features/profile/profile_setup_screen.dart';
 import '../../features/profile/profile_view_edit_screen.dart';
+import '../../features/safety/safety_center_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/shell/app_shell.dart';
 
@@ -275,6 +276,13 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
         name: 'settings',
         builder: (BuildContext context, GoRouterState state) {
           return const SettingsScreen();
+        },
+      ),
+      GoRoute(
+        path: '/safety',
+        name: 'safety',
+        builder: (BuildContext context, GoRouterState state) {
+          return const SafetyCenterScreen();
         },
       ),
       GoRoute(

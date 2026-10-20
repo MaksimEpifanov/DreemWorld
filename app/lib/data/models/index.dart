@@ -5,4 +5,5 @@ export 'match.dart';
 export 'message.dart';
 export 'planet.dart';
 export 'profile.dart';
+export 'safety.dart';
 export 'user.dart';

@@ -29,8 +29,8 @@ void main() {
   ) async {
     await pumpChat(tester);
 
-    expect(find.text('Чат'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
+    expect(find.byIcon(Icons.flag_outlined), findsOneWidget);
     expect(find.text('Введите сообщение...'), findsOneWidget);
     expect(find.textContaining('Привет!'), findsOneWidget);
     expect(find.textContaining('Спасибо!'), findsOneWidget);

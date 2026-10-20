@@ -7,6 +7,7 @@ import '../../core/theme/index.dart';
 import '../../core/widgets/index.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
+import '../safety/widgets/report_sheet.dart';
 import 'widgets/user_card.dart';
 
 /// Экран подбора: карточки кандидатов и эмуляция взаимного мэтча.
@@ -70,6 +71,19 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
     _advance();
   }
 
+  Future<void> _report(Profile profile) async {
+    final bool sent = await showReportSheet(
+      context,
+      ref,
+      targetId: profile.id,
+      targetName: profile.name,
+      target: ReportTarget.user,
+    );
+    if (sent && mounted) {
+      setState(() => _index++);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<Profile>> profilesAsync = ref.watch(
@@ -126,6 +140,7 @@ class _DiscoveryScreenState extends ConsumerState<DiscoveryScreen> {
                         isBusy: _isBusy,
                         onLike: () => _like(profile),
                         onPass: () => _pass(profile),
+                        onReport: () => _report(profile),
                       ),
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/config/app_info.dart';
 import '../../core/theme/index.dart';
@@ -103,6 +104,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                const _SectionTitle(
+                  icon: Icons.shield_moon_rounded,
+                  text: 'Безопасность',
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                NeonCard(
+                  padding: EdgeInsets.zero,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: ListTile(
+                      leading: const Icon(Icons.report_gmailerrorred_rounded),
+                      title: const Text('Центр безопасности'),
+                      subtitle: const Text(
+                        'Правила, мои жалобы и заблокированные',
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.go('/safety'),
                     ),
                   ),
                 ),

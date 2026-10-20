@@ -110,6 +110,8 @@ class _HomeTopBar extends ConsumerWidget {
                 context.go('/main/planets');
               } else if (value == 'settings') {
                 context.go('/settings');
+              } else if (value == 'safety') {
+                context.go('/safety');
               }
             },
             itemBuilder: (BuildContext context) => const <PopupMenuEntry<String>>[
@@ -120,6 +122,10 @@ class _HomeTopBar extends ConsumerWidget {
               PopupMenuItem<String>(
                 value: 'all',
                 child: Text('Все планеты'),
+              ),
+              PopupMenuItem<String>(
+                value: 'safety',
+                child: Text('Центр безопасности'),
               ),
               PopupMenuItem<String>(
                 value: 'settings',

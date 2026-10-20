@@ -8,7 +8,10 @@ import '../../../core/widgets/index.dart';
 import '../../../data/models/index.dart';
 import '../../../data/providers/app_providers.dart';
 import '../../../data/services/mock_ai_service.dart';
+import '../../../data/services/moderation_service.dart';
 import '../../../data/services/translation_service.dart';
+import '../safety/age_safety.dart';
+import '../safety/widgets/report_sheet.dart';
 import 'widgets/message_bubble.dart';
 
 /// Экран диалога: градиентные пузыри, неоновое поле ввода,
@@ -26,10 +29,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final MockAiService _aiService = const MockAiService();
+  final ModerationService _moderation = const MockModerationService();
   final Map<String, String> _translations = <String, String>{};
   String? _translatingMessageId;
   bool _showingTopics = false;
   List<String> _suggestedTopics = <String>[];
+
+  String? _otherUserId;
+  String _otherName = 'Собеседник';
+  String? _ageRestriction;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChatContext();
+  }
+
+  Future<void> _loadChatContext() async {
+    final String otherId = await _getOtherUserId();
+    final Profile? other = await ref
+        .read(profileRepositoryProvider)
+        .getProfileById(otherId);
+    final Profile? me =
+        await ref.read(profileRepositoryProvider).getCurrentProfile();
+    if (!mounted) return;
+    setState(() {
+      _otherUserId = otherId;
+      _otherName = other?.name ?? 'Собеседник';
+      _ageRestriction = (me != null && other != null)
+          ? AgeSafety.restrictionReason(myAge: me.age, otherAge: other.age)
+          : null;
+    });
+  }
 
   @override
   void dispose() {
@@ -43,6 +74,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (text.isEmpty) {
       return;
     }
+
+    if (_ageRestriction != null) {
+      _showRestrictionDialog();
+      return;
+    }
+
+    final ModerationVerdict verdict = _moderation.checkText(text);
+    if (verdict.flagged) {
+      await _showModerationWarning(verdict);
+      return;
+    }
+
     await ref
         .read(chatRepositoryProvider)
         .sendMessage(widget.conversationId, text);
@@ -52,6 +95,70 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _suggestedTopics = <String>[];
     });
     _scrollToBottom();
+  }
+
+  void _showRestrictionDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Row(
+          children: <Widget>[
+            Icon(Icons.shield_moon_rounded, color: Theme.of(context).colorScheme.secondary),
+            const SizedBox(width: AppSpacing.sm),
+            const Expanded(child: Text('Чат ограничен')),
+          ],
+        ),
+        content: Text(
+          _ageRestriction ?? '',
+          style: AppTextStyles.body(color: AppColors.textSecondary),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Понятно'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showModerationWarning(ModerationVerdict verdict) async {
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Row(
+          children: <Widget>[
+            Icon(Icons.report_gmailerrorred_rounded, color: Theme.of(context).colorScheme.error),
+            const SizedBox(width: AppSpacing.sm),
+            const Expanded(child: Text('Сообщение заблокировано')),
+          ],
+        ),
+        content: Text(
+          'ИИ-фильтр обнаружил возможное нарушение правил.\n\n'
+          '${verdict.message}\n\n'
+          'Отредактируйте сообщение. Повторные нарушения приведут к блокировке.',
+          style: AppTextStyles.body(color: AppColors.textSecondary),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Исправить'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _reportChat() async {
+    await showReportSheet(
+      context,
+      ref,
+      targetId: _otherUserId ?? widget.conversationId,
+      targetName: _otherName,
+      target: ReportTarget.user,
+    );
   }
 
   Future<void> _translateMessage(Message message) async {
@@ -163,7 +270,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: NeonAppBar(
-        title: 'Чат',
+        title: _otherName,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -173,6 +280,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             tooltip: 'Видеозвонок',
             icon: const Icon(Icons.videocam_outlined),
             onPressed: () => _showVideoCallLocked(context),
+          ),
+          IconButton(
+            tooltip: 'Пожаловаться',
+            icon: const Icon(Icons.flag_outlined),
+            onPressed: _reportChat,
           ),
           const SizedBox(width: AppSpacing.xs),
         ],
@@ -226,14 +338,59 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
               if (_showingTopics && _suggestedTopics.isNotEmpty)
                 _TopicPanel(topics: _suggestedTopics, onSelect: _useTopic),
-              _InputBar(
-                controller: _textController,
-                onSend: _sendMessage,
-                onSuggest: _suggestTopics,
-              ),
+              if (_ageRestriction != null)
+                _SafetyBanner(
+                  text: _ageRestriction!,
+                  onTap: _showRestrictionDialog,
+                )
+              else
+                _InputBar(
+                  controller: _textController,
+                  onSend: _sendMessage,
+                  onSuggest: _suggestTopics,
+                ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Баннер безопасности вместо поля ввода, когда личный чат ограничен.
+class _SafetyBanner extends StatelessWidget {
+  const _SafetyBanner({required this.text, required this.onTap});
+
+  final String text;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface.withValues(alpha: 0.9),
+        border: Border(
+          top: BorderSide(color: scheme.error.withValues(alpha: 0.5)),
+        ),
+      ),
+      child: Row(
+        children: <Widget>[
+          Icon(Icons.shield_moon_rounded, color: scheme.error),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'Личный чат ограничен правилами безопасности',
+              style: AppTextStyles.caption(color: AppColors.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: onTap,
+            child: const Text('Почему?'),
+          ),
+        ],
       ),
     );
   }

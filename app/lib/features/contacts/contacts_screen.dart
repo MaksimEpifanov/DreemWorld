@@ -7,6 +7,7 @@ import '../../core/theme/index.dart';
 import '../../core/widgets/index.dart';
 import '../../data/models/index.dart';
 import '../../data/providers/app_providers.dart';
+import '../safety/widgets/report_sheet.dart';
 import 'contacts_controller.dart';
 
 /// Экран контактов: добавление по QR и список знакомых.
@@ -112,6 +113,13 @@ class ContactsScreen extends ConsumerWidget {
                           ref.read(contactsProvider.notifier).remove(
                                 contacts[i].id,
                               ),
+                      onReport: () => showReportSheet(
+                        context,
+                        ref,
+                        targetId: contacts[i].id,
+                        targetName: contacts[i].name,
+                        target: ReportTarget.user,
+                      ),
                     ),
                   ),
             ],
@@ -155,11 +163,13 @@ class _ContactTile extends StatelessWidget {
     required this.profile,
     required this.index,
     required this.onRemove,
+    required this.onReport,
   });
 
   final Profile profile;
   final int index;
   final VoidCallback onRemove;
+  final VoidCallback onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -191,6 +201,12 @@ class _ContactTile extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            tooltip: 'Пожаловаться',
+            icon: const Icon(Icons.flag_outlined),
+            color: AppColors.textMuted,
+            onPressed: onReport,
           ),
           IconButton(
             tooltip: 'Удалить',

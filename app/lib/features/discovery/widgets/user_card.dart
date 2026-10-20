@@ -22,6 +22,7 @@ class UserCard extends StatelessWidget {
     this.isBusy = false,
     this.onLike,
     this.onPass,
+    this.onReport,
   });
 
   final Profile profile;
@@ -37,6 +38,9 @@ class UserCard extends StatelessWidget {
 
   final VoidCallback? onLike;
   final VoidCallback? onPass;
+
+  /// Колбэк жалобы на профиль (кнопка «Пожаловаться»).
+  final VoidCallback? onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +58,20 @@ class UserCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _RelationshipBadge(status: relationshipStatus),
+                Row(
+                  children: <Widget>[
+                    Flexible(child: _RelationshipBadge(status: relationshipStatus)),
+                    const Spacer(),
+                    if (onReport != null)
+                      IconButton(
+                        tooltip: 'Пожаловаться',
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.flag_outlined, size: 20),
+                        color: AppColors.textMuted,
+                        onPressed: onReport,
+                      ),
+                  ],
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 if ((profile.city ?? '').isNotEmpty) ...<Widget>[
                   _City(city: profile.city!),
