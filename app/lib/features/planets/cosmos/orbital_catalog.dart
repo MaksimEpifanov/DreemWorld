@@ -36,25 +36,28 @@ class OrbitalCatalog extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double side = math.min(
-          constraints.maxWidth,
-          constraints.maxHeight.isFinite
-              ? constraints.maxHeight
-              : constraints.maxWidth,
-        );
-        final double center = side / 2;
+        final double width = constraints.maxWidth;
+        final double height = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : constraints.maxWidth;
+        final double side = width;
+
+        final double canvasWidth = width;
+        final double canvasHeight = height;
+        final Offset canvasCenter = Offset(canvasWidth / 2, canvasHeight / 2);
+
         final List<int> rings = _ringCounts(planets.length);
         final int ringCount = rings.length;
 
-        final double sunSize = side * 0.16;
-        // Максимальный радиус орбиты держим внутри экрана с запасом на
-        // размер планеты и подпись, чтобы ничего не уезжало за рамки.
-        final double innerRadius = side * 0.24;
-        final double outerRadius = side * 0.40;
+        final double sunSize = side * 0.11;
+        // Равномерно разносим кольца: заметный отступ от солнца и между
+        // орбитами, чтобы планеты не слипались и всё влезало на телефон.
+        final double innerRadius = side * 0.26;
+        final double outerRadius = side * 0.47;
         final List<double> radii = <double>[
           for (int i = 0; i < ringCount; i++)
             ringCount == 1
-                ? side * 0.32
+                ? side * 0.36
                 : innerRadius +
                     (outerRadius - innerRadius) * (i / (ringCount - 1)),
         ];
@@ -62,20 +65,25 @@ class OrbitalCatalog extends StatelessWidget {
         int index = 0;
         final List<Widget> children = <Widget>[];
 
+        // По вертикали орбиты заметно вытянуты — так планеты расходятся
+        // и не наезжают друг на друга даже на небольшом экране.
+        final double ellipse =
+            (canvasHeight / canvasWidth).clamp(0.85, 1.35) * 0.72;
+
         for (int r = 0; r < ringCount; r++) {
           final int count = rings[r];
           final double radius = radii[r];
           final double planetSize =
-              sunSize * (0.80 - r * 0.12).clamp(0.40, 0.80);
+              sunSize * (0.62 - r * 0.09).clamp(0.32, 0.62);
           final double labelWidth = planetSize * 3.2;
 
           // Рисуем саму орбиту.
           children.add(
             Positioned(
-              left: center - radius,
-              top: center - radius * 0.62,
+              left: canvasCenter.dx - radius,
+              top: canvasCenter.dy - radius * ellipse,
               width: radius * 2,
-              height: radius * 2 * 0.62,
+              height: radius * 2 * ellipse,
               child: CustomPaint(
                 painter: _CatalogOrbitPainter(
                   color: Theme.of(context).colorScheme.primary,
@@ -85,12 +93,13 @@ class OrbitalCatalog extends StatelessWidget {
             ),
           );
 
-          final double angleOffset = r * (math.pi / 6);
+          final double angleOffset = r * (math.pi / 4);
           for (int i = 0; i < count && index < planets.length; i++, index++) {
             final Planet planet = planets[index];
             final double angle = angleOffset + (2 * math.pi / count) * i;
-            final double px = center + math.cos(angle) * radius;
-            final double py = center + math.sin(angle) * radius * 0.62;
+            final double px = canvasCenter.dx + math.cos(angle) * radius;
+            final double py =
+                canvasCenter.dy + math.sin(angle) * radius * ellipse;
 
             children.add(
               Positioned(
@@ -139,16 +148,15 @@ class OrbitalCatalog extends StatelessWidget {
             child: FittedBox(
               fit: BoxFit.contain,
               child: SizedBox(
-                width: side,
-                height: side,
+                width: canvasWidth,
+                height: canvasHeight,
                 child: Stack(
-                  alignment: Alignment.center,
                   clipBehavior: Clip.none,
                   children: <Widget>[
                     ...children,
                     Positioned(
-                      left: center - sunSize / 2,
-                      top: center - sunSize / 2,
+                      left: canvasCenter.dx - sunSize / 2,
+                      top: canvasCenter.dy - sunSize / 2,
                       width: sunSize,
                       height: sunSize,
                       child: RealisticSun(size: sunSize, glow: 0.45),
