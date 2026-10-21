@@ -221,7 +221,10 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Профиль')),
+      appBar: AppBar(
+        title: const Text('Профиль'),
+        leading: BackButton(onPressed: () => context.go('/main')),
+      ),
       body: SafeArea(
         child: ResponsiveContent(
           child: Form(
