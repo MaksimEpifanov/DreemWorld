@@ -29,7 +29,10 @@ class ContactsScreen extends ConsumerWidget {
     ];
 
     return Scaffold(
-      appBar: const NeonAppBar(title: 'Контакты'),
+      appBar: NeonAppBar(
+        title: 'Контакты',
+        leading: BackButton(onPressed: () => context.go('/main')),
+      ),
       body: SafeArea(
         child: ResponsiveContent(
           child: ListView(

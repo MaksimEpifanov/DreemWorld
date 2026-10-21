@@ -54,7 +54,10 @@ class _ConversationsListScreenState
             .toSet();
 
     return Scaffold(
-      appBar: const NeonAppBar(title: 'Чаты'),
+      appBar: NeonAppBar(
+        title: 'Чаты',
+        leading: BackButton(onPressed: () => context.go('/main')),
+      ),
       body: SafeArea(
         child: ResponsiveContent(
           child: Column(
