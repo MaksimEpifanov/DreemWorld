@@ -66,12 +66,47 @@ class _CosmosPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final math.Random rnd = math.Random(seed);
 
+    _paintColorWash(canvas, size);
     _paintNebulae(canvas, size, rnd);
     _paintGalaxy(canvas, size);
     _paintMilkyWay(canvas, size, rnd);
     _paintStars(canvas, size, rnd);
     _paintVignette(canvas, size);
     _paintTint(canvas, size);
+  }
+
+  /// Цветовая подложка: широкие насыщенные пятна, задающие богатство палитры.
+  void _paintColorWash(Canvas canvas, Size size) {
+    final Rect rect = Offset.zero & size;
+    final List<Color> stops = <Color>[
+      const Color(0xFF3A1D6E),
+      const Color(0xFF1B2E7A),
+      const Color(0xFF5A1246),
+      const Color(0xFF0A2E4A),
+      const Color(0xFF2A0E4A),
+    ];
+    final List<Alignment> spots = <Alignment>[
+      const Alignment(-0.7, -0.6),
+      const Alignment(0.8, -0.3),
+      const Alignment(-0.4, 0.7),
+      const Alignment(0.6, 0.8),
+      const Alignment(0.1, 0.0),
+    ];
+    for (int i = 0; i < stops.length; i++) {
+      final Alignment a = spots[i];
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..shader = RadialGradient(
+            center: a,
+            radius: 0.9,
+            colors: <Color>[
+              stops[i].withValues(alpha: 0.34),
+              stops[i].withValues(alpha: 0.0),
+            ],
+          ).createShader(rect),
+      );
+    }
   }
 
   /// Насыщенные туманности с высоким контрастом: тёмный космос, яркие ядра.
@@ -86,32 +121,32 @@ class _CosmosPainter extends CustomPainter {
       Color(0xFFF08A2E),
     ];
     // Мягкие газовые облака (умеренные, чтобы не «замыливались»).
-    for (int i = 0; i < 8; i++) {
-      final Offset c = Offset(
-        rnd.nextDouble() * size.width,
-        rnd.nextDouble() * size.height,
-      );
-      final double r = size.shortestSide * (0.12 + rnd.nextDouble() * 0.28);
-      canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..color = tints[rnd.nextInt(tints.length)].withValues(alpha: 0.20)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.45),
-      );
-    }
-    // Яркие компактные ядра ионизированного газа.
     for (int i = 0; i < 10; i++) {
       final Offset c = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double r = size.shortestSide * (0.012 + rnd.nextDouble() * 0.05);
+      final double r = size.shortestSide * (0.16 + rnd.nextDouble() * 0.34);
       canvas.drawCircle(
         c,
         r,
         Paint()
-          ..color = const Color(0xFFF0C8FF).withValues(alpha: 0.4)
+          ..color = tints[rnd.nextInt(tints.length)].withValues(alpha: 0.30)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.42),
+      );
+    }
+    // Яркие компактные ядра ионизированного газа.
+    for (int i = 0; i < 12; i++) {
+      final Offset c = Offset(
+        rnd.nextDouble() * size.width,
+        rnd.nextDouble() * size.height,
+      );
+      final double r = size.shortestSide * (0.014 + rnd.nextDouble() * 0.06);
+      canvas.drawCircle(
+        c,
+        r,
+        Paint()
+          ..color = const Color(0xFFF4D4FF).withValues(alpha: 0.5)
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.7),
       );
     }
@@ -315,9 +350,9 @@ class _CosmosPainter extends CustomPainter {
           radius: 1.1,
           colors: <Color>[
             Colors.transparent,
-            const Color(0xFF000002).withValues(alpha: 0.55),
+            const Color(0xFF000002).withValues(alpha: 0.42),
           ],
-          stops: const <double>[0.62, 1.0],
+          stops: const <double>[0.66, 1.0],
         ).createShader(rect),
     );
   }
