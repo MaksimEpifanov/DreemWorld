@@ -53,7 +53,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const NeonAppBar(title: 'Настройки'),
+      appBar: NeonAppBar(
+        title: 'Настройки',
+        leading: BackButton(onPressed: () => context.go('/main')),
+      ),
       body: SafeArea(
         child: ResponsiveContent(
           child: SingleChildScrollView(
