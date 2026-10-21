@@ -32,11 +32,11 @@ class CosmicBackground extends StatelessWidget {
           center: Alignment(-0.15, -0.35),
           radius: 1.3,
           colors: <Color>[
-            Color(0xFF0E0A24),
-            Color(0xFF070518),
-            Color(0xFF02010A),
+            Color(0xFF0A0620),
+            Color(0xFF04020F),
+            Color(0xFF000005),
           ],
-          stops: <double>[0.0, 0.55, 1.0],
+          stops: <double>[0.0, 0.5, 1.0],
         ),
       ),
       child: CustomPaint(
@@ -74,7 +74,7 @@ class _CosmosPainter extends CustomPainter {
     _paintTint(canvas, size);
   }
 
-  /// Насыщенные, но тёмные туманности, задающие цвет и глубину космоса.
+  /// Насыщенные туманности с высоким контрастом: тёмный космос, яркие ядра.
   void _paintNebulae(Canvas canvas, Size size, math.Random rnd) {
     // Палитра: фиолетовый, маджента, синий, бирюза, розовый, янтарь.
     const List<Color> tints = <Color>[
@@ -85,49 +85,34 @@ class _CosmosPainter extends CustomPainter {
       Color(0xFFBE3FD6),
       Color(0xFFF08A2E),
     ];
-    // Крупные мягкие газовые облака.
-    for (int i = 0; i < 12; i++) {
+    // Мягкие газовые облака (умеренные, чтобы не «замыливались»).
+    for (int i = 0; i < 8; i++) {
       final Offset c = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double r = size.shortestSide * (0.22 + rnd.nextDouble() * 0.55);
+      final double r = size.shortestSide * (0.12 + rnd.nextDouble() * 0.28);
       canvas.drawCircle(
         c,
         r,
         Paint()
-          ..color = tints[rnd.nextInt(tints.length)].withValues(alpha: 0.16)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.55),
+          ..color = tints[rnd.nextInt(tints.length)].withValues(alpha: 0.20)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.45),
       );
     }
-    // Яркие светящиеся ядра (ионизированный газ).
-    for (int i = 0; i < 9; i++) {
+    // Яркие компактные ядра ионизированного газа.
+    for (int i = 0; i < 10; i++) {
       final Offset c = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double r = size.shortestSide * (0.03 + rnd.nextDouble() * 0.09);
+      final double r = size.shortestSide * (0.012 + rnd.nextDouble() * 0.05);
       canvas.drawCircle(
         c,
         r,
         Paint()
-          ..color = const Color(0xFFE4B8FF).withValues(alpha: 0.20)
+          ..color = const Color(0xFFF0C8FF).withValues(alpha: 0.4)
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.7),
-      );
-    }
-    // Тёмные пылевые прожилки, наложенные поверх газа — добавляют объём.
-    for (int i = 0; i < 6; i++) {
-      final Offset c = Offset(
-        rnd.nextDouble() * size.width,
-        rnd.nextDouble() * size.height,
-      );
-      final double r = size.shortestSide * (0.1 + rnd.nextDouble() * 0.2);
-      canvas.drawCircle(
-        c,
-        r,
-        Paint()
-          ..color = const Color(0xFF000000).withValues(alpha: 0.22)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.8),
       );
     }
   }
@@ -150,7 +135,7 @@ class _CosmosPainter extends CustomPainter {
         height: radius * 0.9,
       ),
       Paint()
-        ..color = const Color(0xFF6C7BD6).withValues(alpha: 0.12)
+        ..color = const Color(0xFF6C7BD6).withValues(alpha: 0.18)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.4),
     );
     // Основной диск.
@@ -161,7 +146,7 @@ class _CosmosPainter extends CustomPainter {
         height: radius * 0.62,
       ),
       Paint()
-        ..color = const Color(0xFF92A6E8).withValues(alpha: 0.16)
+        ..color = const Color(0xFFAABBF5).withValues(alpha: 0.24)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.28),
     );
     // Пылевая полоса поперёк диска.
@@ -172,23 +157,23 @@ class _CosmosPainter extends CustomPainter {
         height: radius * 0.12,
       ),
       Paint()
-        ..color = const Color(0xFF1A1030).withValues(alpha: 0.55)
+        ..color = const Color(0xFF1A1030).withValues(alpha: 0.6)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.06),
     );
     // Яркое тёплое ядро с ореолом.
     canvas.drawCircle(
       Offset.zero,
-      radius * 0.22,
+      radius * 0.28,
       Paint()
-        ..color = const Color(0xFFFFE6A8).withValues(alpha: 0.30)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.14),
+        ..color = const Color(0xFFFFE6A8).withValues(alpha: 0.45)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.16),
     );
     canvas.drawCircle(
       Offset.zero,
-      radius * 0.07,
+      radius * 0.09,
       Paint()
-        ..color = const Color(0xFFFFF6DE).withValues(alpha: 0.75)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.03),
+        ..color = const Color(0xFFFFF9EC).withValues(alpha: 0.95)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.035),
     );
     canvas.restore();
   }
@@ -209,11 +194,11 @@ class _CosmosPainter extends CustomPainter {
 
     // Слои свечения: от широкого фиолетово-синего к тёплому белому ядру.
     final List<List<Object>> layers = <List<Object>>[
-      <Object>[size.shortestSide * 0.34, 0.09, const Color(0xFF3B2E7A)],
-      <Object>[size.shortestSide * 0.22, 0.12, const Color(0xFF6A5AB8)],
-      <Object>[size.shortestSide * 0.13, 0.15, const Color(0xFFA99ADE)],
-      <Object>[size.shortestSide * 0.07, 0.18, const Color(0xFFD8CEF5)],
-      <Object>[size.shortestSide * 0.03, 0.24, const Color(0xFFFFFFFF)],
+      <Object>[size.shortestSide * 0.34, 0.10, const Color(0xFF3B2E7A)],
+      <Object>[size.shortestSide * 0.22, 0.14, const Color(0xFF6A5AB8)],
+      <Object>[size.shortestSide * 0.13, 0.18, const Color(0xFFBCAEF0)],
+      <Object>[size.shortestSide * 0.07, 0.24, const Color(0xFFE6DEFA)],
+      <Object>[size.shortestSide * 0.028, 0.34, const Color(0xFFFFFFFF)],
     ];
     for (final List<Object> layer in layers) {
       final double w = layer[0] as double;
@@ -330,9 +315,9 @@ class _CosmosPainter extends CustomPainter {
           radius: 1.1,
           colors: <Color>[
             Colors.transparent,
-            const Color(0xFF000004).withValues(alpha: 0.42),
+            const Color(0xFF000002).withValues(alpha: 0.55),
           ],
-          stops: const <double>[0.68, 1.0],
+          stops: const <double>[0.62, 1.0],
         ).createShader(rect),
     );
   }
