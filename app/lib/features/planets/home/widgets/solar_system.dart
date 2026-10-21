@@ -98,8 +98,8 @@ class SolarSystem extends StatelessWidget {
   }
 }
 
-/// Планета на орбите: живой шар и подпись.
-class _OrbitPlanet extends StatelessWidget {
+/// Планета на орбите: живой вращающийся шар и подпись.
+class _OrbitPlanet extends StatefulWidget {
   const _OrbitPlanet({
     required this.planet,
     required this.size,
@@ -113,17 +113,54 @@ class _OrbitPlanet extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_OrbitPlanet> createState() => _OrbitPlanetState();
+}
+
+class _OrbitPlanetState extends State<_OrbitPlanet>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // У каждой планеты своя скорость вращения и фаза — движение живое.
+    final double speed = 0.9 + (widget.planet.id.hashCode % 5) * 0.14;
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: (12000 / speed).round()),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final double phase = (widget.planet.id.hashCode % 100) / 100.0;
+
     return AnimatedPress(
-      onPressed: onTap,
+      onPressed: widget.onTap,
       scaleDown: 0.9,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          RealisticPlanet(planet: planet, size: size),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (BuildContext context, Widget? child) {
+              final double turns = (phase + _controller.value) % 1.0;
+              return RealisticPlanet(
+                planet: widget.planet,
+                size: widget.size,
+                rotationTurns: turns,
+              );
+            },
+          ),
           const SizedBox(height: AppSpacing.xs),
           Container(
-            constraints: BoxConstraints(maxWidth: maxLabelWidth),
+            constraints: BoxConstraints(maxWidth: widget.maxLabelWidth),
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.sm,
               vertical: 3,
@@ -132,17 +169,17 @@ class _OrbitPlanet extends StatelessWidget {
               color: AppColors.background.withValues(alpha: 0.55),
               borderRadius: AppRadius.pillAll,
               border: Border.all(
-                color: planet.accent.withValues(alpha: 0.45),
+                color: widget.planet.accent.withValues(alpha: 0.45),
               ),
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: planet.primary.withValues(alpha: 0.35),
+                  color: widget.planet.primary.withValues(alpha: 0.35),
                   blurRadius: 12,
                 ),
               ],
             ),
             child: Text(
-              planet.name,
+              widget.planet.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
