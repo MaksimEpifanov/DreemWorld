@@ -108,28 +108,39 @@ class _MiniGamesScreenState extends ConsumerState<MiniGamesScreen> {
               Text('Игры', style: AppTextStyles.title()),
               const SizedBox(height: AppSpacing.sm),
               _GameCard(
+                icon: Icons.quiz_rounded,
+                title: 'Викторина',
+                subtitle: 'Отвечайте на вопросы и зарабатывайте монеты',
+                onPlay: () => context.go('/minigames/quiz'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _GameCard(
+                icon: Icons.grid_view_rounded,
+                title: 'Три в ряд',
+                subtitle: 'Собирайте линии из трёх и более плиток',
+                onPlay: () => context.go('/minigames/match3'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _GameCard(
+                icon: Icons.extension_rounded,
+                title: 'Мемори',
+                subtitle: 'Находите пары карточек на время',
+                onPlay: () => context.go('/minigames/memory'),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _GameCard(
                 icon: Icons.casino_rounded,
                 title: 'Колесо удачи',
                 subtitle: 'Крутите и получайте монеты',
                 actionLabel: _spinning ? 'Крутим…' : 'Крутить',
                 onPlay: _spinning ? null : _spin,
               ),
-              const SizedBox(height: AppSpacing.sm),
-              const _GameCard(
-                icon: Icons.grid_3x3_rounded,
-                title: 'Три в ряд',
-                subtitle: 'Собирайте линии и получайте монеты',
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              const _GameCard(
-                icon: Icons.quiz_rounded,
-                title: 'Викторина',
-                subtitle: 'Отвечайте на вопросы по интересам',
-              ),
               const SizedBox(height: AppSpacing.lg),
+              _DailyLimitCard(controller: controller),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 'За частые входы начисляется внутриигровая валюта. '
-                'Новые игры появятся в следующих обновлениях.',
+                'В играх действует дневной лимит заработка.',
                 style: AppTextStyles.caption(),
               ),
             ],
@@ -220,9 +231,9 @@ class _GameCard extends StatelessWidget {
               ],
             ),
           ),
-          if (actionLabel != null)
+          if (onPlay != null)
             NeonButton(
-              label: actionLabel!,
+              label: actionLabel ?? 'Играть',
               onPressed: onPlay,
             )
           else
@@ -230,6 +241,59 @@ class _GameCard extends StatelessWidget {
               'скоро',
               style: AppTextStyles.label(color: AppColors.textMuted),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Плашка с остатком дневного лимита заработка в мини-играх.
+class _DailyLimitCard extends StatelessWidget {
+  const _DailyLimitCard({required this.controller});
+
+  final WalletController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final int remaining = controller.gamesRemaining;
+    final double progress =
+        remaining / WalletController.dailyGameLimit;
+
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(Icons.hourglass_bottom_rounded,
+                  size: 18, color: scheme.secondary),
+              const SizedBox(width: AppSpacing.sm),
+              Text('Лимит наград сегодня', style: AppTextStyles.bodyBold()),
+              const Spacer(),
+              Text(
+                '$remaining / ${WalletController.dailyGameLimit}',
+                style: AppTextStyles.caption(color: scheme.secondary),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          ClipRRect(
+            borderRadius: AppRadius.pillAll,
+            child: LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              minHeight: 6,
+              backgroundColor: AppColors.surface,
+              valueColor: AlwaysStoppedAnimation<Color>(scheme.primary),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            remaining > 0
+                ? 'За игры можно заработать ещё до $remaining монет.'
+                : 'Дневной лимит исчерпан. Возвращайтесь завтра!',
+            style: AppTextStyles.caption(),
+          ),
         ],
       ),
     );

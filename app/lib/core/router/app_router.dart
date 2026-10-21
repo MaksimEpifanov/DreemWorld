@@ -13,6 +13,9 @@ import '../../features/contacts/my_qr_screen.dart';
 import '../../features/contacts/scan_qr_screen.dart';
 import '../../features/discovery/discovery_screen.dart';
 import '../../features/match/match_screen.dart';
+import '../../features/minigames/games/match_three_game_screen.dart';
+import '../../features/minigames/games/memory_game_screen.dart';
+import '../../features/minigames/games/quiz_game_screen.dart';
 import '../../features/minigames/mini_games_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/onboarding/splash_screen.dart';
@@ -290,6 +293,27 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
         name: 'minigames',
         builder: (BuildContext context, GoRouterState state) {
           return const MiniGamesScreen();
+        },
+      ),
+      GoRoute(
+        path: '/minigames/quiz',
+        name: 'minigame-quiz',
+        builder: (BuildContext context, GoRouterState state) {
+          return const QuizGameScreen();
+        },
+      ),
+      GoRoute(
+        path: '/minigames/match3',
+        name: 'minigame-match3',
+        builder: (BuildContext context, GoRouterState state) {
+          return const MatchThreeGameScreen();
+        },
+      ),
+      GoRoute(
+        path: '/minigames/memory',
+        name: 'minigame-memory',
+        builder: (BuildContext context, GoRouterState state) {
+          return const MemoryGameScreen();
         },
       ),
       GoRoute(

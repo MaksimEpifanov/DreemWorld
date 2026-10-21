@@ -9,17 +9,33 @@ class WalletState {
     this.balance = 0,
     this.streak = 0,
     this.lastClaimDate,
+    this.earnedDate,
+    this.earnedToday = 0,
   });
 
   final int balance;
   final int streak;
   final String? lastClaimDate;
 
-  WalletState copyWith({int? balance, int? streak, String? lastClaimDate}) {
+  /// Дата, к которой относятся заработанные за день монеты.
+  final String? earnedDate;
+
+  /// Сколько монет заработано в мини-играх за [earnedDate].
+  final int earnedToday;
+
+  WalletState copyWith({
+    int? balance,
+    int? streak,
+    String? lastClaimDate,
+    String? earnedDate,
+    int? earnedToday,
+  }) {
     return WalletState(
       balance: balance ?? this.balance,
       streak: streak ?? this.streak,
       lastClaimDate: lastClaimDate ?? this.lastClaimDate,
+      earnedDate: earnedDate ?? this.earnedDate,
+      earnedToday: earnedToday ?? this.earnedToday,
     );
   }
 
@@ -27,6 +43,8 @@ class WalletState {
         'balance': balance,
         'streak': streak,
         'lastClaimDate': lastClaimDate,
+        'earnedDate': earnedDate,
+        'earnedToday': earnedToday,
       };
 
   factory WalletState.fromJson(Map<String, dynamic> json) {
@@ -34,6 +52,8 @@ class WalletState {
       balance: (json['balance'] as num?)?.toInt() ?? 0,
       streak: (json['streak'] as num?)?.toInt() ?? 0,
       lastClaimDate: json['lastClaimDate'] as String?,
+      earnedDate: json['earnedDate'] as String?,
+      earnedToday: (json['earnedToday'] as num?)?.toInt() ?? 0,
     );
   }
 }
@@ -45,6 +65,9 @@ class WalletController extends StateNotifier<WalletState> {
   }
 
   static const String _storageKey = 'dreem_wallet_v1';
+
+  /// Дневной потолок заработка монет в мини-играх (не считая входа/колеса).
+  static const int dailyGameLimit = 100;
 
   Future<void> _load() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -95,6 +118,32 @@ class WalletController extends StateNotifier<WalletState> {
     if (amount <= 0) return;
     state = state.copyWith(balance: state.balance + amount);
     await _persist();
+  }
+
+  /// Сколько монет ещё можно заработать в мини-играх сегодня.
+  int get gamesRemaining {
+    final int earned = state.earnedDate == _today() ? state.earnedToday : 0;
+    final int left = dailyGameLimit - earned;
+    return left < 0 ? 0 : left;
+  }
+
+  /// Начисляет монеты за мини-игру с учётом дневного потолка.
+  ///
+  /// Возвращает фактически начисленную сумму (может быть меньше запрошенной
+  /// или 0, если дневной лимит исчерпан).
+  Future<int> rewardFromGame(int amount) async {
+    if (amount <= 0) return 0;
+    final int earned = state.earnedDate == _today() ? state.earnedToday : 0;
+    final int left = dailyGameLimit - earned;
+    if (left <= 0) return 0;
+    final int credited = amount < left ? amount : left;
+    state = state.copyWith(
+      balance: state.balance + credited,
+      earnedDate: _today(),
+      earnedToday: earned + credited,
+    );
+    await _persist();
+    return credited;
   }
 
   /// Списывает монеты; возвращает `false`, если баланса не хватает.
