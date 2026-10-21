@@ -31,9 +31,9 @@ class CosmicBackground extends StatelessWidget {
           center: Alignment(-0.1, -0.25),
           radius: 1.35,
           colors: <Color>[
-            Color(0xFF161035),
+            Color(0xFF2A1E5C),
+            Color(0xFF161033),
             Color(0xFF0A0720),
-            Color(0xFF04020D),
           ],
           stops: <double>[0.0, 0.55, 1.0],
         ),

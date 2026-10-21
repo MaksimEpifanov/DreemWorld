@@ -25,7 +25,7 @@ class PlanetCatalogBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       appBar: NeonAppBar(
         title: title,
         leading: BackButton(onPressed: () => context.go('/main')),

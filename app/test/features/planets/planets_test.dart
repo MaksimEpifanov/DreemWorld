@@ -201,5 +201,47 @@ void main() {
         findsAtLeastNWidgets(planets.length),
       );
     });
+
+    testWidgets('планеты не выходят за пределы области каталога', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1600, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final List<Planet> planets = const MockPlanetRepository().getPlanets();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.of(AppThemeName.neonViolet),
+          home: Scaffold(
+            body: OrbitalCatalog(
+              planets: planets,
+              onPlanetTap: (Planet planet) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      final Rect catalog = tester.getRect(find.byType(OrbitalCatalog));
+
+      for (final Element element
+          in find.byType(RealisticPlanet).evaluate()) {
+        final Rect r = tester.getRect(find.byWidget(element.widget));
+        expect(
+          r.top >= catalog.top - 0.5 && r.bottom <= catalog.bottom + 0.5,
+          isTrue,
+          reason: 'Планета выходит за границы по вертикали: $r vs $catalog',
+        );
+        expect(
+          r.left >= catalog.left - 0.5 && r.right <= catalog.right + 0.5,
+          isTrue,
+          reason: 'Планета выходит за границы по горизонтали: $r vs $catalog',
+        );
+      }
+    });
   });
 }
