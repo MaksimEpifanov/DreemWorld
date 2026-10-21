@@ -2,17 +2,18 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Фон глубокого космоса: звёзды, туманности, галактики и Млечный Путь.
+/// Фон глубокого космоса: галактика, туманности, Млечный Путь и звёзды.
 ///
-/// Рисуется процедурно (детерминированно) — без сетевых ресурсов. Фон
-/// достаточно яркий и «живой», но с мягкими затемнениями по краям, чтобы
-/// интерфейс поверх оставался читаемым.
+/// Рисуется процедурно (детерминированно) — без сетевых ресурсов. Основа
+/// максимально тёмная, а цвет и глубину дают насыщенные туманности, светящееся
+/// ядро галактики и плотные звёздные поля. Мягкое затемнение по краям помогает
+/// читаемости интерфейса поверх, но не «глушит» цвет.
 class CosmicBackground extends StatelessWidget {
   const CosmicBackground({
     super.key,
     this.seed = 42,
     this.tint,
-    this.tintOpacity = 0.14,
+    this.tintOpacity = 0.12,
     this.child,
   });
 
@@ -28,18 +29,22 @@ class CosmicBackground extends StatelessWidget {
     return DecoratedBox(
       decoration: const BoxDecoration(
         gradient: RadialGradient(
-          center: Alignment(-0.1, -0.25),
-          radius: 1.35,
+          center: Alignment(-0.15, -0.35),
+          radius: 1.3,
           colors: <Color>[
-            Color(0xFF2A1E5C),
-            Color(0xFF161033),
-            Color(0xFF0A0720),
+            Color(0xFF0E0A24),
+            Color(0xFF070518),
+            Color(0xFF02010A),
           ],
           stops: <double>[0.0, 0.55, 1.0],
         ),
       ),
       child: CustomPaint(
-        painter: _CosmosPainter(seed: seed, tint: tint, tintOpacity: tintOpacity),
+        painter: _CosmosPainter(
+          seed: seed,
+          tint: tint,
+          tintOpacity: tintOpacity,
+        ),
         child: child,
       ),
     );
@@ -62,61 +67,137 @@ class _CosmosPainter extends CustomPainter {
     final math.Random rnd = math.Random(seed);
 
     _paintNebulae(canvas, size, rnd);
+    _paintGalaxy(canvas, size);
     _paintMilkyWay(canvas, size, rnd);
-    _paintGalaxies(canvas, size, rnd);
     _paintStars(canvas, size, rnd);
     _paintVignette(canvas, size);
     _paintTint(canvas, size);
   }
 
-  /// Яркие слоистые туманности, задающие глубину и цвет.
+  /// Насыщенные, но тёмные туманности, задающие цвет и глубину космоса.
   void _paintNebulae(Canvas canvas, Size size, math.Random rnd) {
-    const List<Color> blobTints = <Color>[
-      Color(0xFF7B3FF2),
-      Color(0xFF1E6FD9),
-      Color(0xFFD62E7C),
-      Color(0xFF17B39B),
-      Color(0xFF5A3FD6),
-      Color(0xFFE0672E),
+    // Палитра: фиолетовый, маджента, синий, бирюза, розовый, янтарь.
+    const List<Color> tints = <Color>[
+      Color(0xFF8A3FF2),
+      Color(0xFFDA2E8C),
+      Color(0xFF2E6BFF),
+      Color(0xFF12C4B8),
+      Color(0xFFBE3FD6),
+      Color(0xFFF08A2E),
     ];
-    // Крупные мягкие сгустки.
-    for (int i = 0; i < 10; i++) {
+    // Крупные мягкие газовые облака.
+    for (int i = 0; i < 12; i++) {
       final Offset c = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double r = size.shortestSide * (0.24 + rnd.nextDouble() * 0.5);
+      final double r = size.shortestSide * (0.22 + rnd.nextDouble() * 0.55);
       canvas.drawCircle(
         c,
         r,
         Paint()
-          ..color = blobTints[rnd.nextInt(blobTints.length)]
-              .withValues(alpha: 0.22)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.5),
+          ..color = tints[rnd.nextInt(tints.length)].withValues(alpha: 0.16)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.55),
       );
     }
-    // Яркие светящиеся ядра.
-    for (int i = 0; i < 7; i++) {
+    // Яркие светящиеся ядра (ионизированный газ).
+    for (int i = 0; i < 9; i++) {
       final Offset c = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double r = size.shortestSide * (0.05 + rnd.nextDouble() * 0.12);
+      final double r = size.shortestSide * (0.03 + rnd.nextDouble() * 0.09);
       canvas.drawCircle(
         c,
         r,
         Paint()
-          ..color = const Color(0xFFD9A8FF).withValues(alpha: 0.18)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.6),
+          ..color = const Color(0xFFE4B8FF).withValues(alpha: 0.20)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.7),
+      );
+    }
+    // Тёмные пылевые прожилки, наложенные поверх газа — добавляют объём.
+    for (int i = 0; i < 6; i++) {
+      final Offset c = Offset(
+        rnd.nextDouble() * size.width,
+        rnd.nextDouble() * size.height,
+      );
+      final double r = size.shortestSide * (0.1 + rnd.nextDouble() * 0.2);
+      canvas.drawCircle(
+        c,
+        r,
+        Paint()
+          ..color = const Color(0xFF000000).withValues(alpha: 0.22)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.8),
       );
     }
   }
 
-  /// Млечный Путь: светлая туманная полоса с пылевой жилой и звёздами.
+  /// Наклонённая спиральная галактика: яркое ядро, диск и рукава.
+  void _paintGalaxy(Canvas canvas, Size size) {
+    final Offset center = Offset(size.width * 0.74, size.height * 0.30);
+    final double radius = size.shortestSide * 0.34;
+    final double tilt = -0.42;
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(tilt);
+
+    // Внешнее гало диска.
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: radius * 2.3,
+        height: radius * 0.9,
+      ),
+      Paint()
+        ..color = const Color(0xFF6C7BD6).withValues(alpha: 0.12)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.4),
+    );
+    // Основной диск.
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: radius * 1.7,
+        height: radius * 0.62,
+      ),
+      Paint()
+        ..color = const Color(0xFF92A6E8).withValues(alpha: 0.16)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.28),
+    );
+    // Пылевая полоса поперёк диска.
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: radius * 1.5,
+        height: radius * 0.12,
+      ),
+      Paint()
+        ..color = const Color(0xFF1A1030).withValues(alpha: 0.55)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.06),
+    );
+    // Яркое тёплое ядро с ореолом.
+    canvas.drawCircle(
+      Offset.zero,
+      radius * 0.22,
+      Paint()
+        ..color = const Color(0xFFFFE6A8).withValues(alpha: 0.30)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.14),
+    );
+    canvas.drawCircle(
+      Offset.zero,
+      radius * 0.07,
+      Paint()
+        ..color = const Color(0xFFFFF6DE).withValues(alpha: 0.75)
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, radius * 0.03),
+    );
+    canvas.restore();
+  }
+
+  /// Млечный Путь: широкая туманная полоса с пылевыми жилами и звёздами.
   void _paintMilkyWay(Canvas canvas, Size size, math.Random rnd) {
     final double diagonal =
         math.sqrt(size.width * size.width + size.height * size.height);
-    final double angle = -0.38;
+    const double angle = 0.42;
     final Offset start = Offset(
       size.width * 0.5 - math.cos(angle) * diagonal * 0.62,
       size.height * 0.5 - math.sin(angle) * diagonal * 0.62,
@@ -126,13 +207,13 @@ class _CosmosPainter extends CustomPainter {
       size.height * 0.5 + math.sin(angle) * diagonal * 0.62,
     );
 
-    // Слои свечения: от широкого фиолетово-синего к яркому белому ядру.
+    // Слои свечения: от широкого фиолетово-синего к тёплому белому ядру.
     final List<List<Object>> layers = <List<Object>>[
-      <Object>[size.shortestSide * 0.30, 0.10, const Color(0xFF4A3A8C)],
-      <Object>[size.shortestSide * 0.19, 0.14, const Color(0xFF7E6BC4)],
-      <Object>[size.shortestSide * 0.10, 0.18, const Color(0xFFB9ACEA)],
-      <Object>[size.shortestSide * 0.045, 0.24, const Color(0xFFEDE6FF)],
-      <Object>[size.shortestSide * 0.018, 0.30, const Color(0xFFFFFFFF)],
+      <Object>[size.shortestSide * 0.34, 0.09, const Color(0xFF3B2E7A)],
+      <Object>[size.shortestSide * 0.22, 0.12, const Color(0xFF6A5AB8)],
+      <Object>[size.shortestSide * 0.13, 0.15, const Color(0xFFA99ADE)],
+      <Object>[size.shortestSide * 0.07, 0.18, const Color(0xFFD8CEF5)],
+      <Object>[size.shortestSide * 0.03, 0.24, const Color(0xFFFFFFFF)],
     ];
     for (final List<Object> layer in layers) {
       final double w = layer[0] as double;
@@ -150,136 +231,95 @@ class _CosmosPainter extends CustomPainter {
       );
     }
 
-    // Светлые и тёмные облака вдоль полосы.
-    for (int i = 0; i < 40; i++) {
-      final double t = rnd.nextDouble();
-      final Offset p = Offset.lerp(start, end, t)!;
-      final double spread = size.shortestSide * 0.06;
-      final Offset jitter = Offset(
-        (rnd.nextDouble() - 0.5) * spread,
-        (rnd.nextDouble() - 0.5) * spread,
+    // Тёмные пылевые прожилки вдоль полосы (несколько, разной кривизны).
+    for (int i = 0; i < 3; i++) {
+      final Offset shift = Offset(
+        (rnd.nextDouble() - 0.5) * size.shortestSide * 0.08,
+        (rnd.nextDouble() - 0.5) * size.shortestSide * 0.08,
       );
-      final double r = size.shortestSide * (0.012 + rnd.nextDouble() * 0.04);
-      final bool dark = rnd.nextDouble() < 0.32;
-      canvas.drawCircle(
-        p + jitter,
-        r,
+      canvas.drawLine(
+        start + shift,
+        end + shift,
         Paint()
-          ..color = (dark ? const Color(0xFF0A0612) : const Color(0xFFEDE6FF))
-              .withValues(alpha: dark ? 0.30 : 0.16)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 1.2),
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = size.shortestSide * (0.015 + i * 0.012)
+          ..color = const Color(0xFF05030C).withValues(alpha: 0.5)
+          ..maskFilter = MaskFilter.blur(
+            BlurStyle.normal,
+            size.shortestSide * 0.02,
+          ),
       );
     }
 
-    // Тёмная пылевая жила.
-    canvas.drawLine(
-      start,
-      end,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = size.shortestSide * 0.03
-        ..color = const Color(0xFF08040F).withValues(alpha: 0.55)
-        ..maskFilter = MaskFilter.blur(
-          BlurStyle.normal,
-          size.shortestSide * 0.025,
-        ),
-    );
-
     // Плотное звёздное скопление вдоль полосы.
-    for (int i = 0; i < 320; i++) {
+    for (int i = 0; i < 420; i++) {
       final double t = rnd.nextDouble();
       final Offset p = Offset.lerp(start, end, t)!;
-      final double spread = size.shortestSide * (0.02 + rnd.nextDouble() * 0.085);
+      final double spread =
+          size.shortestSide * (0.02 + rnd.nextDouble() * 0.09);
       final Offset jitter = Offset(
         (rnd.nextDouble() - 0.5) * spread,
         (rnd.nextDouble() - 0.5) * spread,
       );
-      final double r = rnd.nextDouble() * 1.3 + 0.2;
+      final double r = rnd.nextDouble() * 1.2 + 0.2;
       canvas.drawCircle(
         p + jitter,
         r,
         Paint()
           ..color = Colors.white.withValues(
-            alpha: 0.5 + rnd.nextDouble() * 0.5,
+            alpha: 0.4 + rnd.nextDouble() * 0.6,
           ),
       );
     }
   }
 
-  void _paintGalaxies(Canvas canvas, Size size, math.Random rnd) {
-    for (int i = 0; i < 4; i++) {
-      final Offset c = Offset(
-        rnd.nextDouble() * size.width,
-        rnd.nextDouble() * size.height,
-      );
-      final double r = size.shortestSide * (0.05 + rnd.nextDouble() * 0.1);
-      canvas.save();
-      canvas.translate(c.dx, c.dy);
-      canvas.rotate(rnd.nextDouble() * math.pi);
-      canvas.drawOval(
-        Rect.fromCenter(center: Offset.zero, width: r * 2.6, height: r * 0.8),
-        Paint()
-          ..color = const Color(0xFFBFA8FF).withValues(alpha: 0.10)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.4),
-      );
-      canvas.drawCircle(
-        Offset.zero,
-        r * 0.24,
-        Paint()
-          ..color = const Color(0xFFFFE9B8).withValues(alpha: 0.28)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.2),
-      );
-      canvas.restore();
-    }
-  }
-
   void _paintStars(Canvas canvas, Size size, math.Random rnd) {
-    final int count = (size.width * size.height / 1100).clamp(220, 1500).toInt();
+    final int count = (size.width * size.height / 900).clamp(320, 2200).toInt();
     for (int i = 0; i < count; i++) {
       final Offset p = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double r = rnd.nextDouble() * 1.6 + 0.3;
-      final double alpha = 0.35 + rnd.nextDouble() * 0.65;
+      final double r = rnd.nextDouble() * 1.5 + 0.25;
+      final double alpha = 0.3 + rnd.nextDouble() * 0.7;
       final double hue = rnd.nextDouble();
-      final Color color = hue > 0.88
-          ? const Color(0xFFBFD8FF)
-          : (hue > 0.78 ? const Color(0xFFFFE3BC) : Colors.white);
+      final Color color = hue > 0.9
+          ? const Color(0xFFAFCBFF)
+          : (hue > 0.8 ? const Color(0xFFFFD9AD) : Colors.white);
       canvas.drawCircle(
         p,
         r,
         Paint()..color = color.withValues(alpha: alpha),
       );
     }
-    // Яркие звёзды с крестовым ореолом.
-    for (int i = 0; i < 9; i++) {
+    // Яркие звёзды с крестовым ореолом и лучами.
+    for (int i = 0; i < 11; i++) {
       final Offset p = Offset(
         rnd.nextDouble() * size.width,
         rnd.nextDouble() * size.height,
       );
-      final double glow = size.shortestSide * 0.02;
+      final double glow = size.shortestSide * (0.014 + rnd.nextDouble() * 0.02);
       canvas.drawCircle(
         p,
         glow,
         Paint()
-          ..color = const Color(0xFFDCE8FF).withValues(alpha: 0.22)
+          ..color = const Color(0xFFD8E4FF).withValues(alpha: 0.22)
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, glow * 0.9),
       );
       final Paint ray = Paint()
-        ..color = Colors.white.withValues(alpha: 0.35)
+        ..color = Colors.white.withValues(alpha: 0.32)
         ..strokeWidth = 0.9;
       canvas.drawLine(p - Offset(glow, 0), p + Offset(glow, 0), ray);
       canvas.drawLine(p - Offset(0, glow), p + Offset(0, glow), ray);
       canvas.drawCircle(
         p,
-        1.7,
+        rnd.nextDouble() * 1.2 + 1.4,
         Paint()..color = Colors.white.withValues(alpha: 0.95),
       );
     }
   }
 
-  /// Мягкое затемнение по краям для читаемости интерфейса.
+  /// Мягкое затемнение по самому краю — читаемость интерфейса без потери цвета.
   void _paintVignette(Canvas canvas, Size size) {
     final Rect rect = Offset.zero & size;
     canvas.drawRect(
@@ -287,12 +327,12 @@ class _CosmosPainter extends CustomPainter {
       Paint()
         ..shader = RadialGradient(
           center: Alignment.center,
-          radius: 1.05,
+          radius: 1.1,
           colors: <Color>[
             Colors.transparent,
-            const Color(0xFF010008).withValues(alpha: 0.55),
+            const Color(0xFF000004).withValues(alpha: 0.42),
           ],
-          stops: const <double>[0.6, 1.0],
+          stops: const <double>[0.68, 1.0],
         ).createShader(rect),
     );
   }
