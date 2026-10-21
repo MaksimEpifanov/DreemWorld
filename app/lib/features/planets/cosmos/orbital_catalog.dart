@@ -44,7 +44,9 @@ class OrbitalCatalog extends StatelessWidget {
         final double h = constraints.maxHeight.isFinite
             ? constraints.maxHeight
             : constraints.maxWidth;
-        final Offset center = Offset(w / 2, h / 2);
+        // Центр сцены слегка поднят: снизу остаётся больше места под подписи
+        // нижних планет, чтобы они заведомо не упирались в край экрана.
+        final Offset center = Offset(w / 2, h * 0.47);
 
         // Опорный размер — меньшая сторона области (безопасно по высоте).
         final double base = math.min(w, h);
@@ -67,7 +69,12 @@ class OrbitalCatalog extends StatelessWidget {
         // половину следа планеты сверху/снизу И подпись снизу — тогда ни одна
         // планета и её подпись не выйдут за пределы области.
         final double verticalNeed = maxFootprint / 2 + labelHeight;
-        final double maxRy = math.max(20.0, h / 2 - verticalNeed);
+        final double roomTop = center.dy;
+        final double roomBottom = h - center.dy;
+        final double maxRy = math.max(
+          20.0,
+          math.min(roomTop, roomBottom) - verticalNeed,
+        );
         final double maxRx = math.max(20.0, w / 2 - maxFootprint / 2 - 10);
 
         // Кольца разнесены по радиусу так, чтобы соседние не наслаивались.
