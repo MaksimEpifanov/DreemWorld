@@ -33,22 +33,34 @@ final Provider<List<Planet>> planetsProvider = Provider<List<Planet>>(
 
 /// Избранные планеты на главной (до 7).
 ///
-/// Если в профиле есть интересы — берём планеты, подходящие по ключевым
-/// словам. Если совпадений нет (или профиль ещё не загружен) — первые 7.
+/// Сначала планеты, подходящие по интересам профиля (если они есть), затем
+/// список дополняется остальными планетами каталога — чтобы на главной
+/// всегда было до 7 орбит.
 final Provider<List<Planet>> featuredPlanetsProvider = Provider<List<Planet>>((
   Ref ref,
 ) {
+  const int featuredCount = 7;
   final List<Planet> all = ref.watch(planetsProvider);
   final List<String> interests =
       ref.watch(currentProfileProvider).valueOrNull?.interestNames ??
       const <String>[];
-  if (interests.isEmpty) {
-    return all.take(7).toList(growable: false);
+
+  final List<Planet> matched = interests.isEmpty
+      ? <Planet>[]
+      : all
+            .where(
+              (Planet planet) => planet.keywords.any(interests.contains),
+            )
+            .toList(growable: false);
+
+  final List<Planet> result = <Planet>[...matched];
+  for (final Planet planet in all) {
+    if (result.length >= featuredCount) break;
+    if (!result.any((Planet p) => p.id == planet.id)) {
+      result.add(planet);
+    }
   }
-  final List<Planet> matched = all
-      .where((Planet planet) => planet.keywords.any(interests.contains))
-      .toList(growable: false);
-  return (matched.isEmpty ? all : matched).take(7).toList(growable: false);
+  return result.take(featuredCount).toList(growable: false);
 });
 
 /// Планеты «других интересов» — всё, что не попало в избранные (до 4).
