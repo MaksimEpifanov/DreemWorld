@@ -31,10 +31,10 @@ final Provider<List<Planet>> planetsProvider = Provider<List<Planet>>(
   (Ref ref) => ref.watch(planetRepositoryProvider).getPlanets(),
 );
 
-/// Избранные планеты на главной (до 4).
+/// Избранные планеты на главной (до 7).
 ///
 /// Если в профиле есть интересы — берём планеты, подходящие по ключевым
-/// словам. Если совпадений нет (или профиль ещё не загружен) — первые 4.
+/// словам. Если совпадений нет (или профиль ещё не загружен) — первые 7.
 final Provider<List<Planet>> featuredPlanetsProvider = Provider<List<Planet>>((
   Ref ref,
 ) {
@@ -43,12 +43,12 @@ final Provider<List<Planet>> featuredPlanetsProvider = Provider<List<Planet>>((
       ref.watch(currentProfileProvider).valueOrNull?.interestNames ??
       const <String>[];
   if (interests.isEmpty) {
-    return all.take(4).toList(growable: false);
+    return all.take(7).toList(growable: false);
   }
   final List<Planet> matched = all
       .where((Planet planet) => planet.keywords.any(interests.contains))
       .toList(growable: false);
-  return (matched.isEmpty ? all : matched).take(4).toList(growable: false);
+  return (matched.isEmpty ? all : matched).take(7).toList(growable: false);
 });
 
 /// Планеты «других интересов» — всё, что не попало в избранные (до 4).
