@@ -34,63 +34,14 @@ class PlanetHomeScreen extends ConsumerWidget {
                     Expanded(
                       child: Stack(
                         children: <Widget>[
-                          Positioned.fill(
-                            child: GalacticHomeSystem(
-                              planets: planets,
-                              onPlanetTap: (Planet planet) => context.go(
-                                '/main/planet/${planet.id}',
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: isNarrow ? AppSpacing.sm : AppSpacing.lg,
-                            top: isNarrow ? AppSpacing.sm : AppSpacing.md,
-                            child: const _FindByInterestCard(),
-                          ),
-                          if (!isNarrow)
-                            Positioned(
-                              left: AppSpacing.lg,
-                              bottom: AppSpacing.xl + 70,
-                              child: const _PlanetsCountCard(),
-                            ),
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: AppSpacing.md + 70,
-                            child: Center(
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                spacing: AppSpacing.sm,
-                                runSpacing: AppSpacing.sm,
-                                children: const <Widget>[
-                                  _BottomInfoCard(
-                                    icon: Icons.groups_rounded,
-                                    title: 'Популярные планеты',
-                                    subtitle: 'Сейчас на пике интереса',
-                                    hasPlanetDots: true,
-                                  ),
-                                  _BottomInfoCard(
-                                    icon: Icons.event_rounded,
-                                    title: 'Ближайшие события',
-                                    subtitle: 'Не пропусти самое интересное',
-                                    hasImage: true,
-                                  ),
-                                  _BottomInfoCard(
-                                    icon: Icons.star_rounded,
-                                    title: 'Новые люди',
-                                    subtitle: 'Кто-то уже ждёт тебя',
-                                    hasAvatars: true,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (!isNarrow)
-                            const Positioned(
-                              right: AppSpacing.lg,
-                              bottom: AppSpacing.lg + 70,
-                              child: _HandwrittenText(),
-                            ),
+                    Expanded(
+                      child: GalacticHomeSystem(
+                        planets: planets,
+                        onPlanetTap: (Planet planet) => context.go(
+                          '/main/planet/${planet.id}',
+                        ),
+                      ),
+                    ),
                         ],
                       ),
                     ),
