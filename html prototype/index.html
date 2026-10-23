@@ -1,141 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DreemWorld — HTML прототип</title>
-  <style>
-    :root {
-      --bg-1: #0a0e27;
-      --bg-2: #1a0f3c;
-      --neon-blue: #00d4ff;
-      --neon-violet: #a855f7;
-      --neon-pink: #ec4899;
-      --text: #ffffff;
-      --muted: #94a3b8;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-      color: var(--text);
-      background: radial-gradient(circle at 50% 40%, #1b1240 0%, var(--bg-1) 45%, #05070f 100%);
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-    }
-
-    .stars {
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent 50%),
-        radial-gradient(1px 1px at 70% 20%, #fff 50%, transparent 50%),
-        radial-gradient(2px 2px at 40% 70%, #cbd5f5 50%, transparent 50%),
-        radial-gradient(1px 1px at 85% 65%, #fff 50%, transparent 50%),
-        radial-gradient(1px 1px at 15% 80%, #93c5fd 50%, transparent 50%);
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    .card {
-      position: relative;
-      z-index: 1;
-      padding: 48px 40px;
-      max-width: 520px;
-      text-align: center;
-      background: rgba(15, 20, 60, 0.85);
-      border: 1px solid rgba(100, 150, 255, 0.3);
-      border-radius: 20px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 60px rgba(0, 212, 255, 0.15);
-    }
-
-    .orb {
-      width: 84px;
-      height: 84px;
-      margin: 0 auto 24px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 30%, #fde047, #f97316 60%, #b45309);
-      box-shadow: 0 0 40px rgba(251, 191, 36, 0.65);
-      animation: pulse 4s ease-in-out infinite;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 32px;
-      letter-spacing: 1px;
-      background: linear-gradient(90deg, var(--neon-blue), var(--neon-violet), var(--neon-pink));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .subtitle {
-      margin: 0 0 24px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(0, 212, 255, 0.5);
-      color: var(--neon-blue);
-      font-size: 12px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .links {
-      margin-top: 28px;
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    a {
-      color: var(--text);
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 10px;
-      border: 1px solid rgba(100, 150, 255, 0.35);
-      font-size: 14px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    a.primary {
-      background: linear-gradient(90deg, var(--neon-blue), var(--neon-violet));
-      border: none;
-    }
-
-    a:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 212, 255, 0.35);
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(251, 191, 36, 0.55); }
-      50% { transform: scale(1.06); box-shadow: 0 0 70px rgba(251, 191, 36, 0.85); }
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#030817">
+  <meta name="description" content="DreemWorld — интерактивная галактика интересов.">
+  <title>DreemWorld — Галактика возможностей</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="stars"></div>
-  <main class="card">
-    <div class="orb"></div>
-    <h1>DreemWorld</h1>
-    <p class="subtitle">Галактика возможностей — HTML-прототип</p>
-    <span class="badge">Prototype</span>
-    <div class="links">
-      <a class="primary" href="../DreemWorld/">Открыть приложение</a>
-      <a href="https://github.com/MaksimEpifanov/DreemWorld">Репозиторий</a>
-    </div>
+  <div class="space-glow glow-one"></div><div class="space-glow glow-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="DreemWorld — главная">
+      <span class="brand-orbit">✦</span>
+      <span><b>DreemWorld</b><small>Галактика возможностей</small></span>
+    </a>
+    <label class="search"><span>⌕</span><input id="planetSearch" type="search" placeholder="Поиск планет и интересов…" autocomplete="off"></label>
+    <button class="profile" aria-label="Профиль">👤<i></i></button>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p class="eyebrow">ТВОЯ ВСЕЛЕННАЯ — ТВОИ ЛЮДИ</p>
+      <h1>Найди свою <span>орбиту</span></h1>
+      <p class="intro-copy">Исследуй интересы, открывай сообщества и встречай тех, с кем по пути.</p>
+    </section>
+
+    <section class="galaxy-wrap" aria-label="Интерактивная галактика планет интересов">
+      <div class="galaxy" id="galaxy">
+        <div class="nebula"></div>
+        <div class="orbit orbit-1"></div><div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div><div class="orbit orbit-4"></div>
+        <div class="orbit orbit-5"></div><div class="orbit orbit-6"></div>
+        <button class="sun" id="sunButton" aria-label="Открыть центр галактики">
+          <span class="sun-corona"></span><span class="sun-core"></span>
+          <span class="sun-label">Dreem<span>World</span><small>центр галактики</small></span>
+        </button>
+        <div class="planet-layer" id="planetLayer"></div>
+        <div class="galaxy-hint"><span class="hint-dot"></span> Нажми на планету, чтобы исследовать её</div>
+      </div>
+    </section>
+
+    <section class="quick-panels">
+      <article class="quick-card">
+        <span class="quick-icon">✧</span><div><b>Твоя совместимость</b><p>Находи людей по общим интересам</p></div><button data-open="Поиск" class="arrow-btn" aria-label="Перейти к поиску">↗</button>
+      </article>
+      <article class="quick-card">
+        <span class="quick-icon purple">◉</span><div><b>Жизнь галактики</b><p>Новости, события и новые знакомства</p></div><button data-open="События" class="arrow-btn" aria-label="Открыть события">↗</button>
+      </article>
+      <article class="quick-card">
+        <span class="quick-icon gold">♧</span><div><b>Открывай новое</b><p>Каждая планета — отдельный мир</p></div><button id="randomPlanet" class="arrow-btn" aria-label="Случайная планета">↗</button>
+      </article>
+    </section>
   </main>
+
+  <nav class="bottom-nav" aria-label="Основная навигация">
+    <button class="active" data-nav="Планеты"><span>◎</span>Планеты</button>
+    <button data-nav="Поиск"><span>⌕</span>Поиск</button>
+    <button data-nav="События"><span>♨</span>События</button>
+    <button data-nav="Чаты"><span>☏</span>Чаты</button>
+    <button data-nav="Контакты"><span>♙</span>Контакты</button>
+  </nav>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <section class="planet-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="close-modal" id="closeModal" aria-label="Закрыть">×</button>
+      <div class="modal-hero" id="modalHero"><span class="modal-planet-icon" id="modalIcon">🎣</span><div><p class="eyebrow">МИР ИНТЕРЕСОВ</p><h2 id="modalTitle">Рыбалка</h2><p id="modalSubtitle">Природа, трофеи, эмоции</p><small id="modalMembers">12 842 участника</small></div></div>
+      <div class="modal-tabs"><button class="selected">Главная</button><button data-tab="Виды">Виды интереса</button><button data-tab="Новости">Новости</button><button data-tab="Люди">Люди</button><button data-tab="События">События</button></div>
+      <div class="modal-content">
+        <article class="feature-story"><span class="story-art" id="storyArt">🌅</span><div><span class="story-tag">ИСТОРИЯ СООБЩЕСТВА</span><h3 id="storyTitle">Улов дня</h3><p id="storyText">Делись впечатлениями, задавай вопросы и находи единомышленников.</p><button class="primary-btn" id="joinCommunity">Войти в сообщество <span>→</span></button></div></article>
+        <h3 class="section-heading" id="subsectionsHeading">Исследуй направления</h3>
+        <div class="subtopic-grid" id="subtopicGrid"></div>
+        <div class="modal-footer-note">Здесь могут появляться публикации участников, встречи, карта мест и тематические чаты.</div>
+      </div>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
 </body>
 </html>
