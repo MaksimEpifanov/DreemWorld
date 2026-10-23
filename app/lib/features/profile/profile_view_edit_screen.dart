@@ -113,6 +113,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
 
     final profileRepo = ref.read(profileRepositoryProvider);
     final currentUserId = ref.read(currentUserIdProvider);
+    final GoRouter router = GoRouter.of(context);
 
     final Profile updatedProfile = Profile(
       id: currentUserId,
@@ -158,13 +159,28 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
       relationshipGoal: _relationshipGoal,
     );
 
-    await profileRepo.saveProfile(updatedProfile);
-
-    if (mounted) {
-      final GoRouter router = GoRouter.of(context);
-      if (router.canPop()) {
-        router.pop();
+    try {
+      await profileRepo.saveProfile(updatedProfile);
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
       }
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        const SnackBar(content: Text('Изменения сохранены')),
+      );
+
+    if (router.canPop()) {
+      router.pop();
+    } else {
+      router.go('/main');
     }
   }
 
