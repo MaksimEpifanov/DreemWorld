@@ -26,10 +26,6 @@ class PlanetCatalogBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: NeonAppBar(
-        title: title,
-        leading: BackButton(onPressed: () => context.go('/main')),
-      ),
       body: SafeArea(
         child: planets.isEmpty
             ? Center(
@@ -45,45 +41,59 @@ class PlanetCatalogBody extends StatelessWidget {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.sm,
+                      AppSpacing.xs,
+                      AppSpacing.xs,
                       AppSpacing.md,
                       0,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        NeonGradientText(
-                          title,
-                          gradient: LinearGradient(
-                            colors: <Color>[
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.secondary,
+                        IconButton(
+                          onPressed: () => context.go('/main'),
+                          tooltip: 'Назад',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 36,
+                            minHeight: 36,
+                          ),
+                          icon: const Icon(Icons.arrow_back_rounded, size: 22),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              NeonGradientText(
+                                title,
+                                gradient: LinearGradient(
+                                  colors: <Color>[
+                                    Theme.of(context).colorScheme.primary,
+                                    Theme.of(context).colorScheme.secondary,
+                                  ],
+                                ),
+                                style: AppTextStyles.title(),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.pinch_outlined,
+                                    size: 12,
+                                    color: AppColors.textMuted,
+                                  ),
+                                  const SizedBox(width: AppSpacing.xxs),
+                                  Expanded(
+                                    child: Text(
+                                      '$subtitle Приблизьте карту и нажмите на планету.',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.caption(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          style: AppTextStyles.headline(),
-                        ),
-                        const SizedBox(height: AppSpacing.xxs),
-                        Text(
-                          subtitle,
-                          style: AppTextStyles.body(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.pinch_outlined,
-                              size: 14,
-                              color: AppColors.textMuted,
-                            ),
-                            const SizedBox(width: AppSpacing.xxs),
-                            Text(
-                              'Приблизьте карту и нажмите на планету',
-                              style: AppTextStyles.caption(),
-                            ),
-                          ],
                         ),
                       ],
                     ),
