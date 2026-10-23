@@ -48,8 +48,11 @@ void main() {
         ),
       );
       await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
 
-      expect(find.textContaining('Планета'), findsWidgets);
+      expect(find.text('DreemWorld'), findsWidgets);
+      expect(find.text('Найди своих по интересам'), findsOneWidget);
+      expect(find.text('Популярные планеты'), findsOneWidget);
     });
   });
 
