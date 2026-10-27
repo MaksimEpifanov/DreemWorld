@@ -26,26 +26,29 @@ class CosmicBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment(0, -0.25),
-          radius: 1.4,
-          colors: <Color>[
-            Color(0xFF050510),
-            Color(0xFF020208),
-            Color(0xFF000000),
-          ],
-          stops: <double>[0.0, 0.55, 1.0],
+    return SizedBox.expand(
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(0, -0.25),
+            radius: 1.4,
+            colors: <Color>[
+              Color(0xFF050510),
+              Color(0xFF020208),
+              Color(0xFF000000),
+            ],
+            stops: <double>[0.0, 0.55, 1.0],
+          ),
         ),
-      ),
-      child: CustomPaint(
-        painter: _CosmosPainter(
-          seed: seed,
-          tint: tint,
-          tintOpacity: tintOpacity,
+        child: CustomPaint(
+          size: Size.infinite,
+          painter: _CosmosPainter(
+            seed: seed,
+            tint: tint,
+            tintOpacity: tintOpacity,
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }

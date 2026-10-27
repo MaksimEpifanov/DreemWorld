@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/index.dart';
+import '../../core/widgets/cosmic_background.dart';
 import '../wallet/wallet_controller.dart';
 
 /// Каркас основного интерфейса с нижней навигацией по разделам.
@@ -21,7 +22,14 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final WalletState wallet = ref.watch(walletProvider);
     return Scaffold(
-      body: shell,
+      backgroundColor: const Color(0xFF050510),
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          const CosmicBackground(),
+          SizedBox.expand(child: shell),
+        ],
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
