@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/constants/planet_interest_details.dart';
 import '../../core/theme/index.dart';
 import '../../core/utils/image_utils.dart';
 import '../../core/widgets/index.dart';
@@ -40,6 +41,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
   ];
 
   final Set<String> _selectedInterests = <String>{};
+  final Set<String> _selectedDetailedInterests = <String>{};
   RelationshipGoal _relationshipGoal = RelationshipGoal.friendship;
   final Set<String> _selectedValues = <String>{};
   final List<String> _valueOptions = const <String>[
@@ -90,6 +92,9 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
           _selectedInterests.add(interest.name);
         }
       }
+      _selectedDetailedInterests
+        ..clear()
+        ..addAll(profile.detailedInterests);
     }
     if (mounted) {
       setState(() => _isLoading = false);
@@ -340,6 +345,11 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text('Интересы', style: AppTextStyles.title()),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        'Выбери основные направления',
+                        style: AppTextStyles.caption(color: AppColors.textMuted),
+                      ),
                       const SizedBox(height: AppSpacing.sm),
                       Wrap(
                         spacing: 8,
@@ -363,6 +373,17 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                _DetailedInterestsEditor(
+                  selected: _selectedDetailedInterests,
+                  onChanged: (Set<String> value) {
+                    setState(() {
+                      _selectedDetailedInterests
+                        ..clear()
+                        ..addAll(value);
+                    });
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 NeonCard(
@@ -646,5 +667,148 @@ class _ProfileHeader extends StatelessWidget {
         ],
       ],
     );
+  }
+}
+
+class _DetailedInterestsEditor extends StatefulWidget {
+  const _DetailedInterestsEditor({
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final Set<String> selected;
+  final ValueChanged<Set<String>> onChanged;
+
+  @override
+  State<_DetailedInterestsEditor> createState() =>
+      _DetailedInterestsEditorState();
+}
+
+class _DetailedInterestsEditorState extends State<_DetailedInterestsEditor> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final int count = widget.selected.length;
+
+    return NeonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Более детально', style: AppTextStyles.title()),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      count == 0
+                          ? 'Отметь, чем именно ты увлекаешься'
+                          : 'Выбрано: ',
+                      style: AppTextStyles.caption(color: AppColors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => setState(() => _expanded = !_expanded),
+                icon: Icon(
+                  _expanded
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
+                ),
+              ),
+            ],
+          ),
+          if (_expanded) ...<Widget>[
+            const SizedBox(height: AppSpacing.md),
+            for (final MapEntry<PlanetScene, List<PlanetInterestGroup>> entry
+                in planetInterestDetailsByScene.entries) ...<Widget>[
+              Text(_sceneTitle(entry.key), style: AppTextStyles.bodyBold()),
+              const SizedBox(height: AppSpacing.sm),
+              for (final PlanetInterestGroup group in entry.value) ...<Widget>[
+                Text(group.title, style: AppTextStyles.caption(color: scheme.primary)),
+                const SizedBox(height: AppSpacing.xs),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: group.items.map((String item) {
+                    final bool selected = widget.selected.contains(item);
+                    return FilterChip(
+                      label: Text(item),
+                      selected: selected,
+                      onSelected: (bool value) {
+                        final Set<String> next = Set<String>.from(widget.selected);
+                        if (value) {
+                          next.add(item);
+                        } else {
+                          next.remove(item);
+                        }
+                        widget.onChanged(next);
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _sceneTitle(PlanetScene scene) {
+    switch (scene) {
+      case PlanetScene.fishing:
+        return '🎣 Рыбалка';
+      case PlanetScene.travel:
+        return '✈️ Путешествия';
+      case PlanetScene.cinema:
+        return '🎬 Фильмы и сериалы';
+      case PlanetScene.books:
+        return '📚 Книги';
+      case PlanetScene.music:
+        return '🎵 Музыка';
+      case PlanetScene.sports:
+        return '🏃 Спорт';
+      case PlanetScene.reading:
+        return '📖 Чтение';
+      case PlanetScene.art:
+        return '🎨 Искусство';
+      case PlanetScene.technology:
+        return '💻 Технологии';
+      case PlanetScene.food:
+        return '🍳 Еда и кулинария';
+      case PlanetScene.nature:
+        return '🌲 Природа';
+      case PlanetScene.gaming:
+        return '🎮 Игры';
+      case PlanetScene.cars:
+        return '🚗 Автомобили';
+      case PlanetScene.animals:
+        return '🐾 Животные';
+      case PlanetScene.gardening:
+        return '🌿 Садоводство и растения';
+      case PlanetScene.esoteric:
+        return '🔮 Эзотерика';
+      case PlanetScene.finance:
+        return '💰 Финансы';
+      case PlanetScene.volunteering:
+        return '🤝 Волонтёрство';
+      case PlanetScene.psychology:
+        return '🧠 Психология';
+      case PlanetScene.other:
+        return '🎭 Другое';
+      case PlanetScene.selfDevelopment:
+        return '🚀 Саморазвитие';
+      case PlanetScene.collecting:
+        return '🏺 Хобби и коллекционирование';
+      case PlanetScene.space:
+        return '🚀 Космос';
+    }
   }
 }
