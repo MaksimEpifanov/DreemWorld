@@ -38,6 +38,7 @@ abstract class Profile with _$Profile {
     @Default(true) bool isOnline,
     DateTime? lastSeenAt,
     DateTime? createdAt,
+    @Default(<String>[]) List<String> detailedInterests,
   }) = _Profile;
 
   factory Profile.fromJson(Map<String, dynamic> json) =>
