@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Profile {
 
- String get id; String get name; int get age; String? get bio; String? get photoUrl; List<String> get photoUrls; String? get city; String? get country; List<Interest> get interests; List<String> get goals; List<String> get values; List<String> get languages; RelationshipGoal get relationshipGoal; bool get isOnline; DateTime? get lastSeenAt; DateTime? get createdAt;
+ String get id; String get name; int get age; String? get bio; String? get photoUrl; List<String> get photoUrls; String? get city; String? get country; List<Interest> get interests; List<String> get goals; List<String> get values; List<String> get languages; RelationshipGoal get relationshipGoal; bool get isOnline; DateTime? get lastSeenAt; DateTime? get createdAt; List<String> get detailedInterests;
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $ProfileCopyWith<Profile> get copyWith => _$ProfileCopyWithImpl<Profile>(this as
 @override
 bool operator ==(Object other) {
   final _this = this as Profile;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.age, _this.age) || other.age == _this.age)&&(identical(other.bio, _this.bio) || other.bio == _this.bio)&&(identical(other.photoUrl, _this.photoUrl) || other.photoUrl == _this.photoUrl)&&const DeepCollectionEquality().equals(other.photoUrls, _this.photoUrls)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.country, _this.country) || other.country == _this.country)&&const DeepCollectionEquality().equals(other.interests, _this.interests)&&const DeepCollectionEquality().equals(other.goals, _this.goals)&&const DeepCollectionEquality().equals(other.values, _this.values)&&const DeepCollectionEquality().equals(other.languages, _this.languages)&&(identical(other.relationshipGoal, _this.relationshipGoal) || other.relationshipGoal == _this.relationshipGoal)&&(identical(other.isOnline, _this.isOnline) || other.isOnline == _this.isOnline)&&(identical(other.lastSeenAt, _this.lastSeenAt) || other.lastSeenAt == _this.lastSeenAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.age, _this.age) || other.age == _this.age)&&(identical(other.bio, _this.bio) || other.bio == _this.bio)&&(identical(other.photoUrl, _this.photoUrl) || other.photoUrl == _this.photoUrl)&&const DeepCollectionEquality().equals(other.photoUrls, _this.photoUrls)&&(identical(other.city, _this.city) || other.city == _this.city)&&(identical(other.country, _this.country) || other.country == _this.country)&&const DeepCollectionEquality().equals(other.interests, _this.interests)&&const DeepCollectionEquality().equals(other.goals, _this.goals)&&const DeepCollectionEquality().equals(other.values, _this.values)&&const DeepCollectionEquality().equals(other.languages, _this.languages)&&(identical(other.relationshipGoal, _this.relationshipGoal) || other.relationshipGoal == _this.relationshipGoal)&&(identical(other.isOnline, _this.isOnline) || other.isOnline == _this.isOnline)&&(identical(other.lastSeenAt, _this.lastSeenAt) || other.lastSeenAt == _this.lastSeenAt)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&const DeepCollectionEquality().equals(other.detailedInterests, _this.detailedInterests));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as Profile;
-  return Object.hash(runtimeType,_this.id,_this.name,_this.age,_this.bio,_this.photoUrl,const DeepCollectionEquality().hash(_this.photoUrls),_this.city,_this.country,const DeepCollectionEquality().hash(_this.interests),const DeepCollectionEquality().hash(_this.goals),const DeepCollectionEquality().hash(_this.values),const DeepCollectionEquality().hash(_this.languages),_this.relationshipGoal,_this.isOnline,_this.lastSeenAt,_this.createdAt);
+  return Object.hash(runtimeType,_this.id,_this.name,_this.age,_this.bio,_this.photoUrl,const DeepCollectionEquality().hash(_this.photoUrls),_this.city,_this.country,const DeepCollectionEquality().hash(_this.interests),const DeepCollectionEquality().hash(_this.goals),const DeepCollectionEquality().hash(_this.values),const DeepCollectionEquality().hash(_this.languages),_this.relationshipGoal,_this.isOnline,_this.lastSeenAt,_this.createdAt,const DeepCollectionEquality().hash(_this.detailedInterests));
 }
 
 @override
 String toString() {
   final _this = this as Profile;
-  return 'Profile(id: ${_this.id}, name: ${_this.name}, age: ${_this.age}, bio: ${_this.bio}, photoUrl: ${_this.photoUrl}, photoUrls: ${_this.photoUrls}, city: ${_this.city}, country: ${_this.country}, interests: ${_this.interests}, goals: ${_this.goals}, values: ${_this.values}, languages: ${_this.languages}, relationshipGoal: ${_this.relationshipGoal}, isOnline: ${_this.isOnline}, lastSeenAt: ${_this.lastSeenAt}, createdAt: ${_this.createdAt})';
+  return 'Profile(id: ${_this.id}, name: ${_this.name}, age: ${_this.age}, bio: ${_this.bio}, photoUrl: ${_this.photoUrl}, photoUrls: ${_this.photoUrls}, city: ${_this.city}, country: ${_this.country}, interests: ${_this.interests}, goals: ${_this.goals}, values: ${_this.values}, languages: ${_this.languages}, relationshipGoal: ${_this.relationshipGoal}, isOnline: ${_this.isOnline}, lastSeenAt: ${_this.lastSeenAt}, createdAt: ${_this.createdAt}, detailedInterests: ${_this.detailedInterests})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $ProfileCopyWith<$Res>  {
   factory $ProfileCopyWith(Profile value, $Res Function(Profile) _then) = _$ProfileCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, int age, String? bio, String? photoUrl, List<String> photoUrls, String? city, String? country, List<Interest> interests, List<String> goals, List<String> values, List<String> languages, RelationshipGoal relationshipGoal, bool isOnline, DateTime? lastSeenAt, DateTime? createdAt
+ String id, String name, int age, String? bio, String? photoUrl, List<String> photoUrls, String? city, String? country, List<Interest> interests, List<String> goals, List<String> values, List<String> languages, RelationshipGoal relationshipGoal, bool isOnline, DateTime? lastSeenAt, DateTime? createdAt, List<String> detailedInterests
 });
 
 
@@ -71,7 +71,7 @@ class _$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? age = null,Object? bio = freezed,Object? photoUrl = freezed,Object? photoUrls = null,Object? city = freezed,Object? country = freezed,Object? interests = null,Object? goals = null,Object? values = null,Object? languages = null,Object? relationshipGoal = null,Object? isOnline = null,Object? lastSeenAt = freezed,Object? createdAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? age = null,Object? bio = freezed,Object? photoUrl = freezed,Object? photoUrls = null,Object? city = freezed,Object? country = freezed,Object? interests = null,Object? goals = null,Object? values = null,Object? languages = null,Object? relationshipGoal = null,Object? isOnline = null,Object? lastSeenAt = freezed,Object? createdAt = freezed,Object? detailedInterests = null,}) {
   return _then(Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -89,7 +89,8 @@ as List<String>,relationshipGoal: null == relationshipGoal ? _self.relationshipG
 as RelationshipGoal,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
 as bool,lastSeenAt: freezed == lastSeenAt ? _self.lastSeenAt : lastSeenAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,detailedInterests: null == detailedInterests ? _self.detailedInterests : detailedInterests // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -174,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  int age,  String? bio,  String? photoUrl,  List<String> photoUrls,  String? city,  String? country,  List<Interest> interests,  List<String> goals,  List<String> values,  List<String> languages,  RelationshipGoal relationshipGoal,  bool isOnline,  DateTime? lastSeenAt,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  int age,  String? bio,  String? photoUrl,  List<String> photoUrls,  String? city,  String? country,  List<Interest> interests,  List<String> goals,  List<String> values,  List<String> languages,  RelationshipGoal relationshipGoal,  bool isOnline,  DateTime? lastSeenAt,  DateTime? createdAt,  List<String> detailedInterests)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.photoUrls,_that.city,_that.country,_that.interests,_that.goals,_that.values,_that.languages,_that.relationshipGoal,_that.isOnline,_that.lastSeenAt,_that.createdAt);case _:
+return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.photoUrls,_that.city,_that.country,_that.interests,_that.goals,_that.values,_that.languages,_that.relationshipGoal,_that.isOnline,_that.lastSeenAt,_that.createdAt,_that.detailedInterests);case _:
   return orElse();
 
 }
@@ -195,10 +196,10 @@ return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.pho
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  int age,  String? bio,  String? photoUrl,  List<String> photoUrls,  String? city,  String? country,  List<Interest> interests,  List<String> goals,  List<String> values,  List<String> languages,  RelationshipGoal relationshipGoal,  bool isOnline,  DateTime? lastSeenAt,  DateTime? createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  int age,  String? bio,  String? photoUrl,  List<String> photoUrls,  String? city,  String? country,  List<Interest> interests,  List<String> goals,  List<String> values,  List<String> languages,  RelationshipGoal relationshipGoal,  bool isOnline,  DateTime? lastSeenAt,  DateTime? createdAt,  List<String> detailedInterests)  $default,) {final _that = this;
 switch (_that) {
 case _Profile():
-return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.photoUrls,_that.city,_that.country,_that.interests,_that.goals,_that.values,_that.languages,_that.relationshipGoal,_that.isOnline,_that.lastSeenAt,_that.createdAt);case _:
+return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.photoUrls,_that.city,_that.country,_that.interests,_that.goals,_that.values,_that.languages,_that.relationshipGoal,_that.isOnline,_that.lastSeenAt,_that.createdAt,_that.detailedInterests);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -215,10 +216,10 @@ return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.pho
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  int age,  String? bio,  String? photoUrl,  List<String> photoUrls,  String? city,  String? country,  List<Interest> interests,  List<String> goals,  List<String> values,  List<String> languages,  RelationshipGoal relationshipGoal,  bool isOnline,  DateTime? lastSeenAt,  DateTime? createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  int age,  String? bio,  String? photoUrl,  List<String> photoUrls,  String? city,  String? country,  List<Interest> interests,  List<String> goals,  List<String> values,  List<String> languages,  RelationshipGoal relationshipGoal,  bool isOnline,  DateTime? lastSeenAt,  DateTime? createdAt,  List<String> detailedInterests)?  $default,) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.photoUrls,_that.city,_that.country,_that.interests,_that.goals,_that.values,_that.languages,_that.relationshipGoal,_that.isOnline,_that.lastSeenAt,_that.createdAt);case _:
+return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.photoUrls,_that.city,_that.country,_that.interests,_that.goals,_that.values,_that.languages,_that.relationshipGoal,_that.isOnline,_that.lastSeenAt,_that.createdAt,_that.detailedInterests);case _:
   return null;
 
 }
@@ -230,7 +231,7 @@ return $default(_that.id,_that.name,_that.age,_that.bio,_that.photoUrl,_that.pho
 @JsonSerializable()
 
 class _Profile extends Profile {
-  const _Profile({required this.id, required this.name, required this.age, this.bio, this.photoUrl,  List<String> photoUrls = const <String>[], this.city, this.country,  List<Interest> interests = const <Interest>[],  List<String> goals = const <String>[],  List<String> values = const <String>[],  List<String> languages = const <String>[], this.relationshipGoal = RelationshipGoal.chat, this.isOnline = true, this.lastSeenAt, this.createdAt}): _photoUrls = photoUrls,_interests = interests,_goals = goals,_values = values,_languages = languages,super._();
+  const _Profile({required this.id, required this.name, required this.age, this.bio, this.photoUrl,  List<String> photoUrls = const <String>[], this.city, this.country,  List<Interest> interests = const <Interest>[],  List<String> goals = const <String>[],  List<String> values = const <String>[],  List<String> languages = const <String>[], this.relationshipGoal = RelationshipGoal.chat, this.isOnline = true, this.lastSeenAt, this.createdAt,  List<String> detailedInterests = const <String>[]}): _photoUrls = photoUrls,_interests = interests,_goals = goals,_values = values,_languages = languages,_detailedInterests = detailedInterests,super._();
   factory _Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);
 
 @override final  String id;
@@ -279,6 +280,13 @@ class _Profile extends Profile {
 @override@JsonKey() final  bool isOnline;
 @override final  DateTime? lastSeenAt;
 @override final  DateTime? createdAt;
+ final  List<String> _detailedInterests;
+@override@JsonKey() List<String> get detailedInterests {
+  if (_detailedInterests is EqualUnmodifiableListView) return _detailedInterests;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_detailedInterests);
+}
+
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
@@ -293,18 +301,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.age, age) || other.age == age)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&const DeepCollectionEquality().equals(other.photoUrls, _photoUrls)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&const DeepCollectionEquality().equals(other.interests, _interests)&&const DeepCollectionEquality().equals(other.goals, _goals)&&const DeepCollectionEquality().equals(other.values, _values)&&const DeepCollectionEquality().equals(other.languages, _languages)&&(identical(other.relationshipGoal, relationshipGoal) || other.relationshipGoal == relationshipGoal)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeenAt, lastSeenAt) || other.lastSeenAt == lastSeenAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.age, age) || other.age == age)&&(identical(other.bio, bio) || other.bio == bio)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&const DeepCollectionEquality().equals(other.photoUrls, _photoUrls)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&const DeepCollectionEquality().equals(other.interests, _interests)&&const DeepCollectionEquality().equals(other.goals, _goals)&&const DeepCollectionEquality().equals(other.values, _values)&&const DeepCollectionEquality().equals(other.languages, _languages)&&(identical(other.relationshipGoal, relationshipGoal) || other.relationshipGoal == relationshipGoal)&&(identical(other.isOnline, isOnline) || other.isOnline == isOnline)&&(identical(other.lastSeenAt, lastSeenAt) || other.lastSeenAt == lastSeenAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.detailedInterests, _detailedInterests));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,name,age,bio,photoUrl,const DeepCollectionEquality().hash(_photoUrls),city,country,const DeepCollectionEquality().hash(_interests),const DeepCollectionEquality().hash(_goals),const DeepCollectionEquality().hash(_values),const DeepCollectionEquality().hash(_languages),relationshipGoal,isOnline,lastSeenAt,createdAt);
+    return Object.hash(runtimeType,id,name,age,bio,photoUrl,const DeepCollectionEquality().hash(_photoUrls),city,country,const DeepCollectionEquality().hash(_interests),const DeepCollectionEquality().hash(_goals),const DeepCollectionEquality().hash(_values),const DeepCollectionEquality().hash(_languages),relationshipGoal,isOnline,lastSeenAt,createdAt,const DeepCollectionEquality().hash(_detailedInterests));
 }
 
 @override
 String toString() {
-    return 'Profile(id: $id, name: $name, age: $age, bio: $bio, photoUrl: $photoUrl, photoUrls: $photoUrls, city: $city, country: $country, interests: $interests, goals: $goals, values: $values, languages: $languages, relationshipGoal: $relationshipGoal, isOnline: $isOnline, lastSeenAt: $lastSeenAt, createdAt: $createdAt)';
+    return 'Profile(id: $id, name: $name, age: $age, bio: $bio, photoUrl: $photoUrl, photoUrls: $photoUrls, city: $city, country: $country, interests: $interests, goals: $goals, values: $values, languages: $languages, relationshipGoal: $relationshipGoal, isOnline: $isOnline, lastSeenAt: $lastSeenAt, createdAt: $createdAt, detailedInterests: $detailedInterests)';
 }
 
 
@@ -315,7 +323,7 @@ abstract mixin class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   factory _$ProfileCopyWith(_Profile value, $Res Function(_Profile) _then) = __$ProfileCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, int age, String? bio, String? photoUrl, List<String> photoUrls, String? city, String? country, List<Interest> interests, List<String> goals, List<String> values, List<String> languages, RelationshipGoal relationshipGoal, bool isOnline, DateTime? lastSeenAt, DateTime? createdAt
+ String id, String name, int age, String? bio, String? photoUrl, List<String> photoUrls, String? city, String? country, List<Interest> interests, List<String> goals, List<String> values, List<String> languages, RelationshipGoal relationshipGoal, bool isOnline, DateTime? lastSeenAt, DateTime? createdAt, List<String> detailedInterests
 });
 
 
@@ -332,7 +340,7 @@ class __$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? age = null,Object? bio = freezed,Object? photoUrl = freezed,Object? photoUrls = null,Object? city = freezed,Object? country = freezed,Object? interests = null,Object? goals = null,Object? values = null,Object? languages = null,Object? relationshipGoal = null,Object? isOnline = null,Object? lastSeenAt = freezed,Object? createdAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? age = null,Object? bio = freezed,Object? photoUrl = freezed,Object? photoUrls = null,Object? city = freezed,Object? country = freezed,Object? interests = null,Object? goals = null,Object? values = null,Object? languages = null,Object? relationshipGoal = null,Object? isOnline = null,Object? lastSeenAt = freezed,Object? createdAt = freezed,Object? detailedInterests = null,}) {
   return _then(_Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -350,7 +358,8 @@ as List<String>,relationshipGoal: null == relationshipGoal ? _self.relationshipG
 as RelationshipGoal,isOnline: null == isOnline ? _self.isOnline : isOnline // ignore: cast_nullable_to_non_nullable
 as bool,lastSeenAt: freezed == lastSeenAt ? _self.lastSeenAt : lastSeenAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,detailedInterests: null == detailedInterests ? _self._detailedInterests : detailedInterests // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

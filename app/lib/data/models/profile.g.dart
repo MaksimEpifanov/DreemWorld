@@ -44,6 +44,11 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
   createdAt: json['createdAt'] == null
       ? null
       : DateTime.parse(json['createdAt'] as String),
+  detailedInterests:
+      (json['detailedInterests'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const <String>[],
 );
 
 Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
@@ -63,6 +68,7 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'isOnline': instance.isOnline,
   'lastSeenAt': instance.lastSeenAt?.toIso8601String(),
   'createdAt': instance.createdAt?.toIso8601String(),
+  'detailedInterests': instance.detailedInterests,
 };
 
 const _$RelationshipGoalEnumMap = {
