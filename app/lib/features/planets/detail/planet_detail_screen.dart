@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/planet_interest_details.dart';
 import '../../../core/theme/index.dart';
 import '../../../core/widgets/index.dart';
 import '../../../data/models/planet.dart';
@@ -86,6 +87,8 @@ class PlanetDetailScreen extends ConsumerWidget {
                     color: planet.secondary,
                     onPressed: () => context.go('/discovery'),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _PlanetInterestDetails(planet: planet),
                   const SizedBox(height: AppSpacing.lg),
                   NeonButton(
                     label: 'Карта планеты',
@@ -362,6 +365,136 @@ class _StatChip extends StatelessWidget {
             label,
             style: AppTextStyles.label(color: AppColors.textPrimary),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanetInterestDetails extends StatefulWidget {
+  const _PlanetInterestDetails({required this.planet});
+
+  final Planet planet;
+
+  @override
+  State<_PlanetInterestDetails> createState() => _PlanetInterestDetailsState();
+}
+
+class _PlanetInterestDetailsState extends State<_PlanetInterestDetails> {
+  final Set<String> _selected = <String>{};
+
+  @override
+  Widget build(BuildContext context) {
+    final List<PlanetInterestGroup> groups =
+        planetInterestDetailsByScene[widget.planet.scene] ?? const <PlanetInterestGroup>[];
+
+    if (groups.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color color = widget.planet.accent;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Icon(Icons.tune_rounded, color: color, size: 22),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  'Подбери, что тебя интересует',
+                  style: AppTextStyles.bodyBold(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Отметь пункты галочками — так подбор найдёт подходящих людей точнее',
+            style: AppTextStyles.caption(color: AppColors.textMuted),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          for (int g = 0; g < groups.length; g++) ...<Widget>[
+            Text(groups[g].title, style: AppTextStyles.bodyBold()),
+            const SizedBox(height: AppSpacing.sm),
+            for (final String item in groups[g].items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: InkWell(
+                  borderRadius: AppRadius.mdAll,
+                  onTap: () {
+                    setState(() {
+                      if (_selected.contains(item)) {
+                        _selected.remove(item);
+                      } else {
+                        _selected.add(item);
+                      }
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _selected.contains(item)
+                          ? color.withValues(alpha: 0.14)
+                          : scheme.surface.withValues(alpha: 0.4),
+                      borderRadius: AppRadius.mdAll,
+                      border: Border.all(
+                        color: _selected.contains(item)
+                            ? color.withValues(alpha: 0.7)
+                            : scheme.outline.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _selected.contains(item)
+                                ? color
+                                : Colors.transparent,
+                            border: Border.all(
+                              color: _selected.contains(item)
+                                  ? color
+                                  : AppColors.textMuted.withValues(alpha: 0.7),
+                              width: 1.6,
+                            ),
+                          ),
+                          child: _selected.contains(item)
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: AppColors.white,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text(
+                            item,
+                            style: AppTextStyles.body(
+                              color: _selected.contains(item)
+                                  ? AppColors.white
+                                  : AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (g < groups.length - 1) const SizedBox(height: AppSpacing.lg),
+          ],
         ],
       ),
     );
