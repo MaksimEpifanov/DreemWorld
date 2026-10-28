@@ -132,33 +132,39 @@ class _GalaxyHeader extends ConsumerWidget {
                   Stack(
                     clipBehavior: Clip.none,
                     children: <Widget>[
-                      IconButton(
-                        onPressed: () {
-                          showDialog<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                backgroundColor: const Color(0xFF0F143C),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: AppRadius.lgAll,
-                                ),
-                                title: const Text('Уведомления'),
-                                content: const Text(
-                                  'Уведомлений пока нет',
-                                  style: TextStyle(color: AppColors.textSecondary),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    child: const Text('Закрыть'),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(24),
+                          onTap: () {
+                            showDialog<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  backgroundColor: const Color(0xFF0F143C),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: AppRadius.lgAll,
                                   ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.notifications_none_rounded),
-                        color: AppColors.white,
+                                  title: const Text('Уведомления'),
+                                  content: const Text(
+                                    'Уведомлений пока нет',
+                                    style: TextStyle(color: AppColors.textSecondary),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () => Navigator.of(context).pop(),
+                                      child: const Text('Закрыть'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(Icons.notifications_none_rounded, color: AppColors.white),
+                          ),
+                        ),
                       ),
                       Positioned(
                         right: 6,
