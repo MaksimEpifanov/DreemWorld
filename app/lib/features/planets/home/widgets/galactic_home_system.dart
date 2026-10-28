@@ -28,14 +28,14 @@ class GalacticHomeSystem extends StatelessWidget {
         final double h = constraints.maxHeight.isFinite ? constraints.maxHeight : constraints.maxWidth;
         final double w = constraints.maxWidth;
         final double side = math.min(w, h);
-        final double effectiveSide = side * 0.82;
+        final double effectiveSide = side * 0.76;
         final double scale = effectiveSide / 820.0;
 
-        final double sunSize = (160.0 * scale).clamp(104.0, 168.0);
-        final double orbit1 = (300.0 * scale).clamp(196.0, 324.0);
-        final double orbit2 = (390.0 * scale).clamp(272.0, 428.0);
-        final double orbit3 = (480.0 * scale).clamp(336.0, 536.0);
-        final double planetSize = (80.0 * scale).clamp(58.0, 90.0);
+        final double sunSize = (150.0 * scale).clamp(98.0, 158.0);
+        final double orbit1 = (275.0 * scale).clamp(184.0, 300.0);
+        final double orbit2 = (360.0 * scale).clamp(252.0, 396.0);
+        final double orbit3 = (445.0 * scale).clamp(312.0, 500.0);
+        final double planetSize = (76.0 * scale).clamp(56.0, 86.0);
 
         final List<Planet> displayPlanets = List<Planet>.from(planets);
         final int financeIdx = displayPlanets.indexWhere((Planet p) =>
@@ -85,6 +85,11 @@ class GalacticHomeSystem extends StatelessWidget {
             insertAt = displayPlanets.length;
           }
           displayPlanets.insert(insertAt, esotericPlanet);
+        }
+        final int gardeningIdx = displayPlanets.indexWhere((Planet p) =>
+            p.id == 'p_gardening' || p.name.toLowerCase().contains('садов'));
+        if (gardeningIdx >= 0 && gardeningIdx >= 12) {
+          displayPlanets.removeAt(gardeningIdx);
         }
 
         final List<_Orbit> orbits = <_Orbit>[
