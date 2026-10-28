@@ -62,6 +62,30 @@ class GalacticHomeSystem extends StatelessWidget {
           }
           displayPlanets.insert(insertAt, financePlanet);
         }
+        final int esotericIdx = displayPlanets.indexWhere((Planet p) =>
+            p.id == 'p_esoteric' || p.name.toLowerCase().contains('изотер'));
+        if (esotericIdx >= 0) {
+          final Planet esotericPlanet = displayPlanets.removeAt(esotericIdx);
+          final int financeIdx2 = displayPlanets.indexWhere((Planet p) =>
+              p.id == 'p_finance' || p.name.toLowerCase().contains('финанс'));
+          final int techIdx2 = displayPlanets.indexWhere((Planet p) =>
+              p.id == 'p_tech' || p.name.toLowerCase().contains('технолог'));
+          int insertAt = -1;
+          if (financeIdx2 >= 0 && techIdx2 >= 0) {
+            insertAt = financeIdx2 < techIdx2 ? financeIdx2 + 1 : techIdx2;
+          } else if (financeIdx2 >= 0) {
+            insertAt = financeIdx2 + 1;
+          } else if (techIdx2 >= 0) {
+            insertAt = techIdx2;
+          }
+          if (insertAt < 0) {
+            insertAt = 7;
+          }
+          if (insertAt > displayPlanets.length) {
+            insertAt = displayPlanets.length;
+          }
+          displayPlanets.insert(insertAt, esotericPlanet);
+        }
 
         final List<_Orbit> orbits = <_Orbit>[
           _Orbit(radius: orbit1, count: 6, startIndex: 0),
