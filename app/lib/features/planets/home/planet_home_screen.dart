@@ -129,6 +129,18 @@ class _GalaxyHeader extends ConsumerWidget {
               const Spacer(),
               Row(
                 children: <Widget>[
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24),
+                      onTap: () => context.go('/settings'),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(Icons.settings_outlined, color: AppColors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
                   Stack(
                     clipBehavior: Clip.none,
                     children: <Widget>[
