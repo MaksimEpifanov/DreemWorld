@@ -28,14 +28,14 @@ class GalacticHomeSystem extends StatelessWidget {
         final double h = constraints.maxHeight.isFinite ? constraints.maxHeight : constraints.maxWidth;
         final double w = constraints.maxWidth;
         final double side = math.min(w, h);
-        final double effectiveSide = side * 0.88;
+        final double effectiveSide = side * 0.82;
         final double scale = effectiveSide / 820.0;
 
-        final double sunSize = (170.0 * scale).clamp(108.0, 178.0);
-        final double orbit1 = (320.0 * scale).clamp(210.0, 340.0);
-        final double orbit2 = (420.0 * scale).clamp(290.0, 460.0);
-        final double orbit3 = (520.0 * scale).clamp(360.0, 580.0);
-        final double planetSize = (86.0 * scale).clamp(62.0, 96.0);
+        final double sunSize = (160.0 * scale).clamp(104.0, 168.0);
+        final double orbit1 = (300.0 * scale).clamp(196.0, 324.0);
+        final double orbit2 = (390.0 * scale).clamp(272.0, 428.0);
+        final double orbit3 = (480.0 * scale).clamp(336.0, 536.0);
+        final double planetSize = (80.0 * scale).clamp(58.0, 90.0);
 
         final List<_Orbit> orbits = <_Orbit>[
           _Orbit(radius: orbit1, count: 6, startIndex: 0),
