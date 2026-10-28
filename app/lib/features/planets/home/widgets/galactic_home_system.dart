@@ -37,10 +37,36 @@ class GalacticHomeSystem extends StatelessWidget {
         final double orbit3 = (480.0 * scale).clamp(336.0, 536.0);
         final double planetSize = (80.0 * scale).clamp(58.0, 90.0);
 
+        final List<Planet> displayPlanets = List<Planet>.from(planets);
+        final int financeIdx = displayPlanets.indexWhere((Planet p) =>
+            p.id == 'p_finance' || p.name.toLowerCase().contains('финанс'));
+        if (financeIdx >= 0) {
+          final Planet financePlanet = displayPlanets.removeAt(financeIdx);
+          final int techIdx = displayPlanets.indexWhere((Planet p) =>
+              p.id == 'p_tech' || p.name.toLowerCase().contains('технолог'));
+          final int foodIdx = displayPlanets.indexWhere((Planet p) =>
+              p.id == 'p_food' || p.name.toLowerCase().contains('кулинар'));
+          int insertAt = -1;
+          if (foodIdx >= 0 && techIdx >= 0) {
+            insertAt = foodIdx < techIdx ? foodIdx + 1 : techIdx + 1;
+          } else if (foodIdx >= 0) {
+            insertAt = foodIdx + 1;
+          } else if (techIdx >= 0) {
+            insertAt = techIdx;
+          }
+          if (insertAt < 0) {
+            insertAt = 6;
+          }
+          if (insertAt > displayPlanets.length) {
+            insertAt = displayPlanets.length;
+          }
+          displayPlanets.insert(insertAt, financePlanet);
+        }
+
         final List<_Orbit> orbits = <_Orbit>[
           _Orbit(radius: orbit1, count: 6, startIndex: 0),
           _Orbit(radius: orbit2, count: 6, startIndex: 6),
-          _Orbit(radius: orbit3, count: math.max(0, planets.length - 12), startIndex: 12),
+          _Orbit(radius: orbit3, count: math.max(0, displayPlanets.length - 12), startIndex: 12),
         ];
 
         final List<Widget> children = <Widget>[
@@ -55,8 +81,8 @@ class GalacticHomeSystem extends StatelessWidget {
         int planetIndex = 0;
         for (int o = 0; o < orbits.length; o++) {
           final _Orbit orbit = orbits[o];
-          for (int i = 0; i < orbit.count && planetIndex < planets.length; i++, planetIndex++) {
-            final Planet planet = planets[planetIndex];
+          for (int i = 0; i < orbit.count && planetIndex < displayPlanets.length; i++, planetIndex++) {
+            final Planet planet = displayPlanets[planetIndex];
             double angle = -math.pi / 2 + (2 * math.pi / orbit.count) * i + o * 0.28;
             final String name = planet.name.toLowerCase();
             if (name.contains('изотер')) {
