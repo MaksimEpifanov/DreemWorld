@@ -57,7 +57,23 @@ class GalacticHomeSystem extends StatelessWidget {
           final _Orbit orbit = orbits[o];
           for (int i = 0; i < orbit.count && planetIndex < planets.length; i++, planetIndex++) {
             final Planet planet = planets[planetIndex];
-            final double angle = -math.pi / 2 + (2 * math.pi / orbit.count) * i + o * 0.28;
+            double angle = -math.pi / 2 + (2 * math.pi / orbit.count) * i + o * 0.28;
+            final String name = planet.name.toLowerCase();
+            if (name.contains('изотер')) {
+              angle += 0.18;
+            }
+            if (name.contains('технолог')) {
+              angle -= 0.1;
+            }
+            if (name.contains('финанс')) {
+              angle -= 0.08;
+            }
+            if (name.contains('добра')) {
+              angle += 0.06;
+            }
+            if (name.contains('коллекц')) {
+              angle += 0.08;
+            }
             final double x = math.cos(angle) * orbit.radius;
             final double y = math.sin(angle) * orbit.radius;
 
