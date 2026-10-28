@@ -146,9 +146,18 @@ class _GalaxyHeader extends ConsumerWidget {
                                     borderRadius: AppRadius.lgAll,
                                   ),
                                   title: const Text('Уведомления'),
-                                  content: const Text(
-                                    'Уведомлений пока нет',
-                                    style: TextStyle(color: AppColors.textSecondary),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const <Widget>[
+                                      Text('У вас 3 новых уведомления', style: TextStyle(color: AppColors.textPrimary)),
+                                      SizedBox(height: AppSpacing.sm),
+                                      Text('• Новые люди в подборе', style: TextStyle(color: AppColors.textSecondary)),
+                                      SizedBox(height: AppSpacing.xs),
+                                      Text('• Кто-то лайкнул вас', style: TextStyle(color: AppColors.textSecondary)),
+                                      SizedBox(height: AppSpacing.xs),
+                                      Text('• Новое сообщение', style: TextStyle(color: AppColors.textSecondary)),
+                                    ],
                                   ),
                                   actions: <Widget>[
                                     TextButton(
