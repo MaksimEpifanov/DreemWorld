@@ -162,6 +162,7 @@ class _ProfileViewEditScreenState extends ConsumerState<ProfileViewEditScreen> {
       values: _selectedValues.toList(),
       languages: const <String>['ru'],
       relationshipGoal: _relationshipGoal,
+      detailedInterests: _selectedDetailedInterests.toList(),
     );
 
     try {
