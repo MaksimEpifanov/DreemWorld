@@ -133,7 +133,30 @@ class _GalaxyHeader extends ConsumerWidget {
                     clipBehavior: Clip.none,
                     children: <Widget>[
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                backgroundColor: const Color(0xFF0F143C),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: AppRadius.lgAll,
+                                ),
+                                title: const Text('Уведомления'),
+                                content: const Text(
+                                  'Уведомлений пока нет',
+                                  style: TextStyle(color: AppColors.textSecondary),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('Закрыть'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                         icon: const Icon(Icons.notifications_none_rounded),
                         color: AppColors.white,
                       ),
