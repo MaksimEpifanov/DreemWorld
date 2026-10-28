@@ -28,25 +28,27 @@ class AppShell extends ConsumerWidget {
         children: <Widget>[
           const CosmicBackground(),
           SizedBox.expand(child: shell),
+          Positioned(
+            right: AppSpacing.md,
+            bottom: AppSpacing.md + 64 + AppSpacing.sm,
+            child: SafeArea(
+              top: false,
+              child: _MiniGamesBanner(
+                balance: wallet.balance,
+                onTap: () => context.go('/minigames'),
+              ),
+            ),
+          ),
         ],
       ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _MiniGamesBanner(
-            balance: wallet.balance,
-            onTap: () => context.go('/minigames'),
-          ),
-          AppNavigationBar(
-            currentIndex: shell.currentIndex,
-            onDestinationSelected: (int index) {
-              shell.goBranch(
-                index,
-                initialLocation: index == shell.currentIndex,
-              );
-            },
-          ),
-        ],
+      bottomNavigationBar: AppNavigationBar(
+        currentIndex: shell.currentIndex,
+        onDestinationSelected: (int index) {
+          shell.goBranch(
+            index,
+            initialLocation: index == shell.currentIndex,
+          );
+        },
       ),
     );
   }
