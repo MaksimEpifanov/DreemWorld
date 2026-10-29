@@ -1,0 +1,56 @@
+﻿                      : Icons.keyboard_arrow_down_rounded,
+                ),
+              ),
+            ],
+          ),
+          if (_expanded) ...<Widget>[
+            const SizedBox(height: AppSpacing.md),
+            for (final MapEntry<PlanetScene, List<PlanetInterestGroup>> entry
+                in planetInterestDetailsByScene.entries) ...<Widget>[
+              Text(_sceneTitle(entry.key), style: AppTextStyles.bodyBold()),
+              const SizedBox(height: AppSpacing.sm),
+              for (final PlanetInterestGroup group in entry.value) ...<Widget>[
+                Text(group.title, style: AppTextStyles.caption(color: scheme.primary)),
+                const SizedBox(height: AppSpacing.xs),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: group.items.map((String item) {
+                    final bool selected = widget.selected.contains(item);
+                    return FilterChip(
+                      label: Text(item),
+                      selected: selected,
+                      onSelected: (bool value) {
+                        final Set<String> next = Set<String>.from(widget.selected);
+                        if (value) {
+                          next.add(item);
+                        } else {
+                          next.remove(item);
+                        }
+                        widget.onChanged(next);
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: AppSpacing.md),
+              ],
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _sceneTitle(PlanetScene scene) {
+    switch (scene) {
+      case PlanetScene.fishing:
+        return 'рџЋЈ Р С‹Р±Р°Р»РєР°';
+      case PlanetScene.travel:
+        return 'вњ€пёЏ РџСѓС‚РµС€РµСЃС‚РІРёСЏ';
+      case PlanetScene.cinema:
+        return 'рџЋ¬ Р¤РёР»СЊРјС‹ Рё СЃРµСЂРёР°Р»С‹';
+      case PlanetScene.books:
+        return 'рџ“љ РљРЅРёРіРё';
+      case PlanetScene.music:
+        return 'рџЋµ РњСѓР·С‹РєР°';
+      case PlanetScene.sports:

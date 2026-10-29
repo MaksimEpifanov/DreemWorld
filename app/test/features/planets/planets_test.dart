@@ -8,7 +8,7 @@ import 'package:dreem_world/data/repositories/mock_planet_repository.dart';
 import 'package:dreem_world/features/planets/cosmos/orbital_catalog.dart';
 import 'package:dreem_world/features/planets/cosmos/realistic_planet.dart';
 import 'package:dreem_world/features/planets/cosmos/realistic_sun.dart';
-import 'package:dreem_world/features/planets/home/planet_home_screen.dart';
+
 import 'package:dreem_world/features/planets/map/planet_map_screen.dart';
 import 'package:dreem_world/features/planets/news/planet_news_screen.dart';
 import 'package:dreem_world/features/planets/news/widgets/news_card.dart';
