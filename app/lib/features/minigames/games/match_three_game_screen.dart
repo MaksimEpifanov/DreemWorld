@@ -172,6 +172,19 @@ class _MatchThreeGameScreenState extends ConsumerState<MatchThreeGameScreen> {
     await _resolveBoard();
   }
 
+  Future<void> _dragSwap(int a, int b) async {
+    if (_busy || _finished) return;
+    if (a == b || !_adjacent(a, b)) return;
+    if (!_wouldMatch(a, b)) return;
+    setState(() {
+      _busy = true;
+      _selected = null;
+      _swap(a, b);
+      _moves++;
+    });
+    await _resolveBoard();
+  }
+
   bool _adjacent(int a, int b) {
     final int ar = a ~/ cols, ac = a % cols;
     final int br = b ~/ cols, bc = b % cols;
@@ -195,10 +208,10 @@ class _MatchThreeGameScreenState extends ConsumerState<MatchThreeGameScreen> {
           _board[idx] = -1;
         }
       });
-      await Future<void>.delayed(const Duration(milliseconds: 180));
+      await Future<void>.delayed(const Duration(milliseconds: 220));
       if (!mounted) return;
       setState(_collapse);
-      await Future<void>.delayed(const Duration(milliseconds: 140));
+      await Future<void>.delayed(const Duration(milliseconds: 160));
       if (!mounted) return;
     }
 
@@ -298,10 +311,50 @@ class _MatchThreeGameScreenState extends ConsumerState<MatchThreeGameScreen> {
               itemCount: rows * cols,
               itemBuilder: (BuildContext context, int index) {
                 final int v = _board[index];
-                return _Tile(
-                  color: v >= 0 ? _tileColors[v] : Colors.transparent,
-                  selected: _selected == index,
-                  onTap: () => _tap(index),
+                return Draggable<int>(
+                  data: index,
+                  feedback: SizedBox(
+                    width: cell - 4,
+                    height: cell - 4,
+                    child: _Tile(
+                      color: v >= 0 ? _tileColors[v] : Colors.transparent,
+                      selected: true,
+                      onTap: () {},
+                    ),
+                  ),
+                  childWhenDragging: Opacity(
+                    opacity: 0.25,
+                    child: _Tile(
+                      color: v >= 0 ? _tileColors[v] : Colors.transparent,
+                      selected: _selected == index,
+                      onTap: () => _tap(index),
+                    ),
+                  ),
+                  child: DragTarget<int>(
+                    onWillAcceptWithDetails: (DragTargetDetails<int> details) {
+                      return !_busy && !_finished && _adjacent(details.data, index);
+                    },
+                    onAcceptWithDetails: (DragTargetDetails<int> details) {
+                      _dragSwap(details.data, index);
+                    },
+                    builder: (BuildContext context, List<int?> candidateData, List<dynamic> rejectedData) {
+                      final bool over = candidateData.isNotEmpty;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 120),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: over
+                              ? Border.all(color: AppColors.white.withValues(alpha: 0.8), width: 2)
+                              : null,
+                        ),
+                        child: _Tile(
+                          color: v >= 0 ? _tileColors[v] : Colors.transparent,
+                          selected: _selected == index,
+                          onTap: () => _tap(index),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -372,87 +425,125 @@ class _Tile extends StatefulWidget {
   State<_Tile> createState() => _TileState();
 }
 
-class _TileState extends State<_Tile> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+class _TileState extends State<_Tile> with TickerProviderStateMixin {
+  late final AnimationController _pulseController;
   late final Animation<double> _pulse;
+  late final AnimationController _disappearController;
+  late final Animation<double> _scaleOut;
+  late final Animation<double> _opacityOut;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
     _pulse = Tween<double>(begin: 0.96, end: 1.04).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+    _disappearController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+    _scaleOut = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _disappearController, curve: Curves.easeInBack),
+    );
+    _opacityOut = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(parent: _disappearController, curve: Curves.easeIn),
     );
   }
 
   @override
+  void didUpdateWidget(covariant _Tile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.color != Colors.transparent && widget.color == Colors.transparent) {
+      _disappearController.forward(from: 0.0);
+    } else if (widget.color != Colors.transparent) {
+      _disappearController.reset();
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _pulseController.dispose();
+    _disappearController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final bool empty = widget.color == Colors.transparent;
-    final double scale = widget.selected ? 1.12 : 1.0;
+    final double scale = widget.selected ? 1.14 : 1.0;
     return AnimatedPress(
       onPressed: widget.onTap,
-      scaleDown: 0.9,
+      scaleDown: 0.92,
       child: AnimatedBuilder(
-        animation: _pulse,
+        animation: Listenable.merge(<Listenable>[_pulse, _disappearController]),
         builder: (BuildContext context, Widget? child) {
-          final double animScale = empty ? 0.0 : (widget.selected ? scale : _pulse.value * 0.98);
+          if (empty) {
+            return ScaleTransition(
+              scale: _scaleOut,
+              child: FadeTransition(
+                opacity: _opacityOut,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: <Color>[
+                        AppColors.white.withValues(alpha: 0.18),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+          final double animScale = widget.selected ? scale : _pulse.value * 0.98;
           return AnimatedScale(
             scale: animScale,
             duration: const Duration(milliseconds: 160),
             curve: Curves.easeOutBack,
-            child: AnimatedOpacity(
-              opacity: empty ? 0.0 : 1.0,
-              duration: const Duration(milliseconds: 160),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    center: const Alignment(-0.2, -0.3),
-                    colors: <Color>[
-                      widget.color.withValues(alpha: 1.0),
-                      widget.color.withValues(alpha: 0.7),
-                      widget.color.withValues(alpha: 0.5),
-                    ],
-                    stops: const <double>[0.0, 0.6, 1.0],
-                  ),
-                  border: Border.all(
-                    color: widget.selected
-                        ? AppColors.white.withValues(alpha: 0.95)
-                        : widget.color.withValues(alpha: 0.8),
-                    width: widget.selected ? 2.6 : 1.6,
-                  ),
-                  boxShadow: <BoxShadow>[
-                    if (!empty)
-                      BoxShadow(
-                        color: widget.color.withValues(alpha: widget.selected ? 0.9 : 0.5),
-                        blurRadius: widget.selected ? 18 : 10,
-                        spreadRadius: widget.selected ? 1 : 0,
-                      ),
-                    if (widget.selected)
-                      BoxShadow(
-                        color: AppColors.white.withValues(alpha: 0.25),
-                        blurRadius: 22,
-                        spreadRadius: 2,
-                      ),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  center: const Alignment(-0.2, -0.3),
+                  colors: <Color>[
+                    widget.color.withValues(alpha: 1.0),
+                    widget.color.withValues(alpha: 0.75),
+                    widget.color.withValues(alpha: 0.55),
                   ],
+                  stops: const <double>[0.0, 0.6, 1.0],
                 ),
-                child: Center(
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.white.withValues(alpha: 0.25),
+                border: Border.all(
+                  color: widget.selected
+                      ? AppColors.white.withValues(alpha: 0.98)
+                      : widget.color.withValues(alpha: 0.85),
+                  width: widget.selected ? 2.8 : 1.6,
+                ),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: widget.color.withValues(alpha: widget.selected ? 1.0 : 0.6),
+                    blurRadius: widget.selected ? 20 : 12,
+                    spreadRadius: widget.selected ? 1 : 0,
+                  ),
+                  if (widget.selected)
+                    BoxShadow(
+                      color: AppColors.white.withValues(alpha: 0.28),
+                      blurRadius: 24,
+                      spreadRadius: 2,
                     ),
+                ],
+              ),
+              child: Center(
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.white.withValues(alpha: 0.32),
                   ),
                 ),
               ),
