@@ -357,7 +357,7 @@ class _MatchThreeGameScreenState extends ConsumerState<MatchThreeGameScreen> {
   }
 }
 
-class _Tile extends StatelessWidget {
+class _Tile extends StatefulWidget {
   const _Tile({
     required this.color,
     required this.selected,
@@ -369,27 +369,96 @@ class _Tile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_Tile> createState() => _TileState();
+}
+
+class _TileState extends State<_Tile> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
+    _pulse = Tween<double>(begin: 0.96, end: 1.04).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool empty = widget.color == Colors.transparent;
+    final double scale = widget.selected ? 1.12 : 1.0;
     return AnimatedPress(
-      onPressed: onTap,
-      scaleDown: 0.88,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: AppRadius.mdAll,
-          border: Border.all(
-            color: selected ? AppColors.white : color.withValues(alpha: 0.5),
-            width: selected ? 2.5 : 1,
-          ),
-          boxShadow: <BoxShadow>[
-            if (color != Colors.transparent)
-              BoxShadow(
-                color: color.withValues(alpha: selected ? 0.7 : 0.3),
-                blurRadius: selected ? 14 : 6,
+      onPressed: widget.onTap,
+      scaleDown: 0.9,
+      child: AnimatedBuilder(
+        animation: _pulse,
+        builder: (BuildContext context, Widget? child) {
+          final double animScale = empty ? 0.0 : (widget.selected ? scale : _pulse.value * 0.98);
+          return AnimatedScale(
+            scale: animScale,
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOutBack,
+            child: AnimatedOpacity(
+              opacity: empty ? 0.0 : 1.0,
+              duration: const Duration(milliseconds: 160),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    center: const Alignment(-0.2, -0.3),
+                    colors: <Color>[
+                      widget.color.withValues(alpha: 1.0),
+                      widget.color.withValues(alpha: 0.7),
+                      widget.color.withValues(alpha: 0.5),
+                    ],
+                    stops: const <double>[0.0, 0.6, 1.0],
+                  ),
+                  border: Border.all(
+                    color: widget.selected
+                        ? AppColors.white.withValues(alpha: 0.95)
+                        : widget.color.withValues(alpha: 0.8),
+                    width: widget.selected ? 2.6 : 1.6,
+                  ),
+                  boxShadow: <BoxShadow>[
+                    if (!empty)
+                      BoxShadow(
+                        color: widget.color.withValues(alpha: widget.selected ? 0.9 : 0.5),
+                        blurRadius: widget.selected ? 18 : 10,
+                        spreadRadius: widget.selected ? 1 : 0,
+                      ),
+                    if (widget.selected)
+                      BoxShadow(
+                        color: AppColors.white.withValues(alpha: 0.25),
+                        blurRadius: 22,
+                        spreadRadius: 2,
+                      ),
+                  ],
+                ),
+                child: Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.white.withValues(alpha: 0.25),
+                    ),
+                  ),
+                ),
               ),
-          ],
-        ),
+            ),
+          );
+        },
       ),
     );
   }
